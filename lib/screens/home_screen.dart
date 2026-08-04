@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 import '../widgets/placeholder_screen.dart';
+import 'assessment_screen.dart';
 import 'exercise_plan_screen.dart';
 import 'meals_screen.dart';
 
@@ -23,6 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final WidgetBuilder builder = switch (title) {
       'Meal Menus' => (_) => const MealsScreen(),
       'Exercise Plan' => (_) => const ExercisePlanScreen(),
+      'SARC-F Assessment' => (_) => const AssessmentScreen(),
       _ => (_) => PlaceholderScreen(title: title),
     };
     Navigator.of(context).push(MaterialPageRoute(builder: builder));
