@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
-import '../widgets/placeholder_screen.dart';
 import '../widgets/segmented_tabs.dart';
+import 'exercise_video_screen.dart';
 
 /// Screen #6 — Exercise Plan.
 /// Pure UI: featured video, plan type, Exercises/My Plan tabs and a grid of
@@ -24,9 +24,11 @@ class _ExercisePlanScreenState extends State<ExercisePlanScreen> {
     _Exercise('Standing Balance', '6 min', Icons.accessibility_new),
   ];
 
-  void _openVideo(String title) {
+  void _openVideo(String exerciseName) {
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => PlaceholderScreen(title: title)),
+      MaterialPageRoute(
+        builder: (_) => ExerciseVideoScreen(exerciseName: exerciseName),
+      ),
     );
   }
 
