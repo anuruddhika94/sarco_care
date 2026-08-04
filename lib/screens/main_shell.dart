@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
-import '../widgets/placeholder_screen.dart';
 import 'exercise_plan_screen.dart';
 import 'health_tracking_screen.dart';
 import 'home_screen.dart';
+import 'knowledge_screen.dart';
 import 'profile_screen.dart';
 
 /// The main app shell: a persistent bottom navigation bar over a set of tabs.
@@ -20,13 +20,13 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   int _index = 0;
 
-  // One screen per bottom-nav tab. Tab roots hide the back button since there
-  // is no route to pop within a tab. Knowledge is a placeholder for now.
+  // One screen per bottom-nav tab. Tab roots that reuse pushable screens hide
+  // the back button since there is no route to pop within a tab.
   static const List<Widget> _tabs = [
     HomeScreen(),
     ExercisePlanScreen(showBackButton: false),
     HealthTrackingScreen(showBackButton: false),
-    PlaceholderScreen(title: 'Knowledge', showBackButton: false),
+    KnowledgeScreen(),
     ProfileScreen(),
   ];
 
