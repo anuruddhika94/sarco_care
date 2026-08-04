@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 import '../widgets/placeholder_screen.dart';
+import 'meals_screen.dart';
 
 /// Screen #3 — Home / dashboard.
 /// Pure UI: greeting header, Daily Goals checklist, a grid of feature tiles and
@@ -17,9 +18,12 @@ class _HomeScreenState extends State<HomeScreen> {
   int _navIndex = 0;
 
   void _open(String title) {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => PlaceholderScreen(title: title)),
-    );
+    // Built screens route to their real widget; the rest hit a placeholder.
+    final WidgetBuilder builder = switch (title) {
+      'Meal Menus' => (_) => const MealsScreen(),
+      _ => (_) => PlaceholderScreen(title: title),
+    };
+    Navigator.of(context).push(MaterialPageRoute(builder: builder));
   }
 
   @override
