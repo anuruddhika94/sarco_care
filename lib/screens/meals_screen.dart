@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 import '../widgets/placeholder_screen.dart';
+import 'recipe_screen.dart';
 
 /// Screen #4 — Meals.
 /// Pure UI: search header, segmented tabs, suggested meal cards and a
@@ -23,7 +24,15 @@ class _MealsScreenState extends State<MealsScreen> {
     _Meal('Greek Yogurt & Nuts', 'Snack', 'Protein 15g', Icons.icecream),
   ];
 
-  void _openRecipe(String title) {
+  void _openRecipe(String recipeName) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => RecipeScreen(recipeName: recipeName),
+      ),
+    );
+  }
+
+  void _openPlaceholder(String title) {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => PlaceholderScreen(title: title)),
     );
@@ -45,7 +54,7 @@ class _MealsScreenState extends State<MealsScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
-            onPressed: () => _openRecipe('Search'),
+            onPressed: () => _openPlaceholder('Search'),
           ),
         ],
       ),
@@ -88,7 +97,7 @@ class _MealsScreenState extends State<MealsScreen> {
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () => _openRecipe('Recipes'),
+                onPressed: () => _openPlaceholder('Recipes'),
                 child: const Text('View Recipes'),
               ),
             ),
