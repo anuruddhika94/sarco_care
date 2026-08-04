@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
+import 'login_screen.dart';
 
 /// Screen #1 — Splash / welcome screen.
 /// Pure UI: branded logo, tagline, elderly illustration placeholder and a
@@ -49,9 +50,8 @@ class SplashScreen extends StatelessWidget {
   }
 
   void _onGetStarted(BuildContext context) {
-    // Screen #2 (Login) is next — wired to a placeholder until we build it.
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const _NextScreenPlaceholder()),
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
     );
   }
 }
@@ -121,22 +121,6 @@ class _CoupleIllustration extends StatelessWidget {
             style: TextStyle(color: AppColors.textMuted, fontSize: 13),
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// Temporary destination so the "Get Started" navigation works today.
-/// Will be replaced by the real Login screen (#2).
-class _NextScreenPlaceholder extends StatelessWidget {
-  const _NextScreenPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Login (coming next)')),
-      body: const Center(
-        child: Text('Screen #2 goes here'),
       ),
     );
   }
