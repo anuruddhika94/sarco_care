@@ -7,20 +7,13 @@ import 'exercise_plan_screen.dart';
 import 'health_tracking_screen.dart';
 import 'meals_screen.dart';
 
-/// Screen #3 — Home / dashboard.
-/// Pure UI: greeting header, Daily Goals checklist, a grid of feature tiles and
-/// a bottom navigation bar. Tiles/tabs navigate forward to placeholders.
-class HomeScreen extends StatefulWidget {
+/// Screen #3 — Home / dashboard (the Home tab of the app shell).
+/// Pure UI: greeting header, Daily Goals checklist and a grid of feature tiles.
+/// The bottom navigation bar lives in [MainShell]; tiles push full screens.
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  int _navIndex = 0;
-
-  void _open(String title) {
+  void _open(BuildContext context, String title) {
     // Built screens route to their real widget; the rest hit a placeholder.
     final WidgetBuilder builder = switch (title) {
       'Meal Menus' => (_) => const MealsScreen(),
@@ -55,17 +48,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              _FeatureGrid(onTap: _open),
+              _FeatureGrid(onTap: (title) => _open(context, title)),
             ],
           ),
         ),
-      ),
-      bottomNavigationBar: _BottomNav(
-        currentIndex: _navIndex,
-        onTap: (index, label) {
-          setState(() => _navIndex = index);
-          if (index != 0) _open(label);
-        },
       ),
     );
   }
@@ -277,38 +263,6 @@ class _FeatureTile extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _BottomNav extends StatelessWidget {
-  const _BottomNav({required this.currentIndex, required this.onTap});
-  final int currentIndex;
-  final void Function(int index, String label) onTap;
-
-  static const _items = [
-    (Icons.home_rounded, 'Home'),
-    (Icons.fitness_center, 'Exercise'),
-    (Icons.favorite_border, 'Health'),
-    (Icons.menu_book_outlined, 'Knowledge'),
-    (Icons.person_outline, 'Profile'),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      currentIndex: currentIndex,
-      onTap: (i) => onTap(i, _items[i].$2),
-      type: BottomNavigationBarType.fixed,
-      backgroundColor: AppColors.surface,
-      selectedItemColor: AppColors.primary,
-      unselectedItemColor: AppColors.textMuted,
-      selectedFontSize: 12,
-      unselectedFontSize: 12,
-      items: [
-        for (final item in _items)
-          BottomNavigationBarItem(icon: Icon(item.$1), label: item.$2),
-      ],
     );
   }
 }

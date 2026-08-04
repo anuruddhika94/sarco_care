@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
-import 'home_screen.dart';
+import 'main_shell.dart';
 
 /// Screen #2 — Login.
 /// Pure UI: username/phone + password fields, a primary "Log In" action and a
@@ -18,7 +18,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _goToHome() {
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const HomeScreen()),
+      MaterialPageRoute(builder: (_) => const MainShell()),
     );
   }
 
