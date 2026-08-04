@@ -7,7 +7,10 @@ import '../widgets/segmented_tabs.dart';
 /// Screen #10 — Health Tracking.
 /// Pure UI: time-range tabs, a list of body metrics and an Add Data action.
 class HealthTrackingScreen extends StatefulWidget {
-  const HealthTrackingScreen({super.key});
+  const HealthTrackingScreen({super.key, this.showBackButton = true});
+
+  /// False when shown as a shell tab root (no route to pop back to).
+  final bool showBackButton;
 
   @override
   State<HealthTrackingScreen> createState() => _HealthTrackingScreenState();
@@ -40,6 +43,7 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
         backgroundColor: AppColors.background,
         foregroundColor: AppColors.textDark,
         elevation: 0,
+        automaticallyImplyLeading: widget.showBackButton,
         title: const Text(
           'Health Tracking',
           style: TextStyle(fontWeight: FontWeight.w800),

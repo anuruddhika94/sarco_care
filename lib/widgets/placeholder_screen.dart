@@ -5,9 +5,16 @@ import '../theme/app_theme.dart';
 /// Generic "coming soon" destination used while forward screens are unbuilt.
 /// Reused by tiles/nav so we don't hand-roll a placeholder per screen.
 class PlaceholderScreen extends StatelessWidget {
-  const PlaceholderScreen({super.key, required this.title});
+  const PlaceholderScreen({
+    super.key,
+    required this.title,
+    this.showBackButton = true,
+  });
 
   final String title;
+
+  /// False when shown as a shell tab root (no route to pop back to).
+  final bool showBackButton;
 
   @override
   Widget build(BuildContext context) {
@@ -17,6 +24,7 @@ class PlaceholderScreen extends StatelessWidget {
         backgroundColor: AppColors.background,
         foregroundColor: AppColors.textDark,
         elevation: 0,
+        automaticallyImplyLeading: showBackButton,
       ),
       body: Center(
         child: Column(

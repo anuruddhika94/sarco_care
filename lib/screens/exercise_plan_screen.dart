@@ -8,7 +8,10 @@ import 'exercise_video_screen.dart';
 /// Pure UI: featured video, plan type, Exercises/My Plan tabs and a grid of
 /// exercise cards. Cards forward to the Exercise Video placeholder (#7).
 class ExercisePlanScreen extends StatefulWidget {
-  const ExercisePlanScreen({super.key});
+  const ExercisePlanScreen({super.key, this.showBackButton = true});
+
+  /// False when shown as a shell tab root (no route to pop back to).
+  final bool showBackButton;
 
   @override
   State<ExercisePlanScreen> createState() => _ExercisePlanScreenState();
@@ -40,6 +43,7 @@ class _ExercisePlanScreenState extends State<ExercisePlanScreen> {
         backgroundColor: AppColors.background,
         foregroundColor: AppColors.textDark,
         elevation: 0,
+        automaticallyImplyLeading: widget.showBackButton,
         title: const Text(
           'Exercise Plan',
           style: TextStyle(fontWeight: FontWeight.w800),
