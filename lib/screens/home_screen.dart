@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 import '../widgets/placeholder_screen.dart';
+import 'exercise_plan_screen.dart';
 import 'meals_screen.dart';
 
 /// Screen #3 — Home / dashboard.
@@ -21,6 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // Built screens route to their real widget; the rest hit a placeholder.
     final WidgetBuilder builder = switch (title) {
       'Meal Menus' => (_) => const MealsScreen(),
+      'Exercise Plan' => (_) => const ExercisePlanScreen(),
       _ => (_) => PlaceholderScreen(title: title),
     };
     Navigator.of(context).push(MaterialPageRoute(builder: builder));

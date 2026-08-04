@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 import '../widgets/placeholder_screen.dart';
+import '../widgets/segmented_tabs.dart';
 import 'recipe_screen.dart';
 
 /// Screen #4 — Meals.
@@ -62,7 +63,7 @@ class _MealsScreenState extends State<MealsScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
-            child: _SegmentedTabs(
+            child: SegmentedTabs(
               labels: const ['Daily Plan', 'Weekly', 'Search'],
               selected: _tabIndex,
               onChanged: (i) => setState(() => _tabIndex = i),
@@ -181,60 +182,6 @@ class _MealCard extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-/// Pill-style segmented selector used for the meal tabs.
-class _SegmentedTabs extends StatelessWidget {
-  const _SegmentedTabs({
-    required this.labels,
-    required this.selected,
-    required this.onChanged,
-  });
-
-  final List<String> labels;
-  final int selected;
-  final ValueChanged<int> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFEAEFEA)),
-      ),
-      child: Row(
-        children: [
-          for (int i = 0; i < labels.length; i++)
-            Expanded(
-              child: GestureDetector(
-                onTap: () => onChanged(i),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 150),
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  decoration: BoxDecoration(
-                    color: selected == i
-                        ? AppColors.primary
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    labels[i],
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: selected == i ? Colors.white : AppColors.textMuted,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-        ],
       ),
     );
   }
