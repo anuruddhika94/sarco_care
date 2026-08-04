@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
-import '../widgets/placeholder_screen.dart';
+import 'results_screen.dart';
 
 /// Screen #8 — SARC-F Assessment.
 /// Pure UI: a stepped 5-question survey with radio answers, a progress bar and
@@ -49,10 +49,10 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
       setState(() => _index++);
       return;
     }
+    // Total the selected severities (0 = best) as a simple SARC-F-style score.
+    final score = _answers.fold<int>(0, (sum, a) => sum + (a ?? 0));
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => const PlaceholderScreen(title: 'Assessment Results'),
-      ),
+      MaterialPageRoute(builder: (_) => ResultsScreen(score: score)),
     );
   }
 
