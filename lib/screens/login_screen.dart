@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
+import 'home_screen.dart';
 
 /// Screen #2 — Login.
 /// Pure UI: username/phone + password fields, a primary "Log In" action and a
@@ -16,9 +17,8 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
 
   void _goToHome() {
-    // Screen #3 (Home) is next — wired to a placeholder until we build it.
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const _HomePlaceholder()),
+      MaterialPageRoute(builder: (_) => const HomeScreen()),
     );
   }
 
@@ -189,20 +189,6 @@ class _OrDivider extends StatelessWidget {
         ),
         const Expanded(child: Divider(color: Color(0xFFDDE4DD), thickness: 1)),
       ],
-    );
-  }
-}
-
-/// Temporary destination so login navigation works today.
-/// Will be replaced by the real Home screen (#3).
-class _HomePlaceholder extends StatelessWidget {
-  const _HomePlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Home (coming next)')),
-      body: const Center(child: Text('Screen #3 goes here')),
     );
   }
 }
