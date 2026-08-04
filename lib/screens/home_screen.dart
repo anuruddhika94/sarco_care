@@ -4,6 +4,7 @@ import '../theme/app_theme.dart';
 import '../widgets/placeholder_screen.dart';
 import 'assessment_screen.dart';
 import 'exercise_plan_screen.dart';
+import 'health_tracking_screen.dart';
 import 'meals_screen.dart';
 
 /// Screen #3 — Home / dashboard.
@@ -25,6 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
       'Meal Menus' => (_) => const MealsScreen(),
       'Exercise Plan' => (_) => const ExercisePlanScreen(),
       'SARC-F Assessment' => (_) => const AssessmentScreen(),
+      'Health Tracking' => (_) => const HealthTrackingScreen(),
       _ => (_) => PlaceholderScreen(title: title),
     };
     Navigator.of(context).push(MaterialPageRoute(builder: builder));
