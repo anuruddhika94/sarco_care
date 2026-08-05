@@ -22,24 +22,27 @@ class _ExercisePlanScreenState extends State<ExercisePlanScreen> {
 
   // All recommended exercises vs the ones the user added to their plan.
   static const _allExercises = [
-    _Exercise('Seated Leg Lift', '10 min', Icons.airline_seat_recline_normal),
-    _Exercise('Arm Curls', '8 min', Icons.fitness_center),
-    _Exercise('Chair Squats', '12 min', Icons.chair_alt),
-    _Exercise('Standing Balance', '6 min', Icons.accessibility_new),
+    _Exercise('Seated Leg Lift', '10 min', Icons.airline_seat_recline_normal, '2TrhLLjipgE'),
+    _Exercise('Arm Curls', '8 min', Icons.fitness_center, '8I640AY2j-U'),
+    _Exercise('Chair Squats', '12 min', Icons.chair_alt, '_wi9qqg2N7g'),
+    _Exercise('Standing Balance', '6 min', Icons.accessibility_new, '2nuMAKe-Pao'),
   ];
 
   static const _myPlan = [
-    _Exercise('Seated Leg Lift', '10 min', Icons.airline_seat_recline_normal),
-    _Exercise('Chair Squats', '12 min', Icons.chair_alt),
+    _Exercise('Seated Leg Lift', '10 min', Icons.airline_seat_recline_normal, '2TrhLLjipgE'),
+    _Exercise('Chair Squats', '12 min', Icons.chair_alt, '_wi9qqg2N7g'),
   ];
 
   List<_Exercise> get _visibleExercises =>
       _tabIndex == 0 ? _allExercises : _myPlan;
 
-  void _openVideo(String exerciseName) {
+  void _openVideo(String exerciseName, String videoId) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => ExerciseVideoScreen(exerciseName: exerciseName),
+        builder: (_) => ExerciseVideoScreen(
+          exerciseName: exerciseName,
+          videoId: videoId,
+        ),
       ),
     );
   }
@@ -62,7 +65,9 @@ class _ExercisePlanScreenState extends State<ExercisePlanScreen> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
         children: [
-          _FeaturedVideo(onTap: () => _openVideo('Basic Strength Training')),
+          _FeaturedVideo(
+            onTap: () => _openVideo('Basic Strength Training', 'ymawWTDYlYs'),
+          ),
           const SizedBox(height: 16),
           Text(
             'Type: Basic Strength Training',
@@ -91,7 +96,10 @@ class _ExercisePlanScreenState extends State<ExercisePlanScreen> {
                 _ExerciseCard(
                   index: i + 1,
                   exercise: _visibleExercises[i],
-                  onTap: () => _openVideo(_visibleExercises[i].name),
+                  onTap: () => _openVideo(
+                    _visibleExercises[i].name,
+                    _visibleExercises[i].videoId,
+                  ),
                 ),
             ],
           ),
@@ -102,10 +110,11 @@ class _ExercisePlanScreenState extends State<ExercisePlanScreen> {
 }
 
 class _Exercise {
-  const _Exercise(this.name, this.duration, this.icon);
+  const _Exercise(this.name, this.duration, this.icon, this.videoId);
   final String name;
   final String duration;
   final IconData icon;
+  final String videoId;
 }
 
 /// Large featured video card with a play overlay.

@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 import '../theme/app_theme.dart';
 import 'my_plan_screen.dart';
 
 /// Screen #7 — Exercise Video.
-/// Pure UI: video player, duration, step instructions and Start/Complete +
-/// My Plan actions. Start toggles to Complete, which confirms and returns.
+/// Plays the exercise's YouTube video, with duration, step instructions and
+/// Start/Complete + My Plan actions. Start toggles to Complete, then returns.
 class ExerciseVideoScreen extends StatefulWidget {
-  const ExerciseVideoScreen({super.key, required this.exerciseName});
+  const ExerciseVideoScreen({
+    super.key,
+    required this.exerciseName,
+    required this.videoId,
+  });
 
   final String exerciseName;
+  final String videoId;
 
   @override
   State<ExerciseVideoScreen> createState() => _ExerciseVideoScreenState();
@@ -17,6 +23,7 @@ class ExerciseVideoScreen extends StatefulWidget {
 
 class _ExerciseVideoScreenState extends State<ExerciseVideoScreen> {
   bool _started = false;
+  late final YoutubePlayerController _controller;
 
   static const _instructions = [
     'Perform 10–15 reps per set',
@@ -24,6 +31,22 @@ class _ExerciseVideoScreenState extends State<ExerciseVideoScreen> {
     'Sit tall and move slowly and steadily',
     'Follow the clear step-by-step video',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = YoutubePlayerController.fromVideoId(
+      videoId: widget.videoId,
+      autoPlay: false,
+      params: const YoutubePlayerParams(showFullscreenButton: true),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.close();
+    super.dispose();
+  }
 
   void _onPrimary() {
     if (!_started) {
@@ -64,17 +87,12 @@ class _ExerciseVideoScreenState extends State<ExerciseVideoScreen> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
         children: [
-          const _VideoPlayer(),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Icon(Icons.schedule, size: 18, color: AppColors.textMuted),
-              const SizedBox(width: 6),
-              Text(
-                'Video duration: 10 min',
-                style: TextStyle(fontSize: 15, color: AppColors.textMuted),
-              ),
-            ],
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: YoutubePlayer(
+              controller: _controller,
+              aspectRatio: 16 / 9,
+            ),
           ),
           const SizedBox(height: 24),
           Text(
@@ -113,70 +131,6 @@ class _ExerciseVideoScreenState extends State<ExerciseVideoScreen> {
                 ),
               ),
               child: const Text('My Plan'),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Video surface placeholder with a play button and a mock progress bar.
-class _VideoPlayer extends StatelessWidget {
-  const _VideoPlayer();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 210,
-      decoration: BoxDecoration(
-        color: const Color(0xFF2B3A2F),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Container(
-            width: 64,
-            height: 64,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.9),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.play_arrow_rounded,
-              size: 40,
-              color: AppColors.primary,
-            ),
-          ),
-          Positioned(
-            left: 16,
-            right: 16,
-            bottom: 16,
-            child: Row(
-              children: [
-                const Text(
-                  '0:05',
-                  style: TextStyle(color: Colors.white, fontSize: 12),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
-                    child: LinearProgressIndicator(
-                      value: 0.1,
-                      minHeight: 4,
-                      backgroundColor: Colors.white24,
-                      valueColor: const AlwaysStoppedAnimation(Colors.white),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                const Text(
-                  '10:00',
-                  style: TextStyle(color: Colors.white, fontSize: 12),
-                ),
-              ],
             ),
           ),
         ],
