@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
+import '../widgets/segmented_tabs.dart';
+import 'caretaker_home_screen.dart';
 import 'main_shell.dart';
 
 /// Screen #2 — Login.
-/// Pure UI: username/phone + password fields, a primary "Log In" action and a
-/// senior/guest entry. No auth logic; both actions move forward to Home.
+/// Pure UI: a Patient/Caretaker role picker, username/phone + password fields,
+/// a primary "Log In" action and a patient-only guest entry. No auth logic;
+/// login routes to the patient app shell or the caretaker home by role.
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -15,11 +18,15 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
+  int _role = 0; // 0 = Patient, 1 = Caretaker
 
-  void _goToHome() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const MainShell()),
-    );
+  bool get _isPatient => _role == 0;
+
+  void _login() {
+    final WidgetBuilder builder = _isPatient
+        ? (_) => const MainShell()
+        : (_) => const CaretakerHomeScreen();
+    Navigator.of(context).push(MaterialPageRoute(builder: builder));
   }
 
   @override
@@ -34,7 +41,13 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               const SizedBox(height: 24),
               const _Header(),
-              const SizedBox(height: 40),
+              const SizedBox(height: 32),
+              SegmentedTabs(
+                labels: const ['Patient', 'Caretaker'],
+                selected: _role,
+                onChanged: (i) => setState(() => _role = i),
+              ),
+              const SizedBox(height: 32),
               const _FieldLabel('Username / Phone number'),
               const SizedBox(height: 8),
               TextField(
@@ -62,28 +75,34 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 32),
               ElevatedButton(
-                onPressed: _goToHome,
+                onPressed: _login,
                 child: const Text('Log In'),
               ),
-              const SizedBox(height: 24),
-              const _OrDivider(),
-              const SizedBox(height: 24),
-              OutlinedButton(
-                onPressed: _goToHome,
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.primary,
-                  minimumSize: const Size.fromHeight(56),
-                  side: const BorderSide(color: AppColors.primary, width: 1.5),
-                  textStyle: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
+              // Guest access is a patient-only path; caretakers must sign in.
+              if (_isPatient) ...[
+                const SizedBox(height: 24),
+                const _OrDivider(),
+                const SizedBox(height: 24),
+                OutlinedButton(
+                  onPressed: _login,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    minimumSize: const Size.fromHeight(56),
+                    side: const BorderSide(
+                      color: AppColors.primary,
+                      width: 1.5,
+                    ),
+                    textStyle: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  child: const Text('For Seniors / Guest Use'),
                 ),
-                child: const Text('For Seniors / Guest Use'),
-              ),
+              ],
               const SizedBox(height: 24),
             ],
           ),
