@@ -57,11 +57,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 onChanged: (i) => setState(() => _role = i),
               ),
               const SizedBox(height: 32),
-              const AuthFieldLabel('Username / Phone number'),
+              const AuthFieldLabel('Phone number'),
               const SizedBox(height: 8),
               TextField(
-                keyboardType: TextInputType.text,
-                decoration: authFieldDecoration('Enter username or phone'),
+                keyboardType: TextInputType.phone,
+                decoration: authFieldDecoration('Enter phone number'),
               ),
               const SizedBox(height: 20),
               const AuthFieldLabel('Password'),
@@ -87,31 +87,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 onPressed: _login,
                 child: const Text('Log In'),
               ),
-              // Guest access is a patient-only path; caretakers must sign in.
-              if (_isPatient) ...[
-                const SizedBox(height: 24),
-                const _OrDivider(),
-                const SizedBox(height: 24),
-                OutlinedButton(
-                  onPressed: _login,
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.primary,
-                    minimumSize: const Size.fromHeight(56),
-                    side: const BorderSide(
-                      color: AppColors.primary,
-                      width: 1.5,
-                    ),
-                    textStyle: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text('For Seniors / Guest Use'),
-                ),
-              ],
               const SizedBox(height: 28),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -177,27 +152,6 @@ class _Header extends StatelessWidget {
             const Icon(Icons.eco, color: AppColors.primary, size: 18),
           ],
         ),
-      ],
-    );
-  }
-}
-
-class _OrDivider extends StatelessWidget {
-  const _OrDivider();
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const Expanded(child: Divider(color: Color(0xFFDDE4DD), thickness: 1)),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: Text(
-            'Or',
-            style: TextStyle(color: AppColors.textMuted, fontSize: 15),
-          ),
-        ),
-        const Expanded(child: Divider(color: Color(0xFFDDE4DD), thickness: 1)),
       ],
     );
   }
