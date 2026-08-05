@@ -2,7 +2,7 @@ name: Deploy Flutter web to GitHub Pages
 
 on:
   push:
-    branches: [feature/add-data]
+    branches: [develop]
   workflow_dispatch:
 
 # Permissions the deploy-pages action needs.
