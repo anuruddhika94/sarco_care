@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
-import '../widgets/placeholder_screen.dart';
 import '../widgets/segmented_tabs.dart';
+import 'article_detail_screen.dart';
 
 /// Knowledge tab (#12) — educational articles with category filters.
 /// Pure UI: category tabs and a list of article rows opening placeholders.
@@ -27,7 +27,7 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
 
   void _openArticle(String title) {
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => PlaceholderScreen(title: title)),
+      MaterialPageRoute(builder: (_) => ArticleDetailScreen(title: title)),
     );
   }
 
