@@ -66,6 +66,7 @@ class _ExercisePlanScreenState extends State<ExercisePlanScreen> {
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
         children: [
           _FeaturedVideo(
+            videoId: 'ymawWTDYlYs',
             onTap: () => _openVideo('Basic Strength Training', 'ymawWTDYlYs'),
           ),
           const SizedBox(height: 16),
@@ -117,36 +118,78 @@ class _Exercise {
   final String videoId;
 }
 
-/// Large featured video card with a play overlay.
+/// Large featured video card showing the YouTube thumbnail with a play overlay.
 class _FeaturedVideo extends StatelessWidget {
-  const _FeaturedVideo({required this.onTap});
+  const _FeaturedVideo({required this.videoId, required this.onTap});
+  final String videoId;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: SizedBox(
         height: 190,
-        decoration: BoxDecoration(
-          color: AppColors.softGreen,
-          borderRadius: BorderRadius.circular(20),
+        width: double.infinity,
+        child: _Thumb(
+          videoId: videoId,
+          fallbackIcon: Icons.fitness_center,
+          radius: 20,
+          playSize: 60,
         ),
-        child: Center(
-          child: Container(
-            width: 60,
-            height: 60,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.9),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.play_arrow_rounded,
-              size: 38,
-              color: AppColors.primary,
+      ),
+    );
+  }
+}
+
+/// YouTube thumbnail with a play overlay; falls back to an icon if it fails.
+class _Thumb extends StatelessWidget {
+  const _Thumb({
+    required this.videoId,
+    required this.fallbackIcon,
+    required this.radius,
+    this.playSize = 48,
+  });
+
+  final String videoId;
+  final IconData fallbackIcon;
+  final double radius;
+  final double playSize;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(radius),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.network(
+            'https://img.youtube.com/vi/$videoId/hqdefault.jpg',
+            fit: BoxFit.cover,
+            errorBuilder: (_, _, _) => Container(
+              color: AppColors.softGreen,
+              alignment: Alignment.center,
+              child: Icon(fallbackIcon, size: 40, color: AppColors.primary),
             ),
           ),
-        ),
+          // Subtle scrim so the play button reads on any thumbnail.
+          Container(color: Colors.black.withValues(alpha: 0.12)),
+          Center(
+            child: Container(
+              width: playSize,
+              height: playSize,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.9),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.play_arrow_rounded,
+                size: playSize * 0.62,
+                color: AppColors.primary,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -180,20 +223,16 @@ class _ExerciseCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Thumbnail placeholder with a number badge.
+              // YouTube thumbnail with a number badge.
               Expanded(
                 child: Stack(
                   children: [
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: AppColors.softGreen,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        exercise.icon,
-                        size: 40,
-                        color: AppColors.primary,
+                    Positioned.fill(
+                      child: _Thumb(
+                        videoId: exercise.videoId,
+                        fallbackIcon: exercise.icon,
+                        radius: 12,
+                        playSize: 40,
                       ),
                     ),
                     Positioned(
