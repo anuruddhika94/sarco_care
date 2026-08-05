@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
-import '../widgets/placeholder_screen.dart';
+import 'my_plan_screen.dart';
 
 /// Screen #7 — Exercise Video.
 /// Pure UI: video player, duration, step instructions and Start/Complete +
@@ -43,7 +43,7 @@ class _ExerciseVideoScreenState extends State<ExerciseVideoScreen> {
 
   void _openMyPlan() {
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const PlaceholderScreen(title: 'My Plan')),
+      MaterialPageRoute(builder: (_) => const MyPlanScreen()),
     );
   }
 

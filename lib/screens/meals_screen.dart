@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
-import '../widgets/placeholder_screen.dart';
 import '../widgets/segmented_tabs.dart';
+import 'meal_search_screen.dart';
 import 'recipe_screen.dart';
 
 /// Screen #4 — Meals.
 /// Pure UI: search header, segmented tabs, suggested meal cards and a
-/// "View Recipes" action. Cards forward to the Recipe detail placeholder (#5).
+/// "View Recipes" action. Cards open the Recipe detail; search opens Meal Search.
 class MealsScreen extends StatefulWidget {
   const MealsScreen({super.key});
 
@@ -33,9 +33,9 @@ class _MealsScreenState extends State<MealsScreen> {
     );
   }
 
-  void _openPlaceholder(String title) {
+  void _openSearch() {
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => PlaceholderScreen(title: title)),
+      MaterialPageRoute(builder: (_) => const MealSearchScreen()),
     );
   }
 
@@ -55,7 +55,7 @@ class _MealsScreenState extends State<MealsScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
-            onPressed: () => _openPlaceholder('Search'),
+            onPressed: _openSearch,
           ),
         ],
       ),
@@ -98,7 +98,7 @@ class _MealsScreenState extends State<MealsScreen> {
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () => _openPlaceholder('Recipes'),
+                onPressed: _openSearch,
                 child: const Text('View Recipes'),
               ),
             ),

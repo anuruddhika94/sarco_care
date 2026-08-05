@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
-import '../widgets/placeholder_screen.dart';
 import '../widgets/segmented_tabs.dart';
+import 'add_data_screen.dart';
 
 /// Screen #10 — Health Tracking.
 /// Pure UI: time-range tabs, a list of body metrics and an Add Data action.
@@ -29,9 +29,7 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
 
   void _addData() {
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => const PlaceholderScreen(title: 'Add Data'),
-      ),
+      MaterialPageRoute(builder: (_) => const AddDataScreen()),
     );
   }
 
