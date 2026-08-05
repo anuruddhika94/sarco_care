@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../widgets/placeholder_screen.dart';
 import 'assessment_screen.dart';
+import 'caretaker_approval_screen.dart';
 import 'exercise_plan_screen.dart';
 import 'health_tracking_screen.dart';
 import 'meals_screen.dart';
@@ -44,6 +45,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
+              const _CaretakerRequestBanner(),
               const SizedBox(height: 24),
               const _DailyGoalsCard(),
               const SizedBox(height: 24),
@@ -129,6 +131,90 @@ class _GreetingHeader extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Pending caretaker link request shown to the patient. Tapping it opens the
+/// approval screen; once approved or declined the banner dismisses itself.
+class _CaretakerRequestBanner extends StatefulWidget {
+  const _CaretakerRequestBanner();
+
+  @override
+  State<_CaretakerRequestBanner> createState() =>
+      _CaretakerRequestBannerState();
+}
+
+class _CaretakerRequestBannerState extends State<_CaretakerRequestBanner> {
+  static const _caretakerName = 'Malee Jai-Dee';
+  bool _visible = true;
+
+  Future<void> _review() async {
+    final approved = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) =>
+            const CaretakerApprovalScreen(caretakerName: _caretakerName),
+      ),
+    );
+    if (approved == null || !mounted) return;
+    setState(() => _visible = false);
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(
+            approved
+                ? '$_caretakerName is now your caretaker'
+                : 'Request declined',
+          ),
+          backgroundColor: AppColors.primary,
+        ),
+      );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_visible) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: Material(
+        color: AppColors.softGreen,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: _review,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Row(
+              children: [
+                Icon(Icons.person_add_alt, color: AppColors.primary),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '$_caretakerName wants to be your caretaker',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textDark,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Tap to review',
+                        style: TextStyle(fontSize: 13, color: AppColors.textMuted),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_right, color: AppColors.primary),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

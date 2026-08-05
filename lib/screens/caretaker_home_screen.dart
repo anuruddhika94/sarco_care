@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
-import '../widgets/placeholder_screen.dart';
+import 'add_patient_screen.dart';
 import 'assessment_screen.dart';
 import 'exercise_plan_screen.dart';
 import 'health_tracking_screen.dart';
@@ -149,7 +149,7 @@ class _CaretakerHomeScreenState extends State<CaretakerHomeScreen> {
             child: OutlinedButton.icon(
               onPressed: () => _open(
                 'Add Patient',
-                (_) => const PlaceholderScreen(title: 'Add Patient'),
+                (_) => const AddPatientScreen(),
               ),
               icon: const Icon(Icons.person_add_alt),
               label: const Text('Add Patient'),
