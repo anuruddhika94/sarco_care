@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 import '../widgets/placeholder_screen.dart';
+import 'caretaker_screen.dart';
+import 'personal_info_screen.dart';
+import 'setup_app_screen.dart';
 
 /// Profile tab — user summary, settings entries and Log Out.
 /// Pure UI: rows open placeholders; Log Out returns to the app entry (Splash).
@@ -15,9 +18,13 @@ class ProfileScreen extends StatelessWidget {
   ];
 
   void _open(BuildContext context, String title) {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => PlaceholderScreen(title: title)),
-    );
+    final WidgetBuilder builder = switch (title) {
+      'Personal Info' => (_) => const PersonalInfoScreen(),
+      'Caretaker' => (_) => const CaretakerScreen(),
+      'Setup App' => (_) => const SetupAppScreen(),
+      _ => (_) => PlaceholderScreen(title: title),
+    };
+    Navigator.of(context).push(MaterialPageRoute(builder: builder));
   }
 
   void _logOut(BuildContext context) {
