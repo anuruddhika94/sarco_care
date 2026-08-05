@@ -18,12 +18,30 @@ class MealsScreen extends StatefulWidget {
 class _MealsScreenState extends State<MealsScreen> {
   int _tabIndex = 0;
 
-  static const _meals = [
+  static const _tabs = ['Daily', 'Weekly'];
+
+  static const _dailyMeals = [
     _Meal('Soft-boiled Eggs & Toast', 'Breakfast', 'Protein 20g', Icons.egg_alt),
     _Meal('Grilled Chicken Salad', 'Lunch', 'Protein 32g', Icons.rice_bowl),
     _Meal('Salmon with Vegetables', 'Dinner', 'Protein 28g', Icons.set_meal),
     _Meal('Greek Yogurt & Nuts', 'Snack', 'Protein 15g', Icons.icecream),
   ];
+
+  static const _weeklyMeals = [
+    _Meal('Oatmeal & Berries', 'Mon', 'Protein 18g', Icons.breakfast_dining),
+    _Meal('Tuna Sandwich', 'Tue', 'Protein 26g', Icons.lunch_dining),
+    _Meal('Tofu Stir-fry', 'Wed', 'Protein 22g', Icons.ramen_dining),
+    _Meal('Beef & Broccoli', 'Thu', 'Protein 30g', Icons.dinner_dining),
+    _Meal('Lentil Soup', 'Fri', 'Protein 18g', Icons.soup_kitchen),
+    _Meal('Chicken & Rice', 'Sat', 'Protein 28g', Icons.rice_bowl),
+    _Meal('Egg Fried Rice', 'Sun', 'Protein 20g', Icons.egg),
+  ];
+
+  List<_Meal> get _visibleMeals =>
+      _tabIndex == 0 ? _dailyMeals : _weeklyMeals;
+
+  String get _sectionTitle =>
+      _tabIndex == 0 ? 'Suggested Meals for Today' : "This Week's Plan";
 
   void _openRecipe(String recipeName) {
     Navigator.of(context).push(
@@ -64,7 +82,7 @@ class _MealsScreenState extends State<MealsScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
             child: SegmentedTabs(
-              labels: const ['Daily Plan', 'Weekly', 'Search'],
+              labels: _tabs,
               selected: _tabIndex,
               onChanged: (i) => setState(() => _tabIndex = i),
             ),
@@ -74,7 +92,7 @@ class _MealsScreenState extends State<MealsScreen> {
               padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
               children: [
                 Text(
-                  'Suggested Meals for Today',
+                  _sectionTitle,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
@@ -82,7 +100,7 @@ class _MealsScreenState extends State<MealsScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                for (final meal in _meals)
+                for (final meal in _visibleMeals)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 14),
                     child: _MealCard(

@@ -20,12 +20,21 @@ class ExercisePlanScreen extends StatefulWidget {
 class _ExercisePlanScreenState extends State<ExercisePlanScreen> {
   int _tabIndex = 0;
 
-  static const _exercises = [
+  // All recommended exercises vs the ones the user added to their plan.
+  static const _allExercises = [
     _Exercise('Seated Leg Lift', '10 min', Icons.airline_seat_recline_normal),
     _Exercise('Arm Curls', '8 min', Icons.fitness_center),
     _Exercise('Chair Squats', '12 min', Icons.chair_alt),
     _Exercise('Standing Balance', '6 min', Icons.accessibility_new),
   ];
+
+  static const _myPlan = [
+    _Exercise('Seated Leg Lift', '10 min', Icons.airline_seat_recline_normal),
+    _Exercise('Chair Squats', '12 min', Icons.chair_alt),
+  ];
+
+  List<_Exercise> get _visibleExercises =>
+      _tabIndex == 0 ? _allExercises : _myPlan;
 
   void _openVideo(String exerciseName) {
     Navigator.of(context).push(
@@ -78,11 +87,11 @@ class _ExercisePlanScreenState extends State<ExercisePlanScreen> {
             crossAxisSpacing: 16,
             childAspectRatio: 0.82,
             children: [
-              for (int i = 0; i < _exercises.length; i++)
+              for (int i = 0; i < _visibleExercises.length; i++)
                 _ExerciseCard(
                   index: i + 1,
-                  exercise: _exercises[i],
-                  onTap: () => _openVideo(_exercises[i].name),
+                  exercise: _visibleExercises[i],
+                  onTap: () => _openVideo(_visibleExercises[i].name),
                 ),
             ],
           ),

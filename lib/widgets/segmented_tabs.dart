@@ -30,6 +30,7 @@ class SegmentedTabs extends StatelessWidget {
           for (int i = 0; i < labels.length; i++)
             Expanded(
               child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
                 onTap: () => onChanged(i),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 150),

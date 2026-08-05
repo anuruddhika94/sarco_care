@@ -16,14 +16,23 @@ class KnowledgeScreen extends StatefulWidget {
 class _KnowledgeScreenState extends State<KnowledgeScreen> {
   int _tabIndex = 0;
 
+  static const _tabs = ['All', 'Food', 'Exercise', 'Prevention'];
+
+  // Each article's category maps to a tab; 'General' shows only under "All".
   static const _articles = [
-    _Article('Overview', 'A quick introduction to muscle health', Icons.menu_book_outlined),
-    _Article('What is Sarcopenia?', 'Understanding age-related muscle loss', Icons.help_outline),
-    _Article('Causes and Risk Factors', 'What raises your risk', Icons.report_outlined),
-    _Article('Exercise Guide', 'Safe movements to stay strong', Icons.fitness_center),
-    _Article('Nutrition', 'Eating well for your muscles', Icons.restaurant_menu),
-    _Article('Prevention', 'Daily habits that protect you', Icons.shield_outlined),
+    _Article('Overview', 'A quick introduction to muscle health', Icons.menu_book_outlined, 'General'),
+    _Article('What is Sarcopenia?', 'Understanding age-related muscle loss', Icons.help_outline, 'General'),
+    _Article('Causes and Risk Factors', 'What raises your risk', Icons.report_outlined, 'Prevention'),
+    _Article('Exercise Guide', 'Safe movements to stay strong', Icons.fitness_center, 'Exercise'),
+    _Article('Nutrition', 'Eating well for your muscles', Icons.restaurant_menu, 'Food'),
+    _Article('Prevention', 'Daily habits that protect you', Icons.shield_outlined, 'Prevention'),
   ];
+
+  List<_Article> get _visibleArticles {
+    final tab = _tabs[_tabIndex];
+    if (tab == 'All') return _articles;
+    return _articles.where((a) => a.category == tab).toList();
+  }
 
   void _openArticle(String title) {
     Navigator.of(context).push(
@@ -51,7 +60,7 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
             child: SegmentedTabs(
-              labels: const ['All', 'Food', 'Exercise', 'Prevention'],
+              labels: _tabs,
               selected: _tabIndex,
               onChanged: (i) => setState(() => _tabIndex = i),
             ),
@@ -60,7 +69,7 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
             child: ListView(
               padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
               children: [
-                for (final a in _articles)
+                for (final a in _visibleArticles)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 12),
                     child: _ArticleRow(
@@ -78,10 +87,11 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
 }
 
 class _Article {
-  const _Article(this.title, this.summary, this.icon);
+  const _Article(this.title, this.summary, this.icon, this.category);
   final String title;
   final String summary;
   final IconData icon;
+  final String category;
 }
 
 class _ArticleRow extends StatelessWidget {

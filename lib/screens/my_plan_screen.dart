@@ -16,16 +16,33 @@ class MyPlanScreen extends StatefulWidget {
 class _MyPlanScreenState extends State<MyPlanScreen> {
   int _tabIndex = 0;
 
-  static const _entries = [
+  static const _today = [
     _LogEntry('Seated Leg Lift', '10 min', true),
     _LogEntry('Arm Curls', '8 min', true),
     _LogEntry('Chair Squats', '12 min', false),
     _LogEntry('Standing Balance', '6 min', false),
   ];
 
+  static const _thisWeek = [
+    _LogEntry('Seated Leg Lift', '50 min', true),
+    _LogEntry('Arm Curls', '40 min', true),
+    _LogEntry('Chair Squats', '36 min', true),
+    _LogEntry('Standing Balance', '18 min', false),
+  ];
+
+  static const _thisMonth = [
+    _LogEntry('Seated Leg Lift', '3h 20m', true),
+    _LogEntry('Arm Curls', '2h 40m', true),
+    _LogEntry('Chair Squats', '2h 24m', true),
+    _LogEntry('Standing Balance', '1h 12m', true),
+  ];
+
+  List<_LogEntry> get _entries => [_today, _thisWeek, _thisMonth][_tabIndex];
+
   @override
   Widget build(BuildContext context) {
-    final done = _entries.where((e) => e.done).length;
+    final entries = _entries;
+    final done = entries.where((e) => e.done).length;
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -52,9 +69,9 @@ class _MyPlanScreenState extends State<MyPlanScreen> {
             child: ListView(
               padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
               children: [
-                _SummaryCard(done: done, total: _entries.length),
+                _SummaryCard(done: done, total: entries.length),
                 const SizedBox(height: 16),
-                for (final e in _entries)
+                for (final e in entries)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 12),
                     child: _LogRow(entry: e),

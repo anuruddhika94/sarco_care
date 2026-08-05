@@ -19,13 +19,35 @@ class HealthTrackingScreen extends StatefulWidget {
 class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
   int _tabIndex = 0;
 
-  static const _metrics = [
+  static const _tabs = ['Daily', 'Weekly', 'Monthly'];
+
+  // Latest reading vs weekly/monthly averages.
+  static const _daily = [
     _Metric('Weight', '55.0', 'kg', Icons.monitor_weight_outlined),
     _Metric('Height', '160', 'cm', Icons.height),
     _Metric('BMI', '21.5', '', Icons.calculate_outlined, badge: 'Normal'),
     _Metric('Calf Circumference', '34.0', 'cm', Icons.straighten),
     _Metric('Handgrip', '18.0', 'kg', Icons.back_hand_outlined),
   ];
+
+  static const _weekly = [
+    _Metric('Weight', '55.3', 'kg', Icons.monitor_weight_outlined),
+    _Metric('Height', '160', 'cm', Icons.height),
+    _Metric('BMI', '21.6', '', Icons.calculate_outlined, badge: 'Normal'),
+    _Metric('Calf Circumference', '33.8', 'cm', Icons.straighten),
+    _Metric('Handgrip', '17.8', 'kg', Icons.back_hand_outlined),
+  ];
+
+  static const _monthly = [
+    _Metric('Weight', '55.8', 'kg', Icons.monitor_weight_outlined),
+    _Metric('Height', '160', 'cm', Icons.height),
+    _Metric('BMI', '21.8', '', Icons.calculate_outlined, badge: 'Normal'),
+    _Metric('Calf Circumference', '33.5', 'cm', Icons.straighten),
+    _Metric('Handgrip', '17.5', 'kg', Icons.back_hand_outlined),
+  ];
+
+  List<_Metric> get _visibleMetrics =>
+      [_daily, _weekly, _monthly][_tabIndex];
 
   void _addData() {
     Navigator.of(context).push(
@@ -53,7 +75,7 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
             child: SegmentedTabs(
-              labels: const ['Daily', 'Months', 'Monthly'],
+              labels: _tabs,
               selected: _tabIndex,
               onChanged: (i) => setState(() => _tabIndex = i),
             ),
@@ -62,7 +84,7 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
             child: ListView(
               padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
               children: [
-                for (final m in _metrics)
+                for (final m in _visibleMetrics)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 12),
                     child: _MetricRow(metric: m),
