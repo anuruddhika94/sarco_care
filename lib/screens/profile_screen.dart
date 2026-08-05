@@ -5,6 +5,7 @@ import '../widgets/placeholder_screen.dart';
 import 'caretaker_screen.dart';
 import 'personal_info_screen.dart';
 import 'setup_app_screen.dart';
+import 'usage_summary_screen.dart';
 
 /// Profile tab — user summary, settings entries and Log Out.
 /// Pure UI: rows open placeholders; Log Out returns to the app entry (Splash).
@@ -13,6 +14,7 @@ class ProfileScreen extends StatelessWidget {
 
   static const _entries = [
     (Icons.person_outline, 'Personal Info'),
+    (Icons.insights_outlined, 'Usage Summary'),
     (Icons.people_alt_outlined, 'Caretaker'),
     (Icons.settings_outlined, 'Setup App'),
   ];
@@ -20,6 +22,7 @@ class ProfileScreen extends StatelessWidget {
   void _open(BuildContext context, String title) {
     final WidgetBuilder builder = switch (title) {
       'Personal Info' => (_) => const PersonalInfoScreen(),
+      'Usage Summary' => (_) => const UsageSummaryScreen(),
       'Caretaker' => (_) => const CaretakerScreen(),
       'Setup App' => (_) => const SetupAppScreen(),
       _ => (_) => PlaceholderScreen(title: title),
