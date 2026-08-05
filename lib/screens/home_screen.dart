@@ -6,6 +6,7 @@ import 'assessment_screen.dart';
 import 'exercise_plan_screen.dart';
 import 'health_tracking_screen.dart';
 import 'meals_screen.dart';
+import 'notifications_screen.dart';
 
 /// Screen #3 — Home / dashboard (the Home tab of the app shell).
 /// Pure UI: greeting header, Daily Goals checklist and a grid of feature tiles.
@@ -35,7 +36,14 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const _GreetingHeader(name: 'Somchai'),
+              _GreetingHeader(
+                name: 'Somchai',
+                onBellTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const NotificationsScreen(),
+                  ),
+                ),
+              ),
               const SizedBox(height: 24),
               const _DailyGoalsCard(),
               const SizedBox(height: 24),
@@ -58,8 +66,9 @@ class HomeScreen extends StatelessWidget {
 }
 
 class _GreetingHeader extends StatelessWidget {
-  const _GreetingHeader({required this.name});
+  const _GreetingHeader({required this.name, required this.onBellTap});
   final String name;
+  final VoidCallback onBellTap;
 
   @override
   Widget build(BuildContext context) {
@@ -86,35 +95,38 @@ class _GreetingHeader extends StatelessWidget {
           ),
         ),
         // Notification bell with an unread dot.
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: const Color(0xFFE4EAE4)),
-              ),
-              child: Icon(
-                Icons.notifications_none_rounded,
-                color: AppColors.textDark,
-              ),
-            ),
-            Positioned(
-              right: 12,
-              top: 12,
-              child: Container(
-                width: 9,
-                height: 9,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFE05B4B),
-                  shape: BoxShape.circle,
+        GestureDetector(
+          onTap: onBellTap,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: const Color(0xFFE4EAE4)),
+                ),
+                child: Icon(
+                  Icons.notifications_none_rounded,
+                  color: AppColors.textDark,
                 ),
               ),
-            ),
-          ],
+              Positioned(
+                right: 12,
+                top: 12,
+                child: Container(
+                  width: 9,
+                  height: 9,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFE05B4B),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
