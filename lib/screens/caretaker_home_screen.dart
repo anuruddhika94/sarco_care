@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
+import '../widgets/app_avatar.dart';
 import 'add_patient_screen.dart';
 import 'assessment_screen.dart';
 import 'exercise_plan_screen.dart';
@@ -19,9 +20,9 @@ class CaretakerHomeScreen extends StatefulWidget {
 
 class _CaretakerHomeScreenState extends State<CaretakerHomeScreen> {
   static const _patients = [
-    _Patient('Somchai Jai-Dee', 72, 'Moderate'),
-    _Patient('Wanida Suksawat', 68, 'Low'),
-    _Patient('Prasert Chaiyo', 75, 'High'),
+    _Patient('Somchai Jai-Dee', 72, 'Moderate', 'assets/images/avatars/somchai.png'),
+    _Patient('Wanida Suksawat', 68, 'Low', null),
+    _Patient('Prasert Chaiyo', 75, 'High', null),
   ];
 
   int _selected = 0;
@@ -174,10 +175,11 @@ class _CaretakerHomeScreenState extends State<CaretakerHomeScreen> {
 }
 
 class _Patient {
-  const _Patient(this.name, this.age, this.risk);
+  const _Patient(this.name, this.age, this.risk, this.image);
   final String name;
   final int age;
   final String risk;
+  final String? image;
 }
 
 /// The current-patient card that opens the switcher sheet.
@@ -202,14 +204,10 @@ class _PatientSwitcher extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Container(
-                width: 56,
-                height: 56,
-                decoration: const BoxDecoration(
-                  color: AppColors.softGreen,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.elderly, color: AppColors.primary, size: 30),
+              AppAvatar(
+                asset: patient.image,
+                fallbackIcon: Icons.elderly,
+                size: 56,
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -280,9 +278,10 @@ class _PatientPicker extends StatelessWidget {
             for (int i = 0; i < patients.length; i++)
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: CircleAvatar(
-                  backgroundColor: AppColors.softGreen,
-                  child: Icon(Icons.elderly, color: AppColors.primary),
+                leading: AppAvatar(
+                  asset: patients[i].image,
+                  fallbackIcon: Icons.elderly,
+                  size: 44,
                 ),
                 title: Text(
                   patients[i].name,

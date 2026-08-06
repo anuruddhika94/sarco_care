@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
+import '../widgets/app_avatar.dart';
 
 /// Caretaker — the linked caregiver account opened from Profile.
 /// Pure UI: a linked caretaker card and an Add Caretaker action.
@@ -94,14 +95,10 @@ class _CaretakerCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Container(
-            width: 56,
-            height: 56,
-            decoration: const BoxDecoration(
-              color: AppColors.softGreen,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(Icons.person, color: AppColors.primary, size: 30),
+          const AppAvatar(
+            asset: 'assets/images/avatars/malee.png',
+            fallbackIcon: Icons.person,
+            size: 56,
           ),
           const SizedBox(width: 14),
           Expanded(

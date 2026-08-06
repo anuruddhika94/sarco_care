@@ -21,7 +21,8 @@ class _MealsScreenState extends State<MealsScreen> {
   static const _tabs = ['Daily', 'Weekly'];
 
   static const _dailyMeals = [
-    _Meal('Soft-boiled Eggs & Toast', 'Breakfast', 'Protein 20g', Icons.egg_alt),
+    _Meal('Soft-boiled Eggs & Toast', 'Breakfast', 'Protein 20g', Icons.egg_alt,
+        image: 'assets/images/meals/eggs_toast.png'),
     _Meal('Grilled Chicken Salad', 'Lunch', 'Protein 32g', Icons.rice_bowl),
     _Meal('Salmon with Vegetables', 'Dinner', 'Protein 28g', Icons.set_meal),
     _Meal('Greek Yogurt & Nuts', 'Snack', 'Protein 15g', Icons.icecream),
@@ -128,11 +129,12 @@ class _MealsScreenState extends State<MealsScreen> {
 }
 
 class _Meal {
-  const _Meal(this.name, this.mealTime, this.protein, this.icon);
+  const _Meal(this.name, this.mealTime, this.protein, this.icon, {this.image});
   final String name;
   final String mealTime;
   final String protein;
   final IconData icon;
+  final String? image;
 }
 
 class _MealCard extends StatelessWidget {
@@ -156,15 +158,28 @@ class _MealCard extends StatelessWidget {
           ),
           child: Row(
             children: [
-              // Meal thumbnail placeholder — swap for a food photo later.
-              Container(
-                width: 64,
-                height: 64,
-                decoration: BoxDecoration(
-                  color: AppColors.softGreen,
-                  borderRadius: BorderRadius.circular(14),
+              // Meal thumbnail: food image when available, else an icon.
+              ClipRRect(
+                borderRadius: BorderRadius.circular(14),
+                child: SizedBox(
+                  width: 64,
+                  height: 64,
+                  child: meal.image == null
+                      ? Container(
+                          color: AppColors.softGreen,
+                          alignment: Alignment.center,
+                          child: Icon(meal.icon, color: AppColors.primary, size: 32),
+                        )
+                      : Image.asset(
+                          meal.image!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) => Container(
+                            color: AppColors.softGreen,
+                            alignment: Alignment.center,
+                            child: Icon(meal.icon, color: AppColors.primary, size: 32),
+                          ),
+                        ),
                 ),
-                child: Icon(meal.icon, color: AppColors.primary, size: 32),
               ),
               const SizedBox(width: 14),
               Expanded(

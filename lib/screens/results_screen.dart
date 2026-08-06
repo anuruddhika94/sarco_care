@@ -42,16 +42,24 @@ class ResultsScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
         children: [
-          // Result illustration placeholder.
           Center(
-            child: Container(
-              width: 120,
-              height: 120,
-              decoration: const BoxDecoration(
-                color: AppColors.softGreen,
-                shape: BoxShape.circle,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Image.asset(
+                'assets/images/result.png',
+                width: 180,
+                height: 180,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) => Container(
+                  width: 120,
+                  height: 120,
+                  decoration: const BoxDecoration(
+                    color: AppColors.softGreen,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.elderly, size: 64, color: AppColors.primary),
+                ),
               ),
-              child: Icon(Icons.elderly, size: 64, color: AppColors.primary),
             ),
           ),
           const SizedBox(height: 24),

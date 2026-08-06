@@ -98,29 +98,28 @@ class _CoupleIllustration extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: 220,
-      decoration: BoxDecoration(
-        color: AppColors.softGreen,
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Row(
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(24),
+      child: Image.asset(
+        'assets/images/splash_couple.png',
+        width: double.infinity,
+        height: 260,
+        fit: BoxFit.cover,
+        errorBuilder: (_, _, _) => Container(
+          width: double.infinity,
+          height: 220,
+          decoration: BoxDecoration(
+            color: AppColors.softGreen,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.elderly_woman, size: 96, color: AppColors.primary),
               Icon(Icons.elderly, size: 96, color: AppColors.primaryDark),
             ],
           ),
-          const SizedBox(height: 8),
-          Text(
-            'Illustration',
-            style: TextStyle(color: AppColors.textMuted, fontSize: 13),
-          ),
-        ],
+        ),
       ),
     );
   }

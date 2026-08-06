@@ -53,14 +53,23 @@ class RecipeScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
         children: [
-          // Hero photo placeholder — swap for a food image later.
-          Container(
-            height: 200,
-            decoration: BoxDecoration(
-              color: AppColors.softGreen,
-              borderRadius: BorderRadius.circular(20),
+          // Hero photo (the sample recipe content is egg-based).
+          ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Image.asset(
+              'assets/images/meals/eggs_toast.png',
+              height: 200,
+              width: double.infinity,
+              fit: BoxFit.cover,
+              errorBuilder: (_, _, _) => Container(
+                height: 200,
+                decoration: BoxDecoration(
+                  color: AppColors.softGreen,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Icon(Icons.egg_alt, size: 88, color: AppColors.primary),
+              ),
             ),
-            child: Icon(Icons.egg_alt, size: 88, color: AppColors.primary),
           ),
           const SizedBox(height: 20),
           const _NutritionRow(),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
+import '../widgets/app_avatar.dart';
 import '../widgets/placeholder_screen.dart';
 import 'caretaker_screen.dart';
 import 'personal_info_screen.dart';
@@ -54,16 +55,11 @@ class ProfileScreen extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
         children: [
           const SizedBox(height: 8),
-          // Avatar placeholder.
-          Center(
-            child: Container(
-              width: 110,
-              height: 110,
-              decoration: const BoxDecoration(
-                color: AppColors.softGreen,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(Icons.elderly, size: 60, color: AppColors.primary),
+          const Center(
+            child: AppAvatar(
+              asset: 'assets/images/avatars/somchai.png',
+              fallbackIcon: Icons.elderly,
+              size: 110,
             ),
           ),
           const SizedBox(height: 16),
