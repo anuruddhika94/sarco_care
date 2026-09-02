@@ -1,12 +1,25 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
+import '../l10n/l10n_format.dart';
 import '../theme/app_theme.dart';
 import '../widgets/segmented_tabs.dart';
 import 'exercise_video_screen.dart';
 
+/// Stable identifiers for the sample exercises, so their names translate
+/// consistently across the Exercise Plan and My Plan screens.
+enum ExerciseId { seatedLegLift, armCurls, chairSquats, standingBalance }
+
+String exerciseName(AppLocalizations l10n, ExerciseId id) => switch (id) {
+      ExerciseId.seatedLegLift => l10n.exSeatedLegLift,
+      ExerciseId.armCurls => l10n.exArmCurls,
+      ExerciseId.chairSquats => l10n.exChairSquats,
+      ExerciseId.standingBalance => l10n.exStandingBalance,
+    };
+
 /// Screen #6 — Exercise Plan.
 /// Pure UI: featured video, plan type, Exercises/My Plan tabs and a grid of
-/// exercise cards. Cards forward to the Exercise Video placeholder (#7).
+/// exercise cards. Cards forward to the Exercise Video screen (#7).
 class ExercisePlanScreen extends StatefulWidget {
   const ExercisePlanScreen({super.key, this.showBackButton = true});
 
@@ -22,15 +35,15 @@ class _ExercisePlanScreenState extends State<ExercisePlanScreen> {
 
   // All recommended exercises vs the ones the user added to their plan.
   static const _allExercises = [
-    _Exercise('Seated Leg Lift', '10 min', Icons.airline_seat_recline_normal, '2TrhLLjipgE'),
-    _Exercise('Arm Curls', '8 min', Icons.fitness_center, '8I640AY2j-U'),
-    _Exercise('Chair Squats', '12 min', Icons.chair_alt, '_wi9qqg2N7g'),
-    _Exercise('Standing Balance', '6 min', Icons.accessibility_new, '2nuMAKe-Pao'),
+    _Exercise(ExerciseId.seatedLegLift, 10, Icons.airline_seat_recline_normal, '2TrhLLjipgE'),
+    _Exercise(ExerciseId.armCurls, 8, Icons.fitness_center, '8I640AY2j-U'),
+    _Exercise(ExerciseId.chairSquats, 12, Icons.chair_alt, '_wi9qqg2N7g'),
+    _Exercise(ExerciseId.standingBalance, 6, Icons.accessibility_new, '2nuMAKe-Pao'),
   ];
 
   static const _myPlan = [
-    _Exercise('Seated Leg Lift', '10 min', Icons.airline_seat_recline_normal, '2TrhLLjipgE'),
-    _Exercise('Chair Squats', '12 min', Icons.chair_alt, '_wi9qqg2N7g'),
+    _Exercise(ExerciseId.seatedLegLift, 10, Icons.airline_seat_recline_normal, '2TrhLLjipgE'),
+    _Exercise(ExerciseId.chairSquats, 12, Icons.chair_alt, '_wi9qqg2N7g'),
   ];
 
   List<_Exercise> get _visibleExercises =>
@@ -49,6 +62,7 @@ class _ExercisePlanScreenState extends State<ExercisePlanScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -56,9 +70,9 @@ class _ExercisePlanScreenState extends State<ExercisePlanScreen> {
         foregroundColor: AppColors.textDark,
         elevation: 0,
         automaticallyImplyLeading: widget.showBackButton,
-        title: const Text(
-          'Exercise Plan',
-          style: TextStyle(fontWeight: FontWeight.w800),
+        title: Text(
+          l10n.featureExercisePlan,
+          style: const TextStyle(fontWeight: FontWeight.w800),
         ),
         centerTitle: true,
       ),
@@ -67,11 +81,11 @@ class _ExercisePlanScreenState extends State<ExercisePlanScreen> {
         children: [
           _FeaturedVideo(
             videoId: 'ymawWTDYlYs',
-            onTap: () => _openVideo('Basic Strength Training', 'ymawWTDYlYs'),
+            onTap: () => _openVideo(l10n.planTypeBasicStrength, 'ymawWTDYlYs'),
           ),
           const SizedBox(height: 16),
           Text(
-            'Type: Basic Strength Training',
+            l10n.exerciseTypeLabel(l10n.planTypeBasicStrength),
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -80,7 +94,7 @@ class _ExercisePlanScreenState extends State<ExercisePlanScreen> {
           ),
           const SizedBox(height: 16),
           SegmentedTabs(
-            labels: const ['Exercises', 'My Plan'],
+            labels: [l10n.tabExercises, l10n.myPlanTitle],
             selected: _tabIndex,
             onChanged: (i) => setState(() => _tabIndex = i),
           ),
@@ -98,7 +112,7 @@ class _ExercisePlanScreenState extends State<ExercisePlanScreen> {
                   index: i + 1,
                   exercise: _visibleExercises[i],
                   onTap: () => _openVideo(
-                    _visibleExercises[i].name,
+                    exerciseName(l10n, _visibleExercises[i].id),
                     _visibleExercises[i].videoId,
                   ),
                 ),
@@ -111,9 +125,9 @@ class _ExercisePlanScreenState extends State<ExercisePlanScreen> {
 }
 
 class _Exercise {
-  const _Exercise(this.name, this.duration, this.icon, this.videoId);
-  final String name;
-  final String duration;
+  const _Exercise(this.id, this.minutes, this.icon, this.videoId);
+  final ExerciseId id;
+  final int minutes;
   final IconData icon;
   final String videoId;
 }
@@ -208,6 +222,7 @@ class _ExerciseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Material(
       color: AppColors.surface,
       borderRadius: BorderRadius.circular(18),
@@ -261,7 +276,7 @@ class _ExerciseCard extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Text(
-                exercise.name,
+                exerciseName(l10n, exercise.id),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
@@ -272,7 +287,7 @@ class _ExerciseCard extends StatelessWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                exercise.duration,
+                formatDuration(l10n, exercise.minutes),
                 style: TextStyle(fontSize: 13, color: AppColors.textMuted),
               ),
             ],

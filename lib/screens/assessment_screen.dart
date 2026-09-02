@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import 'results_screen.dart';
 
@@ -14,26 +15,13 @@ class AssessmentScreen extends StatefulWidget {
 }
 
 class _AssessmentScreenState extends State<AssessmentScreen> {
-  static const _questions = [
-    'How much difficulty do you have lifting and carrying 5 kg?',
-    'How much difficulty do you have walking across a room?',
-    'How much difficulty do you have moving from a chair or bed?',
-    'How much difficulty do you have climbing a flight of 10 stairs?',
-    'How much difficulty do you have due to falls in the past year?',
-  ];
-
-  static const _options = [
-    'No problem',
-    'Minor problem',
-    'Moderate problem',
-    'Severe problem',
-  ];
+  static const _questionCount = 5;
 
   int _index = 0;
   // One selected option index per question (null = unanswered).
-  final List<int?> _answers = List<int?>.filled(_questions.length, null);
+  final List<int?> _answers = List<int?>.filled(_questionCount, null);
 
-  bool get _isLast => _index == _questions.length - 1;
+  bool get _isLast => _index == _questionCount - 1;
   bool get _hasAnswer => _answers[_index] != null;
 
   void _back() {
@@ -58,6 +46,20 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final questions = [
+      l10n.assessmentQuestion1,
+      l10n.assessmentQuestion2,
+      l10n.assessmentQuestion3,
+      l10n.assessmentQuestion4,
+      l10n.assessmentQuestion5,
+    ];
+    final options = [
+      l10n.optNoProblem,
+      l10n.optMinorProblem,
+      l10n.optModerateProblem,
+      l10n.optSevereProblem,
+    ];
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -69,7 +71,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
           onPressed: _back,
         ),
         title: Text(
-          'SARC-F (${_index + 1}/${_questions.length})',
+          l10n.sarcfProgress(_index + 1, _questionCount),
           style: const TextStyle(fontWeight: FontWeight.w800),
         ),
         centerTitle: true,
@@ -83,7 +85,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
             ClipRRect(
               borderRadius: BorderRadius.circular(6),
               child: LinearProgressIndicator(
-                value: (_index + 1) / _questions.length,
+                value: (_index + 1) / _questionCount,
                 minHeight: 8,
                 backgroundColor: const Color(0xFFE4EAE4),
                 valueColor: const AlwaysStoppedAnimation(AppColors.primary),
@@ -91,7 +93,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
             ),
             const SizedBox(height: 28),
             Text(
-              'Question ${_index + 1}',
+              l10n.questionNumber(_index + 1),
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
@@ -100,7 +102,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              _questions[_index],
+              questions[_index],
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w700,
@@ -109,9 +111,9 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
               ),
             ),
             const SizedBox(height: 28),
-            for (int i = 0; i < _options.length; i++)
+            for (int i = 0; i < options.length; i++)
               _OptionTile(
-                label: _options[i],
+                label: options[i],
                 selected: _answers[_index] == i,
                 onTap: () => setState(() => _answers[_index] = i),
               ),
@@ -121,7 +123,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
               child: ElevatedButton(
                 // Require an answer before advancing.
                 onPressed: _hasAnswer ? _next : null,
-                child: Text(_isLast ? 'See Results' : 'Next'),
+                child: Text(_isLast ? l10n.seeResults : l10n.next),
               ),
             ),
           ],

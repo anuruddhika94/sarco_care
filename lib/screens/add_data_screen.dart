@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 
 /// Add Data form — log new health measurements.
@@ -7,19 +8,13 @@ import '../theme/app_theme.dart';
 class AddDataScreen extends StatelessWidget {
   const AddDataScreen({super.key});
 
-  static const _fields = [
-    ('Weight', 'kg', Icons.monitor_weight_outlined),
-    ('Height', 'cm', Icons.height),
-    ('Calf Circumference', 'cm', Icons.straighten),
-    ('Handgrip', 'kg', Icons.back_hand_outlined),
-  ];
-
   void _save(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        const SnackBar(
-          content: Text('Health data saved'),
+        SnackBar(
+          content: Text(l10n.healthDataSaved),
           backgroundColor: AppColors.primary,
         ),
       );
@@ -28,15 +23,22 @@ class AddDataScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final fields = <(String, String, IconData)>[
+      (l10n.metricWeight, 'kg', Icons.monitor_weight_outlined),
+      (l10n.metricHeight, 'cm', Icons.height),
+      (l10n.metricCalf, 'cm', Icons.straighten),
+      (l10n.metricHandgrip, 'kg', Icons.back_hand_outlined),
+    ];
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.background,
         foregroundColor: AppColors.textDark,
         elevation: 0,
-        title: const Text(
-          'Add Data',
-          style: TextStyle(fontWeight: FontWeight.w800),
+        title: Text(
+          l10n.addData,
+          style: const TextStyle(fontWeight: FontWeight.w800),
         ),
         centerTitle: true,
       ),
@@ -45,7 +47,7 @@ class AddDataScreen extends StatelessWidget {
         children: [
           const _DateRow(),
           const SizedBox(height: 20),
-          for (final f in _fields) ...[
+          for (final f in fields) ...[
             _MetricField(label: f.$1, unit: f.$2, icon: f.$3),
             const SizedBox(height: 18),
           ],
@@ -54,7 +56,7 @@ class AddDataScreen extends StatelessWidget {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () => _save(context),
-              child: const Text('Save'),
+              child: Text(l10n.save),
             ),
           ),
         ],
@@ -69,6 +71,7 @@ class _DateRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
       decoration: BoxDecoration(
@@ -81,7 +84,7 @@ class _DateRow extends StatelessWidget {
           Icon(Icons.calendar_today_outlined, color: AppColors.primary, size: 22),
           const SizedBox(width: 14),
           Text(
-            'Today',
+            l10n.dateToday,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -107,6 +110,7 @@ class _MetricField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -122,7 +126,7 @@ class _MetricField extends StatelessWidget {
         TextField(
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           decoration: InputDecoration(
-            hintText: 'Enter $label'.toLowerCase(),
+            hintText: l10n.enterValueHint(label).toLowerCase(),
             hintStyle: const TextStyle(color: AppColors.textMuted),
             prefixIcon: Icon(icon, color: AppColors.textMuted),
             suffixText: unit,

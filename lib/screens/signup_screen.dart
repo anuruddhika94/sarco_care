@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../widgets/auth_field.dart';
 import '../widgets/segmented_tabs.dart';
@@ -36,6 +37,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -52,30 +54,30 @@ class _SignUpScreenState extends State<SignUpScreen> {
               const _Header(),
               const SizedBox(height: 28),
               SegmentedTabs(
-                labels: const ['Patient', 'Caretaker'],
+                labels: [l10n.rolePatient, l10n.roleCaretaker],
                 selected: _role,
                 onChanged: (i) => setState(() => _role = i),
               ),
               const SizedBox(height: 28),
-              const AuthFieldLabel('Full name'),
+              AuthFieldLabel(l10n.fullName),
               const SizedBox(height: 8),
               TextField(
                 textCapitalization: TextCapitalization.words,
-                decoration: authFieldDecoration('Enter your name'),
+                decoration: authFieldDecoration(l10n.fullNameHint),
               ),
               const SizedBox(height: 20),
-              const AuthFieldLabel('Phone number'),
+              AuthFieldLabel(l10n.phoneNumber),
               const SizedBox(height: 8),
               TextField(
                 keyboardType: TextInputType.phone,
-                decoration: authFieldDecoration('Enter phone number'),
+                decoration: authFieldDecoration(l10n.phoneNumberHint),
               ),
               const SizedBox(height: 20),
-              const AuthFieldLabel('Password'),
+              AuthFieldLabel(l10n.password),
               const SizedBox(height: 8),
               TextField(
                 obscureText: _obscurePassword,
-                decoration: authFieldDecoration('Create a password').copyWith(
+                decoration: authFieldDecoration(l10n.createPasswordHint).copyWith(
                   suffixIcon: IconButton(
                     icon: Icon(
                       _obscurePassword
@@ -90,11 +92,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              const AuthFieldLabel('Confirm password'),
+              AuthFieldLabel(l10n.confirmPassword),
               const SizedBox(height: 8),
               TextField(
                 obscureText: _obscureConfirm,
-                decoration: authFieldDecoration('Re-enter password').copyWith(
+                decoration: authFieldDecoration(l10n.confirmPasswordHint).copyWith(
                   suffixIcon: IconButton(
                     icon: Icon(
                       _obscureConfirm
@@ -111,20 +113,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
               const SizedBox(height: 32),
               ElevatedButton(
                 onPressed: _createAccount,
-                child: const Text('Create Account'),
+                child: Text(l10n.createAccount),
               ),
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Already have an account? ',
+                    l10n.haveAccountQuestion,
                     style: TextStyle(color: AppColors.textMuted, fontSize: 15),
                   ),
                   GestureDetector(
                     onTap: () => Navigator.of(context).pop(),
                     child: Text(
-                      'Log In',
+                      l10n.logIn,
                       style: TextStyle(
                         color: AppColors.primary,
                         fontWeight: FontWeight.w700,
@@ -148,10 +150,11 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       children: [
         Text(
-          'Create account',
+          l10n.signupTitle,
           style: TextStyle(
             fontSize: 30,
             fontWeight: FontWeight.w800,
@@ -163,7 +166,7 @@ class _Header extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Join ',
+              l10n.signupJoinPrefix,
               style: TextStyle(fontSize: 16, color: AppColors.textMuted),
             ),
             Text(

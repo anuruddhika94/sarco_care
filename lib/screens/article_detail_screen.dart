@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 
 /// Article detail — a readable educational article opened from Knowledge.
@@ -9,29 +10,23 @@ class ArticleDetailScreen extends StatelessWidget {
 
   final String title;
 
-  static const _paragraphs = [
-    'Sarcopenia is the gradual loss of muscle mass, strength and function '
-        'that often comes with ageing. It can make everyday tasks — standing '
-        'up, climbing stairs, carrying shopping — feel harder over time.',
-    'The good news is that it can be slowed and even improved. Regular '
-        'strength activity and eating enough protein are two of the most '
-        'effective steps you can take at any age.',
-    'Small, consistent habits matter most. A short daily walk, a few seated '
-        'exercises, and a protein source at each meal all add up to stronger, '
-        'healthier muscles.',
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final paragraphs = [
+      l10n.articleParagraph1,
+      l10n.articleParagraph2,
+      l10n.articleParagraph3,
+    ];
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.background,
         foregroundColor: AppColors.textDark,
         elevation: 0,
-        title: const Text(
-          'Article',
-          style: TextStyle(fontWeight: FontWeight.w800),
+        title: Text(
+          l10n.articleAppbar,
+          style: const TextStyle(fontWeight: FontWeight.w800),
         ),
         centerTitle: true,
       ),
@@ -49,10 +44,10 @@ class ArticleDetailScreen extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Row(
-            children: const [
-              _MetaChip(text: 'Knowledge'),
-              SizedBox(width: 8),
-              _MetaChip(text: '3 min read'),
+            children: [
+              _MetaChip(text: l10n.navKnowledge),
+              const SizedBox(width: 8),
+              _MetaChip(text: l10n.chipReadTime),
             ],
           ),
           const SizedBox(height: 16),
@@ -66,7 +61,7 @@ class ArticleDetailScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          for (final p in _paragraphs) ...[
+          for (final p in paragraphs) ...[
             Text(
               p,
               style: TextStyle(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 
 /// Add Patient (caretaker side) — find a patient by phone and send a link
@@ -32,12 +33,13 @@ class _AddPatientScreenState extends State<AddPatientScreen> {
   }
 
   void _sendRequest() {
+    final l10n = AppLocalizations.of(context);
     setState(() => _requestSent = true);
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        const SnackBar(
-          content: Text('Request sent · waiting for approval'),
+        SnackBar(
+          content: Text(l10n.requestSentWaiting),
           backgroundColor: AppColors.primary,
         ),
       );
@@ -45,6 +47,7 @@ class _AddPatientScreenState extends State<AddPatientScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final hasQuery = _controller.text.trim().isNotEmpty;
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -52,9 +55,9 @@ class _AddPatientScreenState extends State<AddPatientScreen> {
         backgroundColor: AppColors.background,
         foregroundColor: AppColors.textDark,
         elevation: 0,
-        title: const Text(
-          'Add Patient',
-          style: TextStyle(fontWeight: FontWeight.w800),
+        title: Text(
+          l10n.addPatient,
+          style: const TextStyle(fontWeight: FontWeight.w800),
         ),
         centerTitle: true,
       ),
@@ -62,8 +65,7 @@ class _AddPatientScreenState extends State<AddPatientScreen> {
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
         children: [
           Text(
-            'Find a patient by their phone number. They will get a request to '
-            'approve you as their caretaker.',
+            l10n.findByPhoneDesc,
             style: TextStyle(
               fontSize: 15,
               height: 1.4,
@@ -77,7 +79,7 @@ class _AddPatientScreenState extends State<AddPatientScreen> {
             onChanged: (_) => setState(() {}),
             onSubmitted: (_) => _search(),
             decoration: InputDecoration(
-              hintText: 'Phone number',
+              hintText: l10n.phoneNumber,
               hintStyle: const TextStyle(color: AppColors.textMuted),
               prefixIcon: const Icon(Icons.phone_outlined, color: AppColors.textMuted),
               filled: true,
@@ -99,7 +101,7 @@ class _AddPatientScreenState extends State<AddPatientScreen> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: hasQuery ? _search : null,
-              child: const Text('Search'),
+              child: Text(l10n.search),
             ),
           ),
           const SizedBox(height: 24),
@@ -122,6 +124,7 @@ class _ResultCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -148,7 +151,7 @@ class _ResultCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Somchai Jai-Dee',
+                      l10n.userFullName,
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w700,
@@ -157,7 +160,7 @@ class _ResultCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Age 72',
+                      l10n.ageLabel(72),
                       style: TextStyle(fontSize: 14, color: AppColors.textMuted),
                     ),
                   ],
@@ -182,7 +185,7 @@ class _ResultCard extends StatelessWidget {
                         Icon(Icons.schedule, size: 18, color: AppColors.primary),
                         const SizedBox(width: 8),
                         Text(
-                          'Pending approval',
+                          l10n.pendingApproval,
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
@@ -194,7 +197,7 @@ class _ResultCard extends StatelessWidget {
                   )
                 : ElevatedButton(
                     onPressed: onSendRequest,
-                    child: const Text('Send Request'),
+                    child: Text(l10n.sendRequest),
                   ),
           ),
         ],

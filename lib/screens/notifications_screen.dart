@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 
 /// Notifications / Set Reminders (#11).
@@ -12,14 +13,14 @@ class NotificationsScreen extends StatefulWidget {
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
-  static const _reminders = [
-    (Icons.free_breakfast_outlined, 'Breakfast', '07:00 AM'),
-    (Icons.lunch_dining_outlined, 'Lunch', '12:00 PM'),
-    (Icons.dinner_dining_outlined, 'Dinner', '06:30 PM'),
-    (Icons.water_drop_outlined, 'Water', 'Every 2 hours'),
-    (Icons.fitness_center, 'Exercise', '05:00 PM'),
-    (Icons.medication_outlined, 'Medication', '09:00 AM'),
-    (Icons.bedtime_outlined, 'Sleep', '10:00 PM'),
+  static const _icons = [
+    Icons.free_breakfast_outlined,
+    Icons.lunch_dining_outlined,
+    Icons.dinner_dining_outlined,
+    Icons.water_drop_outlined,
+    Icons.fitness_center,
+    Icons.medication_outlined,
+    Icons.bedtime_outlined,
   ];
 
   // Enabled state per reminder (Exercise off by default, like the design).
@@ -27,15 +28,34 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final labels = [
+      l10n.mealBreakfast,
+      l10n.mealLunch,
+      l10n.mealDinner,
+      l10n.reminderWater,
+      l10n.navExercise,
+      l10n.reminderMedication,
+      l10n.reminderSleep,
+    ];
+    final times = [
+      '07:00 AM',
+      '12:00 PM',
+      '06:30 PM',
+      l10n.reminderEvery2Hours,
+      '05:00 PM',
+      '09:00 AM',
+      '10:00 PM',
+    ];
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.background,
         foregroundColor: AppColors.textDark,
         elevation: 0,
-        title: const Text(
-          'Set Reminders',
-          style: TextStyle(fontWeight: FontWeight.w800),
+        title: Text(
+          l10n.setReminders,
+          style: const TextStyle(fontWeight: FontWeight.w800),
         ),
         centerTitle: true,
       ),
@@ -43,17 +63,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
         children: [
           Text(
-            'Turn reminders on or off',
+            l10n.turnRemindersOnOff,
             style: TextStyle(fontSize: 15, color: AppColors.textMuted),
           ),
           const SizedBox(height: 16),
-          for (int i = 0; i < _reminders.length; i++)
+          for (int i = 0; i < _icons.length; i++)
             Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: _ReminderRow(
-                icon: _reminders[i].$1,
-                label: _reminders[i].$2,
-                time: _reminders[i].$3,
+                icon: _icons[i],
+                label: labels[i],
+                time: times[i],
                 value: _enabled[i],
                 onChanged: (v) => setState(() => _enabled[i] = v),
               ),

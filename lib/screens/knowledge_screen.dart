@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../widgets/segmented_tabs.dart';
 import 'article_detail_screen.dart';
 
 /// Knowledge tab (#12) — educational articles with category filters.
-/// Pure UI: category tabs and a list of article rows opening placeholders.
+/// Pure UI: category tabs and a list of article rows opening the detail screen.
 class KnowledgeScreen extends StatefulWidget {
   const KnowledgeScreen({super.key});
 
@@ -13,25 +14,60 @@ class KnowledgeScreen extends StatefulWidget {
   State<KnowledgeScreen> createState() => _KnowledgeScreenState();
 }
 
+/// Article categories. [general] articles surface only under the "All" tab.
+enum ArticleCategory { general, food, exercise, prevention }
+
+enum ArticleId {
+  overview,
+  whatIs,
+  causes,
+  exerciseGuide,
+  nutrition,
+  prevention,
+}
+
+String articleTitle(AppLocalizations l10n, ArticleId id) => switch (id) {
+      ArticleId.overview => l10n.artOverviewTitle,
+      ArticleId.whatIs => l10n.artWhatIsTitle,
+      ArticleId.causes => l10n.artCausesTitle,
+      ArticleId.exerciseGuide => l10n.artExerciseGuideTitle,
+      ArticleId.nutrition => l10n.artNutritionTitle,
+      ArticleId.prevention => l10n.artPreventionTitle,
+    };
+
+String articleSummary(AppLocalizations l10n, ArticleId id) => switch (id) {
+      ArticleId.overview => l10n.artOverviewSummary,
+      ArticleId.whatIs => l10n.artWhatIsSummary,
+      ArticleId.causes => l10n.artCausesSummary,
+      ArticleId.exerciseGuide => l10n.artExerciseGuideSummary,
+      ArticleId.nutrition => l10n.artNutritionSummary,
+      ArticleId.prevention => l10n.artPreventionSummary,
+    };
+
 class _KnowledgeScreenState extends State<KnowledgeScreen> {
   int _tabIndex = 0;
 
-  static const _tabs = ['All', 'Food', 'Exercise', 'Prevention'];
+  // Tab index → category filter (null = show all).
+  static const _filters = [
+    null,
+    ArticleCategory.food,
+    ArticleCategory.exercise,
+    ArticleCategory.prevention,
+  ];
 
-  // Each article's category maps to a tab; 'General' shows only under "All".
   static const _articles = [
-    _Article('Overview', 'A quick introduction to muscle health', Icons.menu_book_outlined, 'General'),
-    _Article('What is Sarcopenia?', 'Understanding age-related muscle loss', Icons.help_outline, 'General'),
-    _Article('Causes and Risk Factors', 'What raises your risk', Icons.report_outlined, 'Prevention'),
-    _Article('Exercise Guide', 'Safe movements to stay strong', Icons.fitness_center, 'Exercise'),
-    _Article('Nutrition', 'Eating well for your muscles', Icons.restaurant_menu, 'Food'),
-    _Article('Prevention', 'Daily habits that protect you', Icons.shield_outlined, 'Prevention'),
+    _Article(ArticleId.overview, Icons.menu_book_outlined, ArticleCategory.general),
+    _Article(ArticleId.whatIs, Icons.help_outline, ArticleCategory.general),
+    _Article(ArticleId.causes, Icons.report_outlined, ArticleCategory.prevention),
+    _Article(ArticleId.exerciseGuide, Icons.fitness_center, ArticleCategory.exercise),
+    _Article(ArticleId.nutrition, Icons.restaurant_menu, ArticleCategory.food),
+    _Article(ArticleId.prevention, Icons.shield_outlined, ArticleCategory.prevention),
   ];
 
   List<_Article> get _visibleArticles {
-    final tab = _tabs[_tabIndex];
-    if (tab == 'All') return _articles;
-    return _articles.where((a) => a.category == tab).toList();
+    final filter = _filters[_tabIndex];
+    if (filter == null) return _articles;
+    return _articles.where((a) => a.category == filter).toList();
   }
 
   void _openArticle(String title) {
@@ -42,6 +78,7 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -49,9 +86,9 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
         foregroundColor: AppColors.textDark,
         elevation: 0,
         automaticallyImplyLeading: false,
-        title: const Text(
-          'Knowledge',
-          style: TextStyle(fontWeight: FontWeight.w800),
+        title: Text(
+          l10n.navKnowledge,
+          style: const TextStyle(fontWeight: FontWeight.w800),
         ),
         centerTitle: true,
       ),
@@ -60,7 +97,7 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
             child: SegmentedTabs(
-              labels: _tabs,
+              labels: [l10n.catAll, l10n.catFood, l10n.navExercise, l10n.catPrevention],
               selected: _tabIndex,
               onChanged: (i) => setState(() => _tabIndex = i),
             ),
@@ -74,7 +111,7 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
                     padding: const EdgeInsets.only(bottom: 12),
                     child: _ArticleRow(
                       article: a,
-                      onTap: () => _openArticle(a.title),
+                      onTap: () => _openArticle(articleTitle(l10n, a.id)),
                     ),
                   ),
               ],
@@ -87,11 +124,10 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
 }
 
 class _Article {
-  const _Article(this.title, this.summary, this.icon, this.category);
-  final String title;
-  final String summary;
+  const _Article(this.id, this.icon, this.category);
+  final ArticleId id;
   final IconData icon;
-  final String category;
+  final ArticleCategory category;
 }
 
 class _ArticleRow extends StatelessWidget {
@@ -101,6 +137,7 @@ class _ArticleRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Material(
       color: AppColors.surface,
       borderRadius: BorderRadius.circular(16),
@@ -130,7 +167,7 @@ class _ArticleRow extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      article.title,
+                      articleTitle(l10n, article.id),
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -139,7 +176,7 @@ class _ArticleRow extends StatelessWidget {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      article.summary,
+                      articleSummary(l10n, article.id),
                       style: TextStyle(
                         fontSize: 13,
                         color: AppColors.textMuted,

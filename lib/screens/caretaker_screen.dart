@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_avatar.dart';
 
@@ -9,11 +10,12 @@ class CaretakerScreen extends StatelessWidget {
   const CaretakerScreen({super.key});
 
   void _addCaretaker(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        const SnackBar(
-          content: Text('Invite sent to caretaker'),
+        SnackBar(
+          content: Text(l10n.inviteSent),
           backgroundColor: AppColors.primary,
         ),
       );
@@ -21,15 +23,16 @@ class CaretakerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.background,
         foregroundColor: AppColors.textDark,
         elevation: 0,
-        title: const Text(
-          'Caretaker',
-          style: TextStyle(fontWeight: FontWeight.w800),
+        title: Text(
+          l10n.entryCaretaker,
+          style: const TextStyle(fontWeight: FontWeight.w800),
         ),
         centerTitle: true,
       ),
@@ -37,13 +40,13 @@ class CaretakerScreen extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
         children: [
           Text(
-            'Linked caretaker',
+            l10n.linkedCaretaker,
             style: TextStyle(fontSize: 15, color: AppColors.textMuted),
           ),
           const SizedBox(height: 12),
-          const _CaretakerCard(
-            name: 'Malee Jai-Dee',
-            relationship: 'Daughter',
+          _CaretakerCard(
+            name: l10n.caretakerFullName,
+            relationship: l10n.relationshipDaughter,
             phone: '089 876 5432',
           ),
           const SizedBox(height: 24),
@@ -52,7 +55,7 @@ class CaretakerScreen extends StatelessWidget {
             child: OutlinedButton.icon(
               onPressed: () => _addCaretaker(context),
               icon: const Icon(Icons.person_add_alt),
-              label: const Text('Add Caretaker'),
+              label: Text(l10n.addCaretaker),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.primary,
                 minimumSize: const Size.fromHeight(56),

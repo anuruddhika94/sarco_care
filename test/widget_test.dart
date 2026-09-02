@@ -1,30 +1,29 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
+// Smoke test: the app builds in English and switches to Thai live when the
+// global locale controller changes.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:sarco_care/l10n/locale_controller.dart';
 import 'package:sarco_care/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('splash toggle switches EN → TH live', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    localeController = LocaleController(const Locale('en'));
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    await tester.pumpWidget(const SarcoCareApp());
+    await tester.pumpAndSettle();
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    // English by default.
+    expect(find.text('Get Started'), findsOneWidget);
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Tapping the splash language toggle rebuilds the app in Thai.
+    await tester.tap(find.text('ไทย'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Get Started'), findsNothing);
+    expect(find.text('เริ่มต้นใช้งาน'), findsOneWidget);
   });
 }

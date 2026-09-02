@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 
 /// Personal Info — editable profile fields opened from Profile.
@@ -7,20 +8,13 @@ import '../theme/app_theme.dart';
 class PersonalInfoScreen extends StatelessWidget {
   const PersonalInfoScreen({super.key});
 
-  static const _fields = [
-    ('Full name', 'Somchai Jai-Dee'),
-    ('Age', '72'),
-    ('Gender', 'Male'),
-    ('Phone number', '081 234 5678'),
-    ('Email', 'somchai@example.com'),
-  ];
-
   void _save(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        const SnackBar(
-          content: Text('Profile updated'),
+        SnackBar(
+          content: Text(l10n.profileUpdated),
           backgroundColor: AppColors.primary,
         ),
       );
@@ -29,22 +23,30 @@ class PersonalInfoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final fields = <(String, String)>[
+      (l10n.fullName, l10n.userFullName),
+      (l10n.fieldAge, '72'),
+      (l10n.fieldGender, l10n.genderMale),
+      (l10n.phoneNumber, '081 234 5678'),
+      (l10n.fieldEmail, 'somchai@example.com'),
+    ];
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.background,
         foregroundColor: AppColors.textDark,
         elevation: 0,
-        title: const Text(
-          'Personal Info',
-          style: TextStyle(fontWeight: FontWeight.w800),
+        title: Text(
+          l10n.entryPersonalInfo,
+          style: const TextStyle(fontWeight: FontWeight.w800),
         ),
         centerTitle: true,
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
         children: [
-          for (final f in _fields) ...[
+          for (final f in fields) ...[
             _LabeledField(label: f.$1, initial: f.$2),
             const SizedBox(height: 18),
           ],
@@ -53,7 +55,7 @@ class PersonalInfoScreen extends StatelessWidget {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () => _save(context),
-              child: const Text('Save'),
+              child: Text(l10n.save),
             ),
           ),
         ],

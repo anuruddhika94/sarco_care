@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../widgets/segmented_tabs.dart';
 
@@ -13,38 +14,88 @@ class UsageSummaryScreen extends StatefulWidget {
   State<UsageSummaryScreen> createState() => _UsageSummaryScreenState();
 }
 
+enum SeriesKind { daily, weekly, monthly }
+
+String seriesLabel(AppLocalizations l10n, SeriesKind kind) => switch (kind) {
+      SeriesKind.daily => l10n.seriesDailyAverage,
+      SeriesKind.weekly => l10n.seriesWeeklyAverage,
+      SeriesKind.monthly => l10n.seriesMonthlyAverage,
+    };
+
+/// A chart x-axis label — a weekday initial, a week number or a month.
+enum BarId {
+  dayMon,
+  dayTue,
+  dayWed,
+  dayThu,
+  dayFri,
+  daySat,
+  daySun,
+  week1,
+  week2,
+  week3,
+  week4,
+  monJan,
+  monFeb,
+  monMar,
+  monApr,
+  monMay,
+  monJun,
+}
+
+String barLabel(AppLocalizations l10n, BarId id) => switch (id) {
+      BarId.dayMon => l10n.dayInitialMon,
+      BarId.dayTue => l10n.dayInitialTue,
+      BarId.dayWed => l10n.dayInitialWed,
+      BarId.dayThu => l10n.dayInitialThu,
+      BarId.dayFri => l10n.dayInitialFri,
+      BarId.daySat => l10n.dayInitialSat,
+      BarId.daySun => l10n.dayInitialSun,
+      BarId.week1 => l10n.weekLabel(1),
+      BarId.week2 => l10n.weekLabel(2),
+      BarId.week3 => l10n.weekLabel(3),
+      BarId.week4 => l10n.weekLabel(4),
+      BarId.monJan => l10n.monthJan,
+      BarId.monFeb => l10n.monthFeb,
+      BarId.monMar => l10n.monthMar,
+      BarId.monApr => l10n.monthApr,
+      BarId.monMay => l10n.monthMay,
+      BarId.monJun => l10n.monthJun,
+    };
+
 class _UsageSummaryScreenState extends State<UsageSummaryScreen> {
   int _tabIndex = 0;
 
   // One data set per range tab. Scores are 0–100.
   static const _series = [
-    _Series('Daily average', 82, [
-      _Bar('M', 78),
-      _Bar('T', 85),
-      _Bar('W', 82),
-      _Bar('T', 90),
-      _Bar('F', 88),
-      _Bar('S', 76),
-      _Bar('S', 82),
+    _Series(SeriesKind.daily, 82, [
+      _Bar(BarId.dayMon, 78),
+      _Bar(BarId.dayTue, 85),
+      _Bar(BarId.dayWed, 82),
+      _Bar(BarId.dayThu, 90),
+      _Bar(BarId.dayFri, 88),
+      _Bar(BarId.daySat, 76),
+      _Bar(BarId.daySun, 82),
     ]),
-    _Series('Weekly average', 84, [
-      _Bar('W1', 80),
-      _Bar('W2', 86),
-      _Bar('W3', 83),
-      _Bar('W4', 88),
+    _Series(SeriesKind.weekly, 84, [
+      _Bar(BarId.week1, 80),
+      _Bar(BarId.week2, 86),
+      _Bar(BarId.week3, 83),
+      _Bar(BarId.week4, 88),
     ]),
-    _Series('Monthly average', 79, [
-      _Bar('Jan', 74),
-      _Bar('Feb', 78),
-      _Bar('Mar', 82),
-      _Bar('Apr', 80),
-      _Bar('May', 83),
-      _Bar('Jun', 79),
+    _Series(SeriesKind.monthly, 79, [
+      _Bar(BarId.monJan, 74),
+      _Bar(BarId.monFeb, 78),
+      _Bar(BarId.monMar, 82),
+      _Bar(BarId.monApr, 80),
+      _Bar(BarId.monMay, 83),
+      _Bar(BarId.monJun, 79),
     ]),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final series = _series[_tabIndex];
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -52,9 +103,9 @@ class _UsageSummaryScreenState extends State<UsageSummaryScreen> {
         backgroundColor: AppColors.background,
         foregroundColor: AppColors.textDark,
         elevation: 0,
-        title: const Text(
-          'Usage Summary',
-          style: TextStyle(fontWeight: FontWeight.w800),
+        title: Text(
+          l10n.entryUsageSummary,
+          style: const TextStyle(fontWeight: FontWeight.w800),
         ),
         centerTitle: true,
       ),
@@ -62,15 +113,15 @@ class _UsageSummaryScreenState extends State<UsageSummaryScreen> {
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
         children: [
           SegmentedTabs(
-            labels: const ['Daily', 'Weekly', 'Monthly'],
+            labels: [l10n.tabDaily, l10n.tabWeekly, l10n.tabMonthly],
             selected: _tabIndex,
             onChanged: (i) => setState(() => _tabIndex = i),
           ),
           const SizedBox(height: 20),
-          _HeroScore(label: series.label, score: series.average),
+          _HeroScore(label: seriesLabel(l10n, series.kind), score: series.average),
           const SizedBox(height: 24),
           Text(
-            'Activity score',
+            l10n.activityScore,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -86,15 +137,15 @@ class _UsageSummaryScreenState extends State<UsageSummaryScreen> {
 }
 
 class _Series {
-  const _Series(this.label, this.average, this.bars);
-  final String label;
+  const _Series(this.kind, this.average, this.bars);
+  final SeriesKind kind;
   final int average;
   final List<_Bar> bars;
 }
 
 class _Bar {
-  const _Bar(this.label, this.value);
-  final String label;
+  const _Bar(this.id, this.value);
+  final BarId id;
   final int value;
 }
 
@@ -160,6 +211,7 @@ class _BarChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final peak = bars.map((b) => b.value).reduce((a, b) => a > b ? a : b);
     return Column(
       children: [
@@ -187,7 +239,7 @@ class _BarChart extends StatelessWidget {
             for (final bar in bars)
               Expanded(
                 child: Text(
-                  bar.label,
+                  barLabel(l10n, bar.id),
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 13, color: AppColors.textMuted),
                 ),

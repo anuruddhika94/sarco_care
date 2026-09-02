@@ -1,9 +1,57 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../widgets/segmented_tabs.dart';
 import 'meal_search_screen.dart';
 import 'recipe_screen.dart';
+
+/// Stable identifiers for the sample meals/recipes, so their names translate
+/// consistently wherever they appear (Meals, Meal Search, Recipe).
+enum MealId {
+  eggsToast,
+  chickenSalad,
+  salmonVeg,
+  yogurtNuts,
+  oatmeal,
+  tuna,
+  tofu,
+  beefBroccoli,
+  lentil,
+  chickenRice,
+  eggRice,
+}
+
+String mealName(AppLocalizations l10n, MealId id) => switch (id) {
+      MealId.eggsToast => l10n.mealEggsToast,
+      MealId.chickenSalad => l10n.mealChickenSalad,
+      MealId.salmonVeg => l10n.mealSalmonVeg,
+      MealId.yogurtNuts => l10n.mealYogurtNuts,
+      MealId.oatmeal => l10n.mealOatmeal,
+      MealId.tuna => l10n.mealTuna,
+      MealId.tofu => l10n.mealTofu,
+      MealId.beefBroccoli => l10n.mealBeefBroccoli,
+      MealId.lentil => l10n.mealLentil,
+      MealId.chickenRice => l10n.mealChickenRice,
+      MealId.eggRice => l10n.mealEggRice,
+    };
+
+/// A meal's schedule slot — a meal time (daily plan) or a weekday (weekly plan).
+enum MealSlot { breakfast, lunch, dinner, snack, mon, tue, wed, thu, fri, sat, sun }
+
+String mealSlotLabel(AppLocalizations l10n, MealSlot slot) => switch (slot) {
+      MealSlot.breakfast => l10n.mealBreakfast,
+      MealSlot.lunch => l10n.mealLunch,
+      MealSlot.dinner => l10n.mealDinner,
+      MealSlot.snack => l10n.mealSnack,
+      MealSlot.mon => l10n.dayAbbrevMon,
+      MealSlot.tue => l10n.dayAbbrevTue,
+      MealSlot.wed => l10n.dayAbbrevWed,
+      MealSlot.thu => l10n.dayAbbrevThu,
+      MealSlot.fri => l10n.dayAbbrevFri,
+      MealSlot.sat => l10n.dayAbbrevSat,
+      MealSlot.sun => l10n.dayAbbrevSun,
+    };
 
 /// Screen #4 — Meals.
 /// Pure UI: search header, segmented tabs, suggested meal cards and a
@@ -18,31 +66,26 @@ class MealsScreen extends StatefulWidget {
 class _MealsScreenState extends State<MealsScreen> {
   int _tabIndex = 0;
 
-  static const _tabs = ['Daily', 'Weekly'];
-
   static const _dailyMeals = [
-    _Meal('Soft-boiled Eggs & Toast', 'Breakfast', 'Protein 20g', Icons.egg_alt,
+    _Meal(MealId.eggsToast, MealSlot.breakfast, 20, Icons.egg_alt,
         image: 'assets/images/meals/eggs_toast.png'),
-    _Meal('Grilled Chicken Salad', 'Lunch', 'Protein 32g', Icons.rice_bowl),
-    _Meal('Salmon with Vegetables', 'Dinner', 'Protein 28g', Icons.set_meal),
-    _Meal('Greek Yogurt & Nuts', 'Snack', 'Protein 15g', Icons.icecream),
+    _Meal(MealId.chickenSalad, MealSlot.lunch, 32, Icons.rice_bowl),
+    _Meal(MealId.salmonVeg, MealSlot.dinner, 28, Icons.set_meal),
+    _Meal(MealId.yogurtNuts, MealSlot.snack, 15, Icons.icecream),
   ];
 
   static const _weeklyMeals = [
-    _Meal('Oatmeal & Berries', 'Mon', 'Protein 18g', Icons.breakfast_dining),
-    _Meal('Tuna Sandwich', 'Tue', 'Protein 26g', Icons.lunch_dining),
-    _Meal('Tofu Stir-fry', 'Wed', 'Protein 22g', Icons.ramen_dining),
-    _Meal('Beef & Broccoli', 'Thu', 'Protein 30g', Icons.dinner_dining),
-    _Meal('Lentil Soup', 'Fri', 'Protein 18g', Icons.soup_kitchen),
-    _Meal('Chicken & Rice', 'Sat', 'Protein 28g', Icons.rice_bowl),
-    _Meal('Egg Fried Rice', 'Sun', 'Protein 20g', Icons.egg),
+    _Meal(MealId.oatmeal, MealSlot.mon, 18, Icons.breakfast_dining),
+    _Meal(MealId.tuna, MealSlot.tue, 26, Icons.lunch_dining),
+    _Meal(MealId.tofu, MealSlot.wed, 22, Icons.ramen_dining),
+    _Meal(MealId.beefBroccoli, MealSlot.thu, 30, Icons.dinner_dining),
+    _Meal(MealId.lentil, MealSlot.fri, 18, Icons.soup_kitchen),
+    _Meal(MealId.chickenRice, MealSlot.sat, 28, Icons.rice_bowl),
+    _Meal(MealId.eggRice, MealSlot.sun, 20, Icons.egg),
   ];
 
   List<_Meal> get _visibleMeals =>
       _tabIndex == 0 ? _dailyMeals : _weeklyMeals;
-
-  String get _sectionTitle =>
-      _tabIndex == 0 ? 'Suggested Meals for Today' : "This Week's Plan";
 
   void _openRecipe(String recipeName) {
     Navigator.of(context).push(
@@ -60,15 +103,18 @@ class _MealsScreenState extends State<MealsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final sectionTitle =
+        _tabIndex == 0 ? l10n.sectionSuggestedToday : l10n.sectionThisWeekPlan;
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.background,
         foregroundColor: AppColors.textDark,
         elevation: 0,
-        title: const Text(
-          'Meals',
-          style: TextStyle(fontWeight: FontWeight.w800),
+        title: Text(
+          l10n.mealsTitle,
+          style: const TextStyle(fontWeight: FontWeight.w800),
         ),
         centerTitle: true,
         actions: [
@@ -83,7 +129,7 @@ class _MealsScreenState extends State<MealsScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
             child: SegmentedTabs(
-              labels: _tabs,
+              labels: [l10n.tabDaily, l10n.tabWeekly],
               selected: _tabIndex,
               onChanged: (i) => setState(() => _tabIndex = i),
             ),
@@ -93,7 +139,7 @@ class _MealsScreenState extends State<MealsScreen> {
               padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
               children: [
                 Text(
-                  _sectionTitle,
+                  sectionTitle,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
@@ -106,7 +152,7 @@ class _MealsScreenState extends State<MealsScreen> {
                     padding: const EdgeInsets.only(bottom: 14),
                     child: _MealCard(
                       meal: meal,
-                      onTap: () => _openRecipe(meal.name),
+                      onTap: () => _openRecipe(mealName(l10n, meal.id)),
                     ),
                   ),
               ],
@@ -118,7 +164,7 @@ class _MealsScreenState extends State<MealsScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: _openSearch,
-                child: const Text('View Recipes'),
+                child: Text(l10n.viewRecipes),
               ),
             ),
           ),
@@ -129,10 +175,10 @@ class _MealsScreenState extends State<MealsScreen> {
 }
 
 class _Meal {
-  const _Meal(this.name, this.mealTime, this.protein, this.icon, {this.image});
-  final String name;
-  final String mealTime;
-  final String protein;
+  const _Meal(this.id, this.slot, this.proteinGrams, this.icon, {this.image});
+  final MealId id;
+  final MealSlot slot;
+  final int proteinGrams;
   final IconData icon;
   final String? image;
 }
@@ -144,6 +190,7 @@ class _MealCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Material(
       color: AppColors.surface,
       borderRadius: BorderRadius.circular(18),
@@ -187,7 +234,7 @@ class _MealCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      meal.mealTime,
+                      mealSlotLabel(l10n, meal.slot),
                       style: TextStyle(
                         fontSize: 13,
                         color: AppColors.primary,
@@ -196,7 +243,7 @@ class _MealCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      meal.name,
+                      mealName(l10n, meal.id),
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -205,7 +252,7 @@ class _MealCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      meal.protein,
+                      l10n.proteinGrams(meal.proteinGrams),
                       style: TextStyle(fontSize: 14, color: AppColors.textMuted),
                     ),
                   ],

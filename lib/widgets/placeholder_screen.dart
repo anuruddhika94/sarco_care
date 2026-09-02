@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 
 /// Generic "coming soon" destination used while forward screens are unbuilt.
@@ -33,7 +34,7 @@ class PlaceholderScreen extends StatelessWidget {
             Icon(Icons.construction, size: 64, color: AppColors.primary),
             const SizedBox(height: 16),
             Text(
-              '$title\ncoming soon',
+              AppLocalizations.of(context).comingSoon(title),
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 18, color: AppColors.textMuted),
             ),

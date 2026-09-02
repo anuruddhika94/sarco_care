@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../widgets/segmented_tabs.dart';
 import 'add_data_screen.dart';
@@ -19,31 +20,29 @@ class HealthTrackingScreen extends StatefulWidget {
 class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
   int _tabIndex = 0;
 
-  static const _tabs = ['Daily', 'Weekly', 'Monthly'];
-
   // Latest reading vs weekly/monthly averages.
   static const _daily = [
-    _Metric('Weight', '55.0', 'kg', Icons.monitor_weight_outlined),
-    _Metric('Height', '160', 'cm', Icons.height),
-    _Metric('BMI', '21.5', '', Icons.calculate_outlined, badge: 'Normal'),
-    _Metric('Calf Circumference', '34.0', 'cm', Icons.straighten),
-    _Metric('Handgrip', '18.0', 'kg', Icons.back_hand_outlined),
+    _Metric(MetricKind.weight, '55.0', 'kg', Icons.monitor_weight_outlined),
+    _Metric(MetricKind.height, '160', 'cm', Icons.height),
+    _Metric(MetricKind.bmi, '21.5', '', Icons.calculate_outlined, normal: true),
+    _Metric(MetricKind.calf, '34.0', 'cm', Icons.straighten),
+    _Metric(MetricKind.handgrip, '18.0', 'kg', Icons.back_hand_outlined),
   ];
 
   static const _weekly = [
-    _Metric('Weight', '55.3', 'kg', Icons.monitor_weight_outlined),
-    _Metric('Height', '160', 'cm', Icons.height),
-    _Metric('BMI', '21.6', '', Icons.calculate_outlined, badge: 'Normal'),
-    _Metric('Calf Circumference', '33.8', 'cm', Icons.straighten),
-    _Metric('Handgrip', '17.8', 'kg', Icons.back_hand_outlined),
+    _Metric(MetricKind.weight, '55.3', 'kg', Icons.monitor_weight_outlined),
+    _Metric(MetricKind.height, '160', 'cm', Icons.height),
+    _Metric(MetricKind.bmi, '21.6', '', Icons.calculate_outlined, normal: true),
+    _Metric(MetricKind.calf, '33.8', 'cm', Icons.straighten),
+    _Metric(MetricKind.handgrip, '17.8', 'kg', Icons.back_hand_outlined),
   ];
 
   static const _monthly = [
-    _Metric('Weight', '55.8', 'kg', Icons.monitor_weight_outlined),
-    _Metric('Height', '160', 'cm', Icons.height),
-    _Metric('BMI', '21.8', '', Icons.calculate_outlined, badge: 'Normal'),
-    _Metric('Calf Circumference', '33.5', 'cm', Icons.straighten),
-    _Metric('Handgrip', '17.5', 'kg', Icons.back_hand_outlined),
+    _Metric(MetricKind.weight, '55.8', 'kg', Icons.monitor_weight_outlined),
+    _Metric(MetricKind.height, '160', 'cm', Icons.height),
+    _Metric(MetricKind.bmi, '21.8', '', Icons.calculate_outlined, normal: true),
+    _Metric(MetricKind.calf, '33.5', 'cm', Icons.straighten),
+    _Metric(MetricKind.handgrip, '17.5', 'kg', Icons.back_hand_outlined),
   ];
 
   List<_Metric> get _visibleMetrics =>
@@ -57,6 +56,7 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -64,9 +64,9 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
         foregroundColor: AppColors.textDark,
         elevation: 0,
         automaticallyImplyLeading: widget.showBackButton,
-        title: const Text(
-          'Health Tracking',
-          style: TextStyle(fontWeight: FontWeight.w800),
+        title: Text(
+          l10n.featureHealthTracking,
+          style: const TextStyle(fontWeight: FontWeight.w800),
         ),
         centerTitle: true,
       ),
@@ -75,7 +75,7 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
             child: SegmentedTabs(
-              labels: _tabs,
+              labels: [l10n.tabDaily, l10n.tabWeekly, l10n.tabMonthly],
               selected: _tabIndex,
               onChanged: (i) => setState(() => _tabIndex = i),
             ),
@@ -99,7 +99,7 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
               child: ElevatedButton.icon(
                 onPressed: _addData,
                 icon: const Icon(Icons.add),
-                label: const Text('Add Data'),
+                label: Text(l10n.addData),
               ),
             ),
           ),
@@ -109,13 +109,24 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
   }
 }
 
+enum MetricKind { weight, height, bmi, calf, handgrip }
+
+String metricLabel(AppLocalizations l10n, MetricKind kind) => switch (kind) {
+      MetricKind.weight => l10n.metricWeight,
+      MetricKind.height => l10n.metricHeight,
+      MetricKind.bmi => l10n.metricBmi,
+      MetricKind.calf => l10n.metricCalf,
+      MetricKind.handgrip => l10n.metricHandgrip,
+    };
+
 class _Metric {
-  const _Metric(this.label, this.value, this.unit, this.icon, {this.badge});
-  final String label;
+  const _Metric(this.kind, this.value, this.unit, this.icon,
+      {this.normal = false});
+  final MetricKind kind;
   final String value;
   final String unit;
   final IconData icon;
-  final String? badge;
+  final bool normal;
 }
 
 class _MetricRow extends StatelessWidget {
@@ -124,6 +135,7 @@ class _MetricRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
       decoration: BoxDecoration(
@@ -145,7 +157,7 @@ class _MetricRow extends StatelessWidget {
           const SizedBox(width: 14),
           Expanded(
             child: Text(
-              metric.label,
+              metricLabel(l10n, metric.kind),
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -153,8 +165,8 @@ class _MetricRow extends StatelessWidget {
               ),
             ),
           ),
-          if (metric.badge != null) ...[
-            _Badge(text: metric.badge!),
+          if (metric.normal) ...[
+            _Badge(text: l10n.badgeNormal),
             const SizedBox(width: 10),
           ],
           Text(

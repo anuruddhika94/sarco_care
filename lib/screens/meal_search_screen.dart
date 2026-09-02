@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
+import 'meals_screen.dart';
 import 'recipe_screen.dart';
 
 /// Meal Search — browse and filter recipes, opened from Meals.
@@ -18,13 +20,13 @@ class _MealSearchScreenState extends State<MealSearchScreen> {
   String _query = '';
 
   static const _recipes = [
-    _Recipe('Soft-boiled Eggs & Toast', 'Protein 20g', Icons.egg_alt),
-    _Recipe('Grilled Chicken Salad', 'Protein 32g', Icons.rice_bowl),
-    _Recipe('Salmon with Vegetables', 'Protein 28g', Icons.set_meal),
-    _Recipe('Greek Yogurt & Nuts', 'Protein 15g', Icons.icecream),
-    _Recipe('Lentil Soup', 'Protein 18g', Icons.soup_kitchen),
-    _Recipe('Tofu Stir-fry', 'Protein 22g', Icons.ramen_dining),
-    _Recipe('Beef & Broccoli', 'Protein 30g', Icons.dinner_dining),
+    _Recipe(MealId.eggsToast, 20, Icons.egg_alt),
+    _Recipe(MealId.chickenSalad, 32, Icons.rice_bowl),
+    _Recipe(MealId.salmonVeg, 28, Icons.set_meal),
+    _Recipe(MealId.yogurtNuts, 15, Icons.icecream),
+    _Recipe(MealId.lentil, 18, Icons.soup_kitchen),
+    _Recipe(MealId.tofu, 22, Icons.ramen_dining),
+    _Recipe(MealId.beefBroccoli, 30, Icons.dinner_dining),
   ];
 
   @override
@@ -33,10 +35,12 @@ class _MealSearchScreenState extends State<MealSearchScreen> {
     super.dispose();
   }
 
-  List<_Recipe> get _results {
+  List<_Recipe> _results(AppLocalizations l10n) {
     if (_query.isEmpty) return _recipes;
     final q = _query.toLowerCase();
-    return _recipes.where((r) => r.name.toLowerCase().contains(q)).toList();
+    return _recipes
+        .where((r) => mealName(l10n, r.id).toLowerCase().contains(q))
+        .toList();
   }
 
   void _openRecipe(String name) {
@@ -47,16 +51,17 @@ class _MealSearchScreenState extends State<MealSearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final results = _results;
+    final l10n = AppLocalizations.of(context);
+    final results = _results(l10n);
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.background,
         foregroundColor: AppColors.textDark,
         elevation: 0,
-        title: const Text(
-          'Search Recipes',
-          style: TextStyle(fontWeight: FontWeight.w800),
+        title: Text(
+          l10n.searchRecipesTitle,
+          style: const TextStyle(fontWeight: FontWeight.w800),
         ),
         centerTitle: true,
       ),
@@ -68,7 +73,7 @@ class _MealSearchScreenState extends State<MealSearchScreen> {
               controller: _controller,
               onChanged: (v) => setState(() => _query = v),
               decoration: InputDecoration(
-                hintText: 'Search recipes',
+                hintText: l10n.searchRecipesHint,
                 hintStyle: const TextStyle(color: AppColors.textMuted),
                 prefixIcon: const Icon(Icons.search, color: AppColors.textMuted),
                 suffixIcon: _query.isEmpty
@@ -107,7 +112,7 @@ class _MealSearchScreenState extends State<MealSearchScreen> {
                           padding: const EdgeInsets.only(bottom: 12),
                           child: _ResultRow(
                             recipe: r,
-                            onTap: () => _openRecipe(r.name),
+                            onTap: () => _openRecipe(mealName(l10n, r.id)),
                           ),
                         ),
                     ],
@@ -120,9 +125,9 @@ class _MealSearchScreenState extends State<MealSearchScreen> {
 }
 
 class _Recipe {
-  const _Recipe(this.name, this.protein, this.icon);
-  final String name;
-  final String protein;
+  const _Recipe(this.id, this.proteinGrams, this.icon);
+  final MealId id;
+  final int proteinGrams;
   final IconData icon;
 }
 
@@ -133,6 +138,7 @@ class _ResultRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Material(
       color: AppColors.surface,
       borderRadius: BorderRadius.circular(16),
@@ -162,7 +168,7 @@ class _ResultRow extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      recipe.name,
+                      mealName(l10n, recipe.id),
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -171,7 +177,7 @@ class _ResultRow extends StatelessWidget {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      recipe.protein,
+                      l10n.proteinGrams(recipe.proteinGrams),
                       style: TextStyle(fontSize: 14, color: AppColors.textMuted),
                     ),
                   ],
@@ -192,6 +198,7 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -199,7 +206,7 @@ class _EmptyState extends StatelessWidget {
           Icon(Icons.search_off, size: 56, color: AppColors.textMuted),
           const SizedBox(height: 12),
           Text(
-            'No recipes match "$query"',
+            l10n.noRecipesMatch(query),
             style: TextStyle(fontSize: 16, color: AppColors.textMuted),
           ),
         ],

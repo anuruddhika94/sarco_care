@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
+import '../l10n/locale_controller.dart';
 import '../theme/app_theme.dart';
 import 'login_screen.dart';
 
@@ -11,6 +13,7 @@ class SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -18,13 +21,18 @@ class SplashScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 28),
           child: Column(
             children: [
+              const SizedBox(height: 8),
+              const Align(
+                alignment: Alignment.centerRight,
+                child: _LanguageToggle(),
+              ),
               const Spacer(flex: 2),
               const _Logo(),
               const SizedBox(height: 40),
               const _CoupleIllustration(),
               const SizedBox(height: 40),
               Text(
-                'App that cares for muscle\nhealth in the elderly',
+                l10n.splashTagline,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 18,
@@ -38,7 +46,7 @@ class SplashScreen extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () => _onGetStarted(context),
-                  child: const Text('Get Started'),
+                  child: Text(l10n.getStarted),
                 ),
               ),
               const SizedBox(height: 32),
@@ -52,6 +60,55 @@ class SplashScreen extends StatelessWidget {
   void _onGetStarted(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => const LoginScreen()),
+    );
+  }
+}
+
+/// Compact English/Thai toggle shown on the splash so users can pick their
+/// language before entering the app. Switching rebuilds the whole app live.
+class _LanguageToggle extends StatelessWidget {
+  const _LanguageToggle();
+
+  @override
+  Widget build(BuildContext context) {
+    final current = Localizations.localeOf(context);
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFEAEFEA)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final locale in LocaleController.supported)
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => localeController.setLocale(locale),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                decoration: BoxDecoration(
+                  color: locale.languageCode == current.languageCode
+                      ? AppColors.primary
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(9),
+                ),
+                child: Text(
+                  LocaleController.nativeName(locale),
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: locale.languageCode == current.languageCode
+                        ? Colors.white
+                        : AppColors.textMuted,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

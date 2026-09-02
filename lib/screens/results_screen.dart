@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import 'assessment_screen.dart';
 
@@ -26,6 +27,7 @@ class ResultsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final level = _level;
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -33,9 +35,9 @@ class ResultsScreen extends StatelessWidget {
         backgroundColor: AppColors.background,
         foregroundColor: AppColors.textDark,
         elevation: 0,
-        title: const Text(
-          'Assessment Results',
-          style: TextStyle(fontWeight: FontWeight.w800),
+        title: Text(
+          l10n.assessmentResults,
+          style: const TextStyle(fontWeight: FontWeight.w800),
         ),
         centerTitle: true,
       ),
@@ -66,7 +68,7 @@ class ResultsScreen extends StatelessWidget {
           _RiskBadge(level: level, score: score),
           const SizedBox(height: 28),
           Text(
-            'Recommendations',
+            l10n.recommendations,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w800,
@@ -74,7 +76,7 @@ class ResultsScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          for (final tip in level.recommendations) _RecLine(text: tip),
+          for (final tip in _riskRecommendations(l10n, level)) _RecLine(text: tip),
           const SizedBox(height: 28),
           SizedBox(
             width: double.infinity,
@@ -92,7 +94,7 @@ class ResultsScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text('Retake Assessment'),
+              child: Text(l10n.retakeAssessment),
             ),
           ),
         ],
@@ -102,32 +104,26 @@ class ResultsScreen extends StatelessWidget {
 }
 
 enum _RiskLevel {
-  low('Low Risk', Color(0xFF3B8B5F)),
-  moderate('Moderate Risk', Color(0xFFCB8A2E)),
-  high('High Risk', Color(0xFFB0524B));
+  low(Color(0xFF3B8B5F)),
+  moderate(Color(0xFFCB8A2E)),
+  high(Color(0xFFB0524B));
 
-  const _RiskLevel(this.label, this.color);
-  final String label;
+  const _RiskLevel(this.color);
   final Color color;
-
-  List<String> get recommendations => switch (this) {
-        _RiskLevel.low => const [
-            'Keep up your regular activity and balanced meals.',
-            'Maintain protein intake at each meal.',
-            'Reassess in a few months to track changes.',
-          ],
-        _RiskLevel.moderate => const [
-            'Add strength exercises 2–3 times per week.',
-            'Increase protein-rich foods across the day.',
-            'Discuss the result with your caretaker or doctor.',
-          ],
-        _RiskLevel.high => const [
-            'Consult a healthcare professional soon.',
-            'Begin a guided, low-impact strength program.',
-            'Ensure support is nearby to reduce fall risk.',
-          ],
-      };
 }
+
+String _riskLabel(AppLocalizations l10n, _RiskLevel level) => switch (level) {
+      _RiskLevel.low => l10n.riskLow,
+      _RiskLevel.moderate => l10n.riskModerate,
+      _RiskLevel.high => l10n.riskHigh,
+    };
+
+List<String> _riskRecommendations(AppLocalizations l10n, _RiskLevel level) =>
+    switch (level) {
+      _RiskLevel.low => [l10n.recLow1, l10n.recLow2, l10n.recLow3],
+      _RiskLevel.moderate => [l10n.recModerate1, l10n.recModerate2, l10n.recModerate3],
+      _RiskLevel.high => [l10n.recHigh1, l10n.recHigh2, l10n.recHigh3],
+    };
 
 class _RiskBadge extends StatelessWidget {
   const _RiskBadge({required this.level, required this.score});
@@ -136,6 +132,7 @@ class _RiskBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
@@ -147,7 +144,7 @@ class _RiskBadge extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            level.label,
+            _riskLabel(l10n, level),
             style: TextStyle(
               fontSize: 26,
               fontWeight: FontWeight.w800,
@@ -156,7 +153,7 @@ class _RiskBadge extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'Score: $score',
+            l10n.scoreLabel(score),
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,

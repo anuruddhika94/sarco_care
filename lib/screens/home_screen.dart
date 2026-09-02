@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
-import '../widgets/placeholder_screen.dart';
 import 'assessment_screen.dart';
 import 'caretaker_approval_screen.dart';
 import 'exercise_plan_screen.dart';
@@ -12,23 +12,26 @@ import 'notifications_screen.dart';
 /// Screen #3 — Home / dashboard (the Home tab of the app shell).
 /// Pure UI: greeting header, Daily Goals checklist and a grid of feature tiles.
 /// The bottom navigation bar lives in [MainShell]; tiles push full screens.
+/// The four dashboard shortcuts. The enum keeps navigation independent of the
+/// (translated) tile label.
+enum HomeFeature { mealMenus, exercisePlan, sarcfAssessment, healthTracking }
+
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  void _open(BuildContext context, String title) {
-    // Built screens route to their real widget; the rest hit a placeholder.
-    final WidgetBuilder builder = switch (title) {
-      'Meal Menus' => (_) => const MealsScreen(),
-      'Exercise Plan' => (_) => const ExercisePlanScreen(),
-      'SARC-F Assessment' => (_) => const AssessmentScreen(),
-      'Health Tracking' => (_) => const HealthTrackingScreen(),
-      _ => (_) => PlaceholderScreen(title: title),
+  void _open(BuildContext context, HomeFeature feature) {
+    final WidgetBuilder builder = switch (feature) {
+      HomeFeature.mealMenus => (_) => const MealsScreen(),
+      HomeFeature.exercisePlan => (_) => const ExercisePlanScreen(),
+      HomeFeature.sarcfAssessment => (_) => const AssessmentScreen(),
+      HomeFeature.healthTracking => (_) => const HealthTrackingScreen(),
     };
     Navigator.of(context).push(MaterialPageRoute(builder: builder));
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -38,7 +41,7 @@ class HomeScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _GreetingHeader(
-                name: 'Somchai',
+                name: l10n.userFirstName,
                 onBellTap: () => Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (_) => const NotificationsScreen(),
@@ -50,7 +53,7 @@ class HomeScreen extends StatelessWidget {
               const _DailyGoalsCard(),
               const SizedBox(height: 24),
               Text(
-                'What would you like to do?',
+                l10n.whatWouldYouLikeToDo,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -58,7 +61,7 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              _FeatureGrid(onTap: (title) => _open(context, title)),
+              _FeatureGrid(onTap: (feature) => _open(context, feature)),
             ],
           ),
         ),
@@ -74,6 +77,7 @@ class _GreetingHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Row(
       children: [
         Expanded(
@@ -81,12 +85,12 @@ class _GreetingHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Welcome back,',
+                l10n.welcomeBack,
                 style: TextStyle(fontSize: 15, color: AppColors.textMuted),
               ),
               const SizedBox(height: 4),
               Text(
-                '$name! 👋',
+                l10n.homeGreetingName(name),
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w800,
@@ -146,14 +150,15 @@ class _CaretakerRequestBanner extends StatefulWidget {
 }
 
 class _CaretakerRequestBannerState extends State<_CaretakerRequestBanner> {
-  static const _caretakerName = 'Malee Jai-Dee';
   bool _visible = true;
 
   Future<void> _review() async {
+    final l10n = AppLocalizations.of(context);
+    final caretakerName = l10n.caretakerFullName;
     final approved = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
         builder: (_) =>
-            const CaretakerApprovalScreen(caretakerName: _caretakerName),
+            CaretakerApprovalScreen(caretakerName: caretakerName),
       ),
     );
     if (approved == null || !mounted) return;
@@ -164,8 +169,8 @@ class _CaretakerRequestBannerState extends State<_CaretakerRequestBanner> {
         SnackBar(
           content: Text(
             approved
-                ? '$_caretakerName is now your caretaker'
-                : 'Request declined',
+                ? l10n.caretakerNowYours(caretakerName)
+                : l10n.requestDeclined,
           ),
           backgroundColor: AppColors.primary,
         ),
@@ -175,6 +180,7 @@ class _CaretakerRequestBannerState extends State<_CaretakerRequestBanner> {
   @override
   Widget build(BuildContext context) {
     if (!_visible) return const SizedBox.shrink();
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.only(top: 16),
       child: Material(
@@ -194,7 +200,7 @@ class _CaretakerRequestBannerState extends State<_CaretakerRequestBanner> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '$_caretakerName wants to be your caretaker',
+                        l10n.caretakerWantsToBe(l10n.caretakerFullName),
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
@@ -203,7 +209,7 @@ class _CaretakerRequestBannerState extends State<_CaretakerRequestBanner> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Tap to review',
+                        l10n.tapToReview,
                         style: TextStyle(fontSize: 13, color: AppColors.textMuted),
                       ),
                     ],
@@ -224,6 +230,7 @@ class _DailyGoalsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -235,7 +242,7 @@ class _DailyGoalsCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Daily Goals',
+            l10n.dailyGoals,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w800,
@@ -243,9 +250,9 @@ class _DailyGoalsCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          const _GoalItem(text: 'Eat enough protein'),
-          const _GoalItem(text: 'Exercise 15 minutes'),
-          const _GoalItem(text: 'Drink 6–8 glasses of water'),
+          _GoalItem(text: l10n.goalProtein),
+          _GoalItem(text: l10n.goalExercise),
+          _GoalItem(text: l10n.goalWater),
         ],
       ),
     );
@@ -284,15 +291,20 @@ class _GoalItem extends StatelessWidget {
 
 class _FeatureGrid extends StatelessWidget {
   const _FeatureGrid({required this.onTap});
-  final void Function(String title) onTap;
+  final void Function(HomeFeature feature) onTap;
 
   @override
   Widget build(BuildContext context) {
-    const features = [
-      _Feature('Meal Menus', Icons.restaurant_menu, Color(0xFF3B8B5F)),
-      _Feature('Exercise Plan', Icons.fitness_center, Color(0xFF3E7CB1)),
-      _Feature('SARC-F Assessment', Icons.assignment_outlined, Color(0xFFCB8A2E)),
-      _Feature('Health Tracking', Icons.monitor_heart_outlined, Color(0xFFB0524B)),
+    final l10n = AppLocalizations.of(context);
+    final features = [
+      _Feature(HomeFeature.mealMenus, l10n.featureMealMenus,
+          Icons.restaurant_menu, const Color(0xFF3B8B5F)),
+      _Feature(HomeFeature.exercisePlan, l10n.featureExercisePlan,
+          Icons.fitness_center, const Color(0xFF3E7CB1)),
+      _Feature(HomeFeature.sarcfAssessment, l10n.featureSarcfAssessment,
+          Icons.assignment_outlined, const Color(0xFFCB8A2E)),
+      _Feature(HomeFeature.healthTracking, l10n.featureHealthTracking,
+          Icons.monitor_heart_outlined, const Color(0xFFB0524B)),
     ];
 
     return GridView.count(
@@ -304,14 +316,15 @@ class _FeatureGrid extends StatelessWidget {
       childAspectRatio: 1.05,
       children: [
         for (final f in features)
-          _FeatureTile(feature: f, onTap: () => onTap(f.title)),
+          _FeatureTile(feature: f, onTap: () => onTap(f.feature)),
       ],
     );
   }
 }
 
 class _Feature {
-  const _Feature(this.title, this.icon, this.color);
+  const _Feature(this.feature, this.title, this.icon, this.color);
+  final HomeFeature feature;
   final String title;
   final IconData icon;
   final Color color;

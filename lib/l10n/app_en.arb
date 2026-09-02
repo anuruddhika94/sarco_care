@@ -1,0 +1,362 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "SarcoCare",
+  "save": "Save",
+  "next": "Next",
+  "search": "Search",
+
+  "splashTagline": "App that cares for muscle\nhealth in the elderly",
+  "getStarted": "Get Started",
+
+  "loginWelcome": "Welcome",
+  "loginIntoPrefix": "Log into ",
+  "rolePatient": "Patient",
+  "roleCaretaker": "Caretaker",
+  "phoneNumber": "Phone number",
+  "phoneNumberHint": "Enter phone number",
+  "password": "Password",
+  "passwordHint": "Enter password",
+  "logIn": "Log In",
+  "noAccountQuestion": "Don't have an account? ",
+  "signUp": "Sign Up",
+
+  "signupTitle": "Create account",
+  "signupJoinPrefix": "Join ",
+  "fullName": "Full name",
+  "fullNameHint": "Enter your name",
+  "createPasswordHint": "Create a password",
+  "confirmPassword": "Confirm password",
+  "confirmPasswordHint": "Re-enter password",
+  "createAccount": "Create Account",
+  "haveAccountQuestion": "Already have an account? ",
+
+  "navHome": "Home",
+  "navExercise": "Exercise",
+  "navHealth": "Health",
+  "navKnowledge": "Knowledge",
+  "navProfile": "Profile",
+
+  "welcomeBack": "Welcome back,",
+  "homeGreetingName": "{name}! 👋",
+  "@homeGreetingName": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "userFirstName": "Somchai",
+  "caretakerWantsToBe": "{name} wants to be your caretaker",
+  "@caretakerWantsToBe": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "tapToReview": "Tap to review",
+  "caretakerNowYours": "{name} is now your caretaker",
+  "@caretakerNowYours": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "requestDeclined": "Request declined",
+  "dailyGoals": "Daily Goals",
+  "goalProtein": "Eat enough protein",
+  "goalExercise": "Exercise 15 minutes",
+  "goalWater": "Drink 6–8 glasses of water",
+  "whatWouldYouLikeToDo": "What would you like to do?",
+  "featureMealMenus": "Meal Menus",
+  "featureExercisePlan": "Exercise Plan",
+  "featureSarcfAssessment": "SARC-F Assessment",
+  "featureHealthTracking": "Health Tracking",
+
+  "userFullNameTitled": "Mr. Somchai Jai-Dee",
+  "userFullName": "Somchai Jai-Dee",
+  "profileAge": "Age: {age}",
+  "@profileAge": {
+    "placeholders": { "age": { "type": "int" } }
+  },
+  "entryPersonalInfo": "Personal Info",
+  "entryUsageSummary": "Usage Summary",
+  "entryCaretaker": "Caretaker",
+  "entrySetupApp": "Setup App",
+  "logOut": "Log Out",
+
+  "setupLanguage": "Language",
+  "setupDeviceSetup": "Device Setup",
+  "setupLargeText": "Large Text",
+  "setupSound": "Sound",
+  "languageEnglish": "English",
+  "languageThai": "ไทย",
+  "selectLanguage": "Select language",
+
+  "fieldAge": "Age",
+  "fieldGender": "Gender",
+  "fieldEmail": "Email",
+  "genderMale": "Male",
+  "profileUpdated": "Profile updated",
+
+  "tabDaily": "Daily",
+  "tabWeekly": "Weekly",
+  "tabMonthly": "Monthly",
+  "seriesDailyAverage": "Daily average",
+  "seriesWeeklyAverage": "Weekly average",
+  "seriesMonthlyAverage": "Monthly average",
+  "activityScore": "Activity score",
+  "dayInitialMon": "M",
+  "dayInitialTue": "T",
+  "dayInitialWed": "W",
+  "dayInitialThu": "T",
+  "dayInitialFri": "F",
+  "dayInitialSat": "S",
+  "dayInitialSun": "S",
+  "monthJan": "Jan",
+  "monthFeb": "Feb",
+  "monthMar": "Mar",
+  "monthApr": "Apr",
+  "monthMay": "May",
+  "monthJun": "Jun",
+  "weekLabel": "W{number}",
+  "@weekLabel": {
+    "placeholders": { "number": { "type": "int" } }
+  },
+
+  "metricWeight": "Weight",
+  "metricHeight": "Height",
+  "metricBmi": "BMI",
+  "metricCalf": "Calf Circumference",
+  "metricHandgrip": "Handgrip",
+  "badgeNormal": "Normal",
+  "addData": "Add Data",
+
+  "dateToday": "Today",
+  "enterValueHint": "Enter {label}",
+  "@enterValueHint": {
+    "placeholders": { "label": { "type": "String" } }
+  },
+  "healthDataSaved": "Health data saved",
+
+  "setReminders": "Set Reminders",
+  "turnRemindersOnOff": "Turn reminders on or off",
+  "mealBreakfast": "Breakfast",
+  "mealLunch": "Lunch",
+  "mealDinner": "Dinner",
+  "mealSnack": "Snack",
+  "reminderWater": "Water",
+  "reminderMedication": "Medication",
+  "reminderSleep": "Sleep",
+  "reminderEvery2Hours": "Every 2 hours",
+
+  "catAll": "All",
+  "catFood": "Food",
+  "catPrevention": "Prevention",
+  "artOverviewTitle": "Overview",
+  "artOverviewSummary": "A quick introduction to muscle health",
+  "artWhatIsTitle": "What is Sarcopenia?",
+  "artWhatIsSummary": "Understanding age-related muscle loss",
+  "artCausesTitle": "Causes and Risk Factors",
+  "artCausesSummary": "What raises your risk",
+  "artExerciseGuideTitle": "Exercise Guide",
+  "artExerciseGuideSummary": "Safe movements to stay strong",
+  "artNutritionTitle": "Nutrition",
+  "artNutritionSummary": "Eating well for your muscles",
+  "artPreventionTitle": "Prevention",
+  "artPreventionSummary": "Daily habits that protect you",
+
+  "articleAppbar": "Article",
+  "chipReadTime": "3 min read",
+  "articleParagraph1": "Sarcopenia is the gradual loss of muscle mass, strength and function that often comes with ageing. It can make everyday tasks — standing up, climbing stairs, carrying shopping — feel harder over time.",
+  "articleParagraph2": "The good news is that it can be slowed and even improved. Regular strength activity and eating enough protein are two of the most effective steps you can take at any age.",
+  "articleParagraph3": "Small, consistent habits matter most. A short daily walk, a few seated exercises, and a protein source at each meal all add up to stronger, healthier muscles.",
+
+  "mealsTitle": "Meals",
+  "sectionSuggestedToday": "Suggested Meals for Today",
+  "sectionThisWeekPlan": "This Week's Plan",
+  "viewRecipes": "View Recipes",
+  "mealEggsToast": "Soft-boiled Eggs & Toast",
+  "mealChickenSalad": "Grilled Chicken Salad",
+  "mealSalmonVeg": "Salmon with Vegetables",
+  "mealYogurtNuts": "Greek Yogurt & Nuts",
+  "mealOatmeal": "Oatmeal & Berries",
+  "mealTuna": "Tuna Sandwich",
+  "mealTofu": "Tofu Stir-fry",
+  "mealBeefBroccoli": "Beef & Broccoli",
+  "mealLentil": "Lentil Soup",
+  "mealChickenRice": "Chicken & Rice",
+  "mealEggRice": "Egg Fried Rice",
+  "proteinGrams": "Protein {grams}g",
+  "@proteinGrams": {
+    "placeholders": { "grams": { "type": "int" } }
+  },
+  "dayAbbrevMon": "Mon",
+  "dayAbbrevTue": "Tue",
+  "dayAbbrevWed": "Wed",
+  "dayAbbrevThu": "Thu",
+  "dayAbbrevFri": "Fri",
+  "dayAbbrevSat": "Sat",
+  "dayAbbrevSun": "Sun",
+
+  "searchRecipesTitle": "Search Recipes",
+  "searchRecipesHint": "Search recipes",
+  "noRecipesMatch": "No recipes match \"{query}\"",
+  "@noRecipesMatch": {
+    "placeholders": { "query": { "type": "String" } }
+  },
+
+  "nutrLabelProtein": "Protein",
+  "nutrLabelEnergy": "Energy",
+  "nutrLabelFat": "Fat",
+  "sectionIngredients": "Ingredients",
+  "sectionMethod": "Method",
+  "ingredient1": "2 fresh eggs",
+  "ingredient2": "2 slices wholegrain toast",
+  "ingredient3": "1 tsp olive oil",
+  "ingredient4": "A pinch of salt and pepper",
+  "method1": "Bring a small pot of water to a gentle boil.",
+  "method2": "Lower the eggs in and cook for 6–7 minutes.",
+  "method3": "Cool under running water, then peel.",
+  "method4": "Serve with toast, a drizzle of oil and seasoning.",
+  "completeMealAndLog": "Complete Meal and Log",
+  "mealLoggedToday": "Meal logged for today",
+
+  "planTypeBasicStrength": "Basic Strength Training",
+  "exerciseTypeLabel": "Type: {type}",
+  "@exerciseTypeLabel": {
+    "placeholders": { "type": { "type": "String" } }
+  },
+  "tabExercises": "Exercises",
+  "exSeatedLegLift": "Seated Leg Lift",
+  "exArmCurls": "Arm Curls",
+  "exChairSquats": "Chair Squats",
+  "exStandingBalance": "Standing Balance",
+  "durationMinutes": "{count} min",
+  "@durationMinutes": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "durationHoursMinutes": "{hours}h {minutes}m",
+  "@durationHoursMinutes": {
+    "placeholders": {
+      "hours": { "type": "int" },
+      "minutes": { "type": "int" }
+    }
+  },
+
+  "sectionInstructions": "Instructions",
+  "instruction1": "Perform 10–15 reps per set",
+  "instruction2": "2–3 sets with short rests",
+  "instruction3": "Sit tall and move slowly and steadily",
+  "instruction4": "Follow the clear step-by-step video",
+  "startExercise": "Start Exercise",
+  "complete": "Complete",
+  "exerciseCompletedLogged": "Exercise completed and logged",
+
+  "myPlanTitle": "My Plan",
+  "tabToday": "Today",
+  "tabThisWeek": "This Week",
+  "tabThisMonth": "This Month",
+  "todaysProgress": "Today's progress",
+  "exercisesDone": "{done} of {total} exercises done",
+  "@exercisesDone": {
+    "placeholders": {
+      "done": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "beginExercise": "Begin Exercise",
+
+  "sarcfProgress": "SARC-F ({current}/{total})",
+  "@sarcfProgress": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "assessmentQuestion1": "How much difficulty do you have lifting and carrying 5 kg?",
+  "assessmentQuestion2": "How much difficulty do you have walking across a room?",
+  "assessmentQuestion3": "How much difficulty do you have moving from a chair or bed?",
+  "assessmentQuestion4": "How much difficulty do you have climbing a flight of 10 stairs?",
+  "assessmentQuestion5": "How much difficulty do you have due to falls in the past year?",
+  "optNoProblem": "No problem",
+  "optMinorProblem": "Minor problem",
+  "optModerateProblem": "Moderate problem",
+  "optSevereProblem": "Severe problem",
+  "questionNumber": "Question {number}",
+  "@questionNumber": {
+    "placeholders": { "number": { "type": "int" } }
+  },
+  "seeResults": "See Results",
+
+  "assessmentResults": "Assessment Results",
+  "riskLow": "Low Risk",
+  "riskModerate": "Moderate Risk",
+  "riskHigh": "High Risk",
+  "scoreLabel": "Score: {score}",
+  "@scoreLabel": {
+    "placeholders": { "score": { "type": "int" } }
+  },
+  "recommendations": "Recommendations",
+  "recLow1": "Keep up your regular activity and balanced meals.",
+  "recLow2": "Maintain protein intake at each meal.",
+  "recLow3": "Reassess in a few months to track changes.",
+  "recModerate1": "Add strength exercises 2–3 times per week.",
+  "recModerate2": "Increase protein-rich foods across the day.",
+  "recModerate3": "Discuss the result with your caretaker or doctor.",
+  "recHigh1": "Consult a healthcare professional soon.",
+  "recHigh2": "Begin a guided, low-impact strength program.",
+  "recHigh3": "Ensure support is nearby to reduce fall risk.",
+  "retakeAssessment": "Retake Assessment",
+
+  "linkedCaretaker": "Linked caretaker",
+  "caretakerFullName": "Malee Jai-Dee",
+  "caretakerFirstName": "Malee",
+  "relationshipDaughter": "Daughter",
+  "addCaretaker": "Add Caretaker",
+  "inviteSent": "Invite sent to caretaker",
+
+  "caretakerRequest": "Caretaker Request",
+  "ifApproveThey": "If you approve, they will be able to:",
+  "access1": "View your health data and measurements",
+  "access2": "Help log meals, exercises and steps",
+  "access3": "Update your personal information",
+  "approve": "Approve",
+  "decline": "Decline",
+
+  "myPatients": "My Patients",
+  "helloCaretaker": "Hello, {name} 👋",
+  "@helloCaretaker": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "caringForPatients": "You are caring for {count} patients",
+  "@caringForPatients": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "careForName": "Care for {name}",
+  "@careForName": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "careTileHealthData": "Health Data",
+  "careTileMeals": "Meals",
+  "careTileSarcf": "SARC-F",
+  "addPatient": "Add Patient",
+  "switchPatient": "Switch patient",
+  "switchLabel": "Switch",
+  "ageRiskSubtitle": "Age {age} · {risk} risk",
+  "@ageRiskSubtitle": {
+    "placeholders": {
+      "age": { "type": "int" },
+      "risk": { "type": "String" }
+    }
+  },
+  "riskShortLow": "Low",
+  "riskShortModerate": "Moderate",
+  "riskShortHigh": "High",
+  "patientWanida": "Wanida Suksawat",
+  "patientPrasert": "Prasert Chaiyo",
+
+  "findByPhoneDesc": "Find a patient by their phone number. They will get a request to approve you as their caretaker.",
+  "requestSentWaiting": "Request sent · waiting for approval",
+  "pendingApproval": "Pending approval",
+  "sendRequest": "Send Request",
+  "ageLabel": "Age {age}",
+  "@ageLabel": {
+    "placeholders": { "age": { "type": "int" } }
+  },
+
+  "comingSoon": "{title}\ncoming soon",
+  "@comingSoon": {
+    "placeholders": { "title": { "type": "String" } }
+  }
+}

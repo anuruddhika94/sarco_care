@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 
 /// Screen #5 — Recipe detail.
@@ -10,26 +11,13 @@ class RecipeScreen extends StatelessWidget {
 
   final String recipeName;
 
-  static const _ingredients = [
-    '2 fresh eggs',
-    '2 slices wholegrain toast',
-    '1 tsp olive oil',
-    'A pinch of salt and pepper',
-  ];
-
-  static const _method = [
-    'Bring a small pot of water to a gentle boil.',
-    'Lower the eggs in and cook for 6–7 minutes.',
-    'Cool under running water, then peel.',
-    'Serve with toast, a drizzle of oil and seasoning.',
-  ];
-
   void _completeAndLog(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        const SnackBar(
-          content: Text('Meal logged for today'),
+        SnackBar(
+          content: Text(l10n.mealLoggedToday),
           backgroundColor: AppColors.primary,
         ),
       );
@@ -38,6 +26,19 @@ class RecipeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final ingredients = [
+      l10n.ingredient1,
+      l10n.ingredient2,
+      l10n.ingredient3,
+      l10n.ingredient4,
+    ];
+    final method = [
+      l10n.method1,
+      l10n.method2,
+      l10n.method3,
+      l10n.method4,
+    ];
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -74,20 +75,20 @@ class RecipeScreen extends StatelessWidget {
           const SizedBox(height: 20),
           const _NutritionRow(),
           const SizedBox(height: 24),
-          const _SectionTitle('Ingredients'),
+          _SectionTitle(l10n.sectionIngredients),
           const SizedBox(height: 12),
-          for (final item in _ingredients) _BulletLine(text: item),
+          for (final item in ingredients) _BulletLine(text: item),
           const SizedBox(height: 20),
-          const _SectionTitle('Method'),
+          _SectionTitle(l10n.sectionMethod),
           const SizedBox(height: 12),
-          for (int i = 0; i < _method.length; i++)
-            _StepLine(number: i + 1, text: _method[i]),
+          for (int i = 0; i < method.length; i++)
+            _StepLine(number: i + 1, text: method[i]),
           const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () => _completeAndLog(context),
-              child: const Text('Complete Meal and Log'),
+              child: Text(l10n.completeMealAndLog),
             ),
           ),
         ],
@@ -101,13 +102,14 @@ class _NutritionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Row(
-      children: const [
-        Expanded(child: _NutritionTile(label: 'Protein', value: '13 g')),
-        SizedBox(width: 12),
-        Expanded(child: _NutritionTile(label: 'Energy', value: '90 kcal')),
-        SizedBox(width: 12),
-        Expanded(child: _NutritionTile(label: 'Fat', value: '6 g')),
+      children: [
+        Expanded(child: _NutritionTile(label: l10n.nutrLabelProtein, value: '13 g')),
+        const SizedBox(width: 12),
+        Expanded(child: _NutritionTile(label: l10n.nutrLabelEnergy, value: '90 kcal')),
+        const SizedBox(width: 12),
+        Expanded(child: _NutritionTile(label: l10n.nutrLabelFat, value: '6 g')),
       ],
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../widgets/auth_field.dart';
 import '../widgets/segmented_tabs.dart';
@@ -40,6 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -52,23 +54,23 @@ class _LoginScreenState extends State<LoginScreen> {
               const _Header(),
               const SizedBox(height: 32),
               SegmentedTabs(
-                labels: const ['Patient', 'Caretaker'],
+                labels: [l10n.rolePatient, l10n.roleCaretaker],
                 selected: _role,
                 onChanged: (i) => setState(() => _role = i),
               ),
               const SizedBox(height: 32),
-              const AuthFieldLabel('Phone number'),
+              AuthFieldLabel(l10n.phoneNumber),
               const SizedBox(height: 8),
               TextField(
                 keyboardType: TextInputType.phone,
-                decoration: authFieldDecoration('Enter phone number'),
+                decoration: authFieldDecoration(l10n.phoneNumberHint),
               ),
               const SizedBox(height: 20),
-              const AuthFieldLabel('Password'),
+              AuthFieldLabel(l10n.password),
               const SizedBox(height: 8),
               TextField(
                 obscureText: _obscurePassword,
-                decoration: authFieldDecoration('Enter password').copyWith(
+                decoration: authFieldDecoration(l10n.passwordHint).copyWith(
                   suffixIcon: IconButton(
                     icon: Icon(
                       _obscurePassword
@@ -85,20 +87,20 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 32),
               ElevatedButton(
                 onPressed: _login,
-                child: const Text('Log In'),
+                child: Text(l10n.logIn),
               ),
               const SizedBox(height: 28),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Don't have an account? ",
+                    l10n.noAccountQuestion,
                     style: TextStyle(color: AppColors.textMuted, fontSize: 15),
                   ),
                   GestureDetector(
                     onTap: _openSignUp,
                     child: Text(
-                      'Sign Up',
+                      l10n.signUp,
                       style: TextStyle(
                         color: AppColors.primary,
                         fontWeight: FontWeight.w700,
@@ -122,10 +124,11 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       children: [
         Text(
-          'Welcome',
+          l10n.loginWelcome,
           style: TextStyle(
             fontSize: 30,
             fontWeight: FontWeight.w800,
@@ -137,7 +140,7 @@ class _Header extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Log into ',
+              l10n.loginIntoPrefix,
               style: TextStyle(fontSize: 16, color: AppColors.textMuted),
             ),
             Text(

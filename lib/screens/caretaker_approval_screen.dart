@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 
 /// Caretaker Request (patient side) — approve or decline a caretaker who asked
@@ -9,27 +10,27 @@ class CaretakerApprovalScreen extends StatelessWidget {
 
   final String caretakerName;
 
-  static const _access = [
-    'View your health data and measurements',
-    'Help log meals, exercises and steps',
-    'Update your personal information',
-  ];
-
   void _respond(BuildContext context, bool approved) {
     Navigator.of(context).pop(approved);
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final access = [
+      l10n.access1,
+      l10n.access2,
+      l10n.access3,
+    ];
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.background,
         foregroundColor: AppColors.textDark,
         elevation: 0,
-        title: const Text(
-          'Caretaker Request',
-          style: TextStyle(fontWeight: FontWeight.w800),
+        title: Text(
+          l10n.caretakerRequest,
+          style: const TextStyle(fontWeight: FontWeight.w800),
         ),
         centerTitle: true,
       ),
@@ -49,7 +50,7 @@ class CaretakerApprovalScreen extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Text(
-            '$caretakerName wants to be your caretaker',
+            l10n.caretakerWantsToBe(caretakerName),
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 22,
@@ -60,7 +61,7 @@ class CaretakerApprovalScreen extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'If you approve, they will be able to:',
+            l10n.ifApproveThey,
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 15, color: AppColors.textMuted),
           ),
@@ -74,14 +75,14 @@ class CaretakerApprovalScreen extends StatelessWidget {
             ),
             child: Column(
               children: [
-                for (final line in _access) _AccessLine(text: line),
+                for (final line in access) _AccessLine(text: line),
               ],
             ),
           ),
           const SizedBox(height: 28),
           ElevatedButton(
             onPressed: () => _respond(context, true),
-            child: const Text('Approve'),
+            child: Text(l10n.approve),
           ),
           const SizedBox(height: 12),
           OutlinedButton(
@@ -98,7 +99,7 @@ class CaretakerApprovalScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: const Text('Decline'),
+            child: Text(l10n.decline),
           ),
         ],
       ),

@@ -1,32 +1,41 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_avatar.dart';
-import '../widgets/placeholder_screen.dart';
 import 'caretaker_screen.dart';
 import 'personal_info_screen.dart';
 import 'setup_app_screen.dart';
 import 'usage_summary_screen.dart';
 
+/// The Profile settings rows. The enum keeps navigation independent of the
+/// (translated) row label.
+enum ProfileEntry { personalInfo, usageSummary, caretaker, setupApp }
+
 /// Profile tab — user summary, settings entries and Log Out.
-/// Pure UI: rows open placeholders; Log Out returns to the app entry (Splash).
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
-  static const _entries = [
-    (Icons.person_outline, 'Personal Info'),
-    (Icons.insights_outlined, 'Usage Summary'),
-    (Icons.people_alt_outlined, 'Caretaker'),
-    (Icons.settings_outlined, 'Setup App'),
-  ];
+  static const _entryIcons = {
+    ProfileEntry.personalInfo: Icons.person_outline,
+    ProfileEntry.usageSummary: Icons.insights_outlined,
+    ProfileEntry.caretaker: Icons.people_alt_outlined,
+    ProfileEntry.setupApp: Icons.settings_outlined,
+  };
 
-  void _open(BuildContext context, String title) {
-    final WidgetBuilder builder = switch (title) {
-      'Personal Info' => (_) => const PersonalInfoScreen(),
-      'Usage Summary' => (_) => const UsageSummaryScreen(),
-      'Caretaker' => (_) => const CaretakerScreen(),
-      'Setup App' => (_) => const SetupAppScreen(),
-      _ => (_) => PlaceholderScreen(title: title),
+  String _label(AppLocalizations l10n, ProfileEntry entry) => switch (entry) {
+        ProfileEntry.personalInfo => l10n.entryPersonalInfo,
+        ProfileEntry.usageSummary => l10n.entryUsageSummary,
+        ProfileEntry.caretaker => l10n.entryCaretaker,
+        ProfileEntry.setupApp => l10n.entrySetupApp,
+      };
+
+  void _open(BuildContext context, ProfileEntry entry) {
+    final WidgetBuilder builder = switch (entry) {
+      ProfileEntry.personalInfo => (_) => const PersonalInfoScreen(),
+      ProfileEntry.usageSummary => (_) => const UsageSummaryScreen(),
+      ProfileEntry.caretaker => (_) => const CaretakerScreen(),
+      ProfileEntry.setupApp => (_) => const SetupAppScreen(),
     };
     Navigator.of(context).push(MaterialPageRoute(builder: builder));
   }
@@ -38,6 +47,7 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -45,9 +55,9 @@ class ProfileScreen extends StatelessWidget {
         foregroundColor: AppColors.textDark,
         elevation: 0,
         automaticallyImplyLeading: false,
-        title: const Text(
-          'Profile',
-          style: TextStyle(fontWeight: FontWeight.w800),
+        title: Text(
+          l10n.navProfile,
+          style: const TextStyle(fontWeight: FontWeight.w800),
         ),
         centerTitle: true,
       ),
@@ -64,7 +74,7 @@ class ProfileScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Mr. Somchai Jai-Dee',
+            l10n.userFullNameTitled,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 22,
@@ -74,18 +84,18 @@ class ProfileScreen extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Age: 72',
+            l10n.profileAge(72),
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 15, color: AppColors.textMuted),
           ),
           const SizedBox(height: 28),
-          for (final e in _entries)
+          for (final entry in ProfileEntry.values)
             Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: _SettingsRow(
-                icon: e.$1,
-                label: e.$2,
-                onTap: () => _open(context, e.$2),
+                icon: _entryIcons[entry]!,
+                label: _label(l10n, entry),
+                onTap: () => _open(context, entry),
               ),
             ),
           const SizedBox(height: 16),
@@ -94,7 +104,7 @@ class ProfileScreen extends StatelessWidget {
             child: ElevatedButton.icon(
               onPressed: () => _logOut(context),
               icon: const Icon(Icons.logout),
-              label: const Text('Log Out'),
+              label: Text(l10n.logOut),
             ),
           ),
         ],

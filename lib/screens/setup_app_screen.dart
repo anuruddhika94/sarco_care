@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
+import '../l10n/locale_controller.dart';
 import '../theme/app_theme.dart';
 
 /// Setup App — device and app settings opened from Profile.
-/// Pure UI: value rows (language) and preference toggles (large text, sound).
+/// The Language row switches the whole app between English and Thai.
 class SetupAppScreen extends StatefulWidget {
   const SetupAppScreen({super.key});
 
@@ -15,17 +17,34 @@ class _SetupAppScreenState extends State<SetupAppScreen> {
   bool _largeText = true;
   bool _sound = true;
 
+  Future<void> _pickLanguage() async {
+    final current = Localizations.localeOf(context);
+    final picked = await showModalBottomSheet<Locale>(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => _LanguagePicker(current: current),
+    );
+    if (picked != null) {
+      await localeController.setLocale(picked);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final locale = Localizations.localeOf(context);
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.background,
         foregroundColor: AppColors.textDark,
         elevation: 0,
-        title: const Text(
-          'Setup App',
-          style: TextStyle(fontWeight: FontWeight.w800),
+        title: Text(
+          l10n.entrySetupApp,
+          style: const TextStyle(fontWeight: FontWeight.w800),
         ),
         centerTitle: true,
       ),
@@ -34,32 +53,79 @@ class _SetupAppScreenState extends State<SetupAppScreen> {
         children: [
           _ValueRow(
             icon: Icons.language,
-            label: 'Language',
-            value: 'English',
-            onTap: () {},
+            label: l10n.setupLanguage,
+            value: LocaleController.nativeName(locale),
+            onTap: _pickLanguage,
           ),
           const SizedBox(height: 12),
           _ValueRow(
             icon: Icons.devices_other,
-            label: 'Device Setup',
+            label: l10n.setupDeviceSetup,
             value: '',
             onTap: () {},
           ),
           const SizedBox(height: 12),
           _ToggleRow(
             icon: Icons.text_fields,
-            label: 'Large Text',
+            label: l10n.setupLargeText,
             value: _largeText,
             onChanged: (v) => setState(() => _largeText = v),
           ),
           const SizedBox(height: 12),
           _ToggleRow(
             icon: Icons.volume_up_outlined,
-            label: 'Sound',
+            label: l10n.setupSound,
             value: _sound,
             onChanged: (v) => setState(() => _sound = v),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Bottom-sheet language chooser. Returns the picked [Locale] (or null).
+class _LanguagePicker extends StatelessWidget {
+  const _LanguagePicker({required this.current});
+  final Locale current;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.selectLanguage,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: AppColors.textDark,
+              ),
+            ),
+            const SizedBox(height: 8),
+            for (final locale in LocaleController.supported)
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(
+                  LocaleController.nativeName(locale),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textDark,
+                  ),
+                ),
+                trailing: locale.languageCode == current.languageCode
+                    ? const Icon(Icons.check_circle, color: AppColors.primary)
+                    : null,
+                onTap: () => Navigator.of(context).pop(locale),
+              ),
+          ],
+        ),
       ),
     );
   }

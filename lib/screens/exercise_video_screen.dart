@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import 'my_plan_screen.dart';
 
@@ -24,13 +25,6 @@ class ExerciseVideoScreen extends StatefulWidget {
 class _ExerciseVideoScreenState extends State<ExerciseVideoScreen> {
   bool _started = false;
   late final YoutubePlayerController _controller;
-
-  static const _instructions = [
-    'Perform 10–15 reps per set',
-    '2–3 sets with short rests',
-    'Sit tall and move slowly and steadily',
-    'Follow the clear step-by-step video',
-  ];
 
   @override
   void initState() {
@@ -56,8 +50,8 @@ class _ExerciseVideoScreenState extends State<ExerciseVideoScreen> {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        const SnackBar(
-          content: Text('Exercise completed and logged'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context).exerciseCompletedLogged),
           backgroundColor: AppColors.primary,
         ),
       );
@@ -72,6 +66,13 @@ class _ExerciseVideoScreenState extends State<ExerciseVideoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final instructions = [
+      l10n.instruction1,
+      l10n.instruction2,
+      l10n.instruction3,
+      l10n.instruction4,
+    ];
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -96,7 +97,7 @@ class _ExerciseVideoScreenState extends State<ExerciseVideoScreen> {
           ),
           const SizedBox(height: 24),
           Text(
-            'Instructions',
+            l10n.sectionInstructions,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w800,
@@ -104,13 +105,13 @@ class _ExerciseVideoScreenState extends State<ExerciseVideoScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          for (final line in _instructions) _InstructionLine(text: line),
+          for (final line in instructions) _InstructionLine(text: line),
           const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
               onPressed: _onPrimary,
-              child: Text(_started ? 'Complete' : 'Start Exercise'),
+              child: Text(_started ? l10n.complete : l10n.startExercise),
             ),
           ),
           const SizedBox(height: 12),
@@ -130,7 +131,7 @@ class _ExerciseVideoScreenState extends State<ExerciseVideoScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text('My Plan'),
+              child: Text(l10n.myPlanTitle),
             ),
           ),
         ],

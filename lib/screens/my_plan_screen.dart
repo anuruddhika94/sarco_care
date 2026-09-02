@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
+import '../l10n/l10n_format.dart';
 import '../theme/app_theme.dart';
 import '../widgets/segmented_tabs.dart';
+import 'exercise_plan_screen.dart';
 
 /// My Plan — the user's exercise log / plan opened from the Exercise Video.
 /// Pure UI: range tabs, a list of planned exercises with completion state and
@@ -17,30 +20,31 @@ class _MyPlanScreenState extends State<MyPlanScreen> {
   int _tabIndex = 0;
 
   static const _today = [
-    _LogEntry('Seated Leg Lift', '10 min', true),
-    _LogEntry('Arm Curls', '8 min', true),
-    _LogEntry('Chair Squats', '12 min', false),
-    _LogEntry('Standing Balance', '6 min', false),
+    _LogEntry(ExerciseId.seatedLegLift, 10, true),
+    _LogEntry(ExerciseId.armCurls, 8, true),
+    _LogEntry(ExerciseId.chairSquats, 12, false),
+    _LogEntry(ExerciseId.standingBalance, 6, false),
   ];
 
   static const _thisWeek = [
-    _LogEntry('Seated Leg Lift', '50 min', true),
-    _LogEntry('Arm Curls', '40 min', true),
-    _LogEntry('Chair Squats', '36 min', true),
-    _LogEntry('Standing Balance', '18 min', false),
+    _LogEntry(ExerciseId.seatedLegLift, 50, true),
+    _LogEntry(ExerciseId.armCurls, 40, true),
+    _LogEntry(ExerciseId.chairSquats, 36, true),
+    _LogEntry(ExerciseId.standingBalance, 18, false),
   ];
 
   static const _thisMonth = [
-    _LogEntry('Seated Leg Lift', '3h 20m', true),
-    _LogEntry('Arm Curls', '2h 40m', true),
-    _LogEntry('Chair Squats', '2h 24m', true),
-    _LogEntry('Standing Balance', '1h 12m', true),
+    _LogEntry(ExerciseId.seatedLegLift, 200, true),
+    _LogEntry(ExerciseId.armCurls, 160, true),
+    _LogEntry(ExerciseId.chairSquats, 144, true),
+    _LogEntry(ExerciseId.standingBalance, 72, true),
   ];
 
   List<_LogEntry> get _entries => [_today, _thisWeek, _thisMonth][_tabIndex];
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final entries = _entries;
     final done = entries.where((e) => e.done).length;
     return Scaffold(
@@ -49,9 +53,9 @@ class _MyPlanScreenState extends State<MyPlanScreen> {
         backgroundColor: AppColors.background,
         foregroundColor: AppColors.textDark,
         elevation: 0,
-        title: const Text(
-          'My Plan',
-          style: TextStyle(fontWeight: FontWeight.w800),
+        title: Text(
+          l10n.myPlanTitle,
+          style: const TextStyle(fontWeight: FontWeight.w800),
         ),
         centerTitle: true,
       ),
@@ -60,7 +64,7 @@ class _MyPlanScreenState extends State<MyPlanScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
             child: SegmentedTabs(
-              labels: const ['Today', 'This Week', 'This Month'],
+              labels: [l10n.tabToday, l10n.tabThisWeek, l10n.tabThisMonth],
               selected: _tabIndex,
               onChanged: (i) => setState(() => _tabIndex = i),
             ),
@@ -85,7 +89,7 @@ class _MyPlanScreenState extends State<MyPlanScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Begin Exercise'),
+                child: Text(l10n.beginExercise),
               ),
             ),
           ),
@@ -96,9 +100,9 @@ class _MyPlanScreenState extends State<MyPlanScreen> {
 }
 
 class _LogEntry {
-  const _LogEntry(this.name, this.duration, this.done);
-  final String name;
-  final String duration;
+  const _LogEntry(this.id, this.minutes, this.done);
+  final ExerciseId id;
+  final int minutes;
   final bool done;
 }
 
@@ -109,6 +113,7 @@ class _SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -122,12 +127,12 @@ class _SummaryCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Today's progress",
+                  l10n.todaysProgress,
                   style: TextStyle(fontSize: 15, color: AppColors.textMuted),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '$done of $total exercises done',
+                  l10n.exercisesDone(done, total),
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
@@ -172,6 +177,7 @@ class _LogRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       decoration: BoxDecoration(
@@ -188,7 +194,7 @@ class _LogRow extends StatelessWidget {
           const SizedBox(width: 14),
           Expanded(
             child: Text(
-              entry.name,
+              exerciseName(l10n, entry.id),
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -197,7 +203,7 @@ class _LogRow extends StatelessWidget {
             ),
           ),
           Text(
-            entry.duration,
+            formatDuration(l10n, entry.minutes),
             style: TextStyle(fontSize: 14, color: AppColors.textMuted),
           ),
         ],
