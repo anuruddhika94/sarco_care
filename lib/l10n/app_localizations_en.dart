@@ -828,4 +828,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String comingSoon(String title) {
     return '$title\ncoming soon';
   }
+
+  @override
+  String get chatTitle => 'Assistant';
+
+  @override
+  String get chatBubbleTooltip => 'Chat with the assistant';
+
+  @override
+  String get chatDisclaimer =>
+      'AI assistant · general guidance, not medical advice';
+
+  @override
+  String get chatGreeting =>
+      'Hi! I\'m your SarcoCare assistant. Ask me about exercises, meals or your health plan.';
+
+  @override
+  String get chatInputHint => 'Type a message…';
+
+  @override
+  String get chatSend => 'Send';
+
+  @override
+  String get chatComingSoonReply =>
+      'Thanks for your message! I\'m not connected yet — once I am, I\'ll give you personalized guidance on muscle health, exercise and nutrition.';
 }

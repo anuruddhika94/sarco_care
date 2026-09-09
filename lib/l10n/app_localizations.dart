@@ -1633,6 +1633,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{title}\ncoming soon'**
   String comingSoon(String title);
+
+  /// No description provided for @chatTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Assistant'**
+  String get chatTitle;
+
+  /// No description provided for @chatBubbleTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat with the assistant'**
+  String get chatBubbleTooltip;
+
+  /// No description provided for @chatDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'AI assistant · general guidance, not medical advice'**
+  String get chatDisclaimer;
+
+  /// No description provided for @chatGreeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Hi! I\'m your SarcoCare assistant. Ask me about exercises, meals or your health plan.'**
+  String get chatGreeting;
+
+  /// No description provided for @chatInputHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type a message…'**
+  String get chatInputHint;
+
+  /// No description provided for @chatSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get chatSend;
+
+  /// No description provided for @chatComingSoonReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks for your message! I\'m not connected yet — once I am, I\'ll give you personalized guidance on muscle health, exercise and nutrition.'**
+  String get chatComingSoonReply;
 }
 
 class _AppLocalizationsDelegate

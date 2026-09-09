@@ -39,7 +39,7 @@ class LocaleController extends ValueNotifier<Locale> {
 }
 
 /// The global language controller, created in `main()`.
-late final LocaleController localeController;
+late LocaleController localeController;
 
 /// Shorthand for the current screen's localized strings.
 AppLocalizations l10nOf(BuildContext context) => AppLocalizations.of(context);

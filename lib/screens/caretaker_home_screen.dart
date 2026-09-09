@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../chat/chat_controller.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_avatar.dart';
@@ -45,6 +46,7 @@ class _CaretakerHomeScreenState extends State<CaretakerHomeScreen> {
   int _selected = 0;
 
   void _logOut() {
+    chatController.onLogout();
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
 

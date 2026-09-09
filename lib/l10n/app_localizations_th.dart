@@ -828,4 +828,28 @@ class AppLocalizationsTh extends AppLocalizations {
   String comingSoon(String title) {
     return '$title\nเร็ว ๆ นี้';
   }
+
+  @override
+  String get chatTitle => 'ผู้ช่วย';
+
+  @override
+  String get chatBubbleTooltip => 'แชทกับผู้ช่วย';
+
+  @override
+  String get chatDisclaimer =>
+      'ผู้ช่วย AI · เป็นคำแนะนำทั่วไป ไม่ใช่คำแนะนำทางการแพทย์';
+
+  @override
+  String get chatGreeting =>
+      'สวัสดี! ฉันคือผู้ช่วย SarcoCare ถามฉันเกี่ยวกับการออกกำลังกาย มื้ออาหาร หรือแผนสุขภาพของคุณได้เลย';
+
+  @override
+  String get chatInputHint => 'พิมพ์ข้อความ…';
+
+  @override
+  String get chatSend => 'ส่ง';
+
+  @override
+  String get chatComingSoonReply =>
+      'ขอบคุณสำหรับข้อความ! ตอนนี้ฉันยังไม่ได้เชื่อมต่อ เมื่อเชื่อมต่อแล้ว ฉันจะให้คำแนะนำเฉพาะบุคคลเกี่ยวกับสุขภาพกล้ามเนื้อ การออกกำลังกาย และโภชนาการ';
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../chat/chat_controller.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_avatar.dart';
@@ -41,6 +42,7 @@ class ProfileScreen extends StatelessWidget {
   }
 
   void _logOut(BuildContext context) {
+    chatController.onLogout();
     // Unwind back to the first route (Splash), clearing the logged-in stack.
     Navigator.of(context).popUntil((route) => route.isFirst);
   }

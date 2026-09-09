@@ -358,5 +358,13 @@
   "comingSoon": "{title}\ncoming soon",
   "@comingSoon": {
     "placeholders": { "title": { "type": "String" } }
-  }
+  },
+
+  "chatTitle": "Assistant",
+  "chatBubbleTooltip": "Chat with the assistant",
+  "chatDisclaimer": "AI assistant · general guidance, not medical advice",
+  "chatGreeting": "Hi! I'm your SarcoCare assistant. Ask me about exercises, meals or your health plan.",
+  "chatInputHint": "Type a message…",
+  "chatSend": "Send",
+  "chatComingSoonReply": "Thanks for your message! I'm not connected yet — once I am, I'll give you personalized guidance on muscle health, exercise and nutrition."
 }

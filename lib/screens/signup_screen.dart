@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../chat/chat_controller.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../widgets/auth_field.dart';
@@ -31,6 +32,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     final WidgetBuilder builder = _isPatient
         ? (_) => const MainShell()
         : (_) => const CaretakerHomeScreen();
+    chatController.onLogin();
     // Replace so Back doesn't return to the sign-up form after account creation.
     Navigator.of(context).pushReplacement(MaterialPageRoute(builder: builder));
   }

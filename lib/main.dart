@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'chat/chat_bubble.dart';
+import 'chat/chat_controller.dart';
 import 'l10n/app_localizations.dart';
 import 'l10n/locale_controller.dart';
 import 'screens/splash_screen.dart';
@@ -22,12 +24,28 @@ class SarcoCareApp extends StatelessWidget {
       valueListenable: localeController,
       builder: (context, locale, _) {
         return MaterialApp(
+          navigatorKey: appNavigatorKey,
           onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
           debugShowCheckedModeBanner: false,
           theme: AppTheme.light,
           locale: locale,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
+          // Paint the floating chat bubble above the whole route stack; it
+          // shows only after login (driven by chatController).
+          builder: (context, child) {
+            return Stack(
+              children: [
+                ?child,
+                ListenableBuilder(
+                  listenable: chatController,
+                  builder: (context, _) => chatController.bubbleVisible
+                      ? const ChatBubble()
+                      : const SizedBox.shrink(),
+                ),
+              ],
+            );
+          },
           home: const SplashScreen(),
         );
       },
