@@ -1154,6 +1154,12 @@ abstract class AppLocalizations {
   /// **'Standing Balance'**
   String get exStandingBalance;
 
+  /// No description provided for @videoDateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'12 September 2026'**
+  String get videoDateTitle;
+
   /// No description provided for @durationMinutes.
   ///
   /// In en, this message translates to:
@@ -1675,6 +1681,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Thanks for your message! I\'m not connected yet — once I am, I\'ll give you personalized guidance on muscle health, exercise and nutrition.'**
   String get chatComingSoonReply;
+
+  /// No description provided for @chatError.
+  ///
+  /// In en, this message translates to:
+  /// **'Sorry, something went wrong. Please try again.'**
+  String get chatError;
 }
 
 class _AppLocalizationsDelegate

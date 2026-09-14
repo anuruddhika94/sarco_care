@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
+import 'claude_service.dart';
 
 /// AI chat — UI only for now.
 ///
@@ -23,9 +24,11 @@ class _Message {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _input = TextEditingController();
   final ScrollController _scroll = ScrollController();
+  final ClaudeService _service = ClaudeService();
   final List<_Message> _messages = [];
   bool _typing = false;
   bool _seeded = false;
+  bool _sending = false;
 
   @override
   void didChangeDependencies() {
@@ -41,6 +44,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void dispose() {
     _input.dispose();
     _scroll.dispose();
+    _service.dispose();
     super.dispose();
   }
 
@@ -57,23 +61,73 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _send() async {
     final text = _input.text.trim();
-    if (text.isEmpty) return;
-    final reply = AppLocalizations.of(context).chatComingSoonReply;
+    if (text.isEmpty || _sending) return;
+    final l10n = AppLocalizations.of(context);
+    final languageCode = Localizations.localeOf(context).languageCode;
+
     setState(() {
       _messages.add(_Message(text, true));
       _input.clear();
       _typing = true;
+      _sending = true;
     });
     _scrollToBottom();
 
-    // Simulate the assistant "thinking" then replying (placeholder).
-    await Future<void>.delayed(const Duration(milliseconds: 800));
-    if (!mounted) return;
-    setState(() {
-      _typing = false;
-      _messages.add(_Message(reply, false));
-    });
-    _scrollToBottom();
+    // No API key configured → keep the canned placeholder so the UI still works.
+    if (!_service.isConfigured) {
+      await Future<void>.delayed(const Duration(milliseconds: 800));
+      if (!mounted) return;
+      setState(() {
+        _typing = false;
+        _sending = false;
+        _messages.add(_Message(l10n.chatComingSoonReply, false));
+      });
+      _scrollToBottom();
+      return;
+    }
+
+    // Conversation for the API: drop the seeded greeting (must start with a
+    // user turn) and map to Anthropic's message shape.
+    final apiMessages = [
+      for (final m in _messages.skip(1))
+        {'role': m.fromUser ? 'user' : 'assistant', 'content': m.text},
+    ];
+
+    var acc = '';
+    int? replyIndex; // index of the growing assistant message
+    try {
+      final stream = _service.streamReply(
+        messages: apiMessages,
+        languageCode: languageCode,
+      );
+      await for (final delta in stream) {
+        if (!mounted) return;
+        setState(() {
+          _typing = false;
+          acc += delta;
+          if (replyIndex == null) {
+            _messages.add(_Message(acc, false));
+            replyIndex = _messages.length - 1;
+          } else {
+            _messages[replyIndex!] = _Message(acc, false);
+          }
+        });
+        _scrollToBottom();
+      }
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        if (replyIndex == null) _messages.add(_Message(l10n.chatError, false));
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _typing = false;
+          _sending = false;
+        });
+        _scrollToBottom();
+      }
+    }
   }
 
   @override

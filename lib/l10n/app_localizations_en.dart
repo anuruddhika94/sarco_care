@@ -559,6 +559,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get exStandingBalance => 'Standing Balance';
 
   @override
+  String get videoDateTitle => '12 September 2026';
+
+  @override
   String durationMinutes(int count) {
     return '$count min';
   }
@@ -852,4 +855,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get chatComingSoonReply =>
       'Thanks for your message! I\'m not connected yet — once I am, I\'ll give you personalized guidance on muscle health, exercise and nutrition.';
+
+  @override
+  String get chatError => 'Sorry, something went wrong. Please try again.';
 }

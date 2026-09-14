@@ -558,6 +558,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get exStandingBalance => 'ทรงตัวท่ายืน';
 
   @override
+  String get videoDateTitle => '12 กันยายน 2569';
+
+  @override
   String durationMinutes(int count) {
     return '$count นาที';
   }
@@ -852,4 +855,7 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get chatComingSoonReply =>
       'ขอบคุณสำหรับข้อความ! ตอนนี้ฉันยังไม่ได้เชื่อมต่อ เมื่อเชื่อมต่อแล้ว ฉันจะให้คำแนะนำเฉพาะบุคคลเกี่ยวกับสุขภาพกล้ามเนื้อ การออกกำลังกาย และโภชนาการ';
+
+  @override
+  String get chatError => 'ขออภัย เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง';
 }
