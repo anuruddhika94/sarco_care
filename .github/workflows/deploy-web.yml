@@ -31,7 +31,14 @@ jobs:
       - run: flutter pub get
 
       # base-href must match the repo name for a Pages project site.
-      - run: flutter build web --release --base-href /sarco_care/
+      # PROXY_URL/PROXY_TOKEN come from repo secrets so the chat reaches the
+      # Cloudflare Worker. NOTE: on web these get compiled into the public JS
+      # bundle — the Gemini key stays safe on the Worker, but the proxy token is
+      # visible to anyone. Mitigate by locking the Worker to this site's origin.
+      - run: >
+          flutter build web --release --base-href /sarco_care/
+          --dart-define=PROXY_URL=${{ secrets.PROXY_URL }}
+          --dart-define=PROXY_TOKEN=${{ secrets.PROXY_TOKEN }}
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
