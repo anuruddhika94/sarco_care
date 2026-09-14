@@ -35,15 +35,14 @@ class _ExercisePlanScreenState extends State<ExercisePlanScreen> {
 
   // All recommended exercises vs the ones the user added to their plan.
   static const _allExercises = [
-    _Exercise(ExerciseId.seatedLegLift, 10, Icons.airline_seat_recline_normal, '2TrhLLjipgE'),
-    _Exercise(ExerciseId.armCurls, 8, Icons.fitness_center, '8I640AY2j-U'),
-    _Exercise(ExerciseId.chairSquats, 12, Icons.chair_alt, '_wi9qqg2N7g'),
-    _Exercise(ExerciseId.standingBalance, 6, Icons.accessibility_new, '2nuMAKe-Pao'),
+    _Exercise(ExerciseId.seatedLegLift, 10, Icons.airline_seat_recline_normal, 'BoA431kaU2M'),
+    _Exercise(ExerciseId.armCurls, 8, Icons.fitness_center, 'eZhhNN4QkSk'),
+    _Exercise(ExerciseId.chairSquats, 12, Icons.chair_alt, '7QZKb9E5dbg'),
   ];
 
   static const _myPlan = [
-    _Exercise(ExerciseId.seatedLegLift, 10, Icons.airline_seat_recline_normal, '2TrhLLjipgE'),
-    _Exercise(ExerciseId.chairSquats, 12, Icons.chair_alt, '_wi9qqg2N7g'),
+    _Exercise(ExerciseId.seatedLegLift, 10, Icons.airline_seat_recline_normal, 'BoA431kaU2M'),
+    _Exercise(ExerciseId.chairSquats, 12, Icons.chair_alt, '7QZKb9E5dbg'),
   ];
 
   List<_Exercise> get _visibleExercises =>
@@ -79,11 +78,6 @@ class _ExercisePlanScreenState extends State<ExercisePlanScreen> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
         children: [
-          _FeaturedVideo(
-            videoId: 'ymawWTDYlYs',
-            onTap: () => _openVideo(l10n.planTypeBasicStrength, 'ymawWTDYlYs'),
-          ),
-          const SizedBox(height: 16),
           Text(
             l10n.exerciseTypeLabel(l10n.planTypeBasicStrength),
             style: TextStyle(
@@ -112,7 +106,7 @@ class _ExercisePlanScreenState extends State<ExercisePlanScreen> {
                   index: i + 1,
                   exercise: _visibleExercises[i],
                   onTap: () => _openVideo(
-                    exerciseName(l10n, _visibleExercises[i].id),
+                    l10n.videoDateTitle,
                     _visibleExercises[i].videoId,
                   ),
                 ),
@@ -130,30 +124,6 @@ class _Exercise {
   final int minutes;
   final IconData icon;
   final String videoId;
-}
-
-/// Large featured video card showing the YouTube thumbnail with a play overlay.
-class _FeaturedVideo extends StatelessWidget {
-  const _FeaturedVideo({required this.videoId, required this.onTap});
-  final String videoId;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: SizedBox(
-        height: 190,
-        width: double.infinity,
-        child: _Thumb(
-          videoId: videoId,
-          fallbackIcon: Icons.fitness_center,
-          radius: 20,
-          playSize: 60,
-        ),
-      ),
-    );
-  }
 }
 
 /// YouTube thumbnail with a play overlay; falls back to an icon if it fails.
@@ -276,7 +246,7 @@ class _ExerciseCard extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Text(
-                exerciseName(l10n, exercise.id),
+                l10n.videoDateTitle,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
