@@ -2,27 +2,27 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-/// Talks to Claude through your Cloudflare Worker proxy.
+/// Talks to the chat model through your Cloudflare Worker proxy.
 ///
-/// The app never holds the Anthropic key — the Worker adds it server-side. The
-/// app only knows the proxy URL and a shared token, both supplied at build time:
+/// The Worker holds the provider API key (Gemini) and translates the request to
+/// the provider's format, then streams back a simple normalized SSE of
+/// `{"text": "..."}` deltas — so this client stays provider-agnostic and no
+/// secret ever ships in the app or repo. The proxy URL and a shared token come
+/// from build-time defines:
 ///
 ///   flutter run --dart-define=PROXY_URL=`https://<worker>.workers.dev` \
 ///               --dart-define=PROXY_TOKEN=`<your shared token>`
 ///
 /// When [isConfigured] is false (no PROXY_URL), the chat falls back to a canned
-/// placeholder reply so the UI still works without a backend. The Worker holds
-/// the real key, sets CORS, and adds the `anthropic-version` / `x-api-key`
-/// headers, so this client sends neither — which is why it works on web too.
-class ClaudeService {
-  ClaudeService({http.Client? client}) : _client = client ?? http.Client();
+/// placeholder reply so the UI still works without a backend.
+class ChatService {
+  ChatService({http.Client? client}) : _client = client ?? http.Client();
 
   final http.Client _client;
 
   static const _proxyUrl = String.fromEnvironment('PROXY_URL');
   static const _proxyToken = String.fromEnvironment('PROXY_TOKEN');
-  static const _model = 'claude-haiku-4-5';
-  static const _maxTokens = 1024;
+  static const _model = 'gemini-3.6-flash';
 
   bool get isConfigured => _proxyUrl.isNotEmpty;
 
@@ -43,7 +43,8 @@ class ClaudeService {
   /// Streams the assistant's reply token-by-token.
   ///
   /// [messages] is the conversation so far as `{'role': 'user'|'assistant',
-  /// 'content': ...}` maps, starting with a user turn.
+  /// 'content': ...}` maps, starting with a user turn. The Worker maps roles and
+  /// the system prompt to the provider's schema.
   Stream<String> streamReply({
     required List<Map<String, String>> messages,
     required String languageCode,
@@ -55,9 +56,7 @@ class ClaudeService {
       })
       ..body = jsonEncode({
         'model': _model,
-        'max_tokens': _maxTokens,
         'system': _systemPrompt(languageCode),
-        'stream': true,
         'messages': messages,
       });
 
@@ -65,10 +64,10 @@ class ClaudeService {
 
     if (response.statusCode != 200) {
       final body = await response.stream.bytesToString();
-      throw ClaudeException('HTTP ${response.statusCode}: $body');
+      throw ChatException('HTTP ${response.statusCode}: $body');
     }
 
-    // Parse the Server-Sent Events stream, yielding text deltas as they arrive.
+    // The Worker emits a normalized SSE: each `data:` line is {"text": "..."}.
     final lines =
         response.stream.transform(utf8.decoder).transform(const LineSplitter());
     await for (final line in lines) {
@@ -77,29 +76,20 @@ class ClaudeService {
       if (data.isEmpty) continue;
 
       final event = jsonDecode(data) as Map<String, dynamic>;
-      switch (event['type']) {
-        case 'content_block_delta':
-          final delta = event['delta'] as Map<String, dynamic>?;
-          if (delta != null && delta['type'] == 'text_delta') {
-            yield delta['text'] as String;
-          }
-        case 'error':
-          final error = event['error'] as Map<String, dynamic>?;
-          throw ClaudeException(
-              error?['message']?.toString() ?? 'stream error');
-        // message_start / content_block_start/stop / message_delta /
-        // message_stop carry no text — ignore; the stream ends on its own.
-      }
+      final text = event['text'];
+      if (text is String && text.isNotEmpty) yield text;
+      final error = event['error'];
+      if (error != null) throw ChatException(error.toString());
     }
   }
 
   void dispose() => _client.close();
 }
 
-class ClaudeException implements Exception {
-  ClaudeException(this.message);
+class ChatException implements Exception {
+  ChatException(this.message);
   final String message;
 
   @override
-  String toString() => 'ClaudeException: $message';
+  String toString() => 'ChatException: $message';
 }

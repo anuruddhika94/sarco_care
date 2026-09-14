@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
-import 'claude_service.dart';
+import 'chat_service.dart';
 
-/// AI chat — UI only for now.
+/// AI chat.
 ///
-/// Seeds an assistant greeting and echoes a canned reply after each message so
-/// the experience feels real before the Claude API is wired in. No network.
+/// Seeds an assistant greeting, then streams the model's reply from
+/// [ChatService] (via the Cloudflare Worker proxy). Falls back to a canned
+/// reply when no proxy is configured, so the UI still works offline.
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
 
@@ -24,7 +25,7 @@ class _Message {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _input = TextEditingController();
   final ScrollController _scroll = ScrollController();
-  final ClaudeService _service = ClaudeService();
+  final ChatService _service = ChatService();
   final List<_Message> _messages = [];
   bool _typing = false;
   bool _seeded = false;
