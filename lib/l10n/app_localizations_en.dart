@@ -574,6 +574,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get videoDateTitle => '12 September 2026';
 
   @override
+  String exerciseDayTitle(int number) {
+    return 'Day $number';
+  }
+
+  @override
   String durationMinutes(int count) {
     return '$count min';
   }

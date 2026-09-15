@@ -35,14 +35,14 @@ class _ExercisePlanScreenState extends State<ExercisePlanScreen> {
 
   // All recommended exercises vs the ones the user added to their plan.
   static const _allExercises = [
-    _Exercise(ExerciseId.seatedLegLift, 10, Icons.airline_seat_recline_normal, 'BoA431kaU2M'),
-    _Exercise(ExerciseId.armCurls, 8, Icons.fitness_center, 'eZhhNN4QkSk'),
-    _Exercise(ExerciseId.chairSquats, 12, Icons.chair_alt, '7QZKb9E5dbg'),
+    _Exercise(1, ExerciseId.seatedLegLift, 10, Icons.airline_seat_recline_normal, 'BoA431kaU2M'),
+    _Exercise(2, ExerciseId.armCurls, 8, Icons.fitness_center, 'eZhhNN4QkSk'),
+    _Exercise(3, ExerciseId.chairSquats, 12, Icons.chair_alt, '7QZKb9E5dbg'),
   ];
 
   static const _myPlan = [
-    _Exercise(ExerciseId.seatedLegLift, 10, Icons.airline_seat_recline_normal, 'BoA431kaU2M'),
-    _Exercise(ExerciseId.chairSquats, 12, Icons.chair_alt, '7QZKb9E5dbg'),
+    _Exercise(1, ExerciseId.seatedLegLift, 10, Icons.airline_seat_recline_normal, 'BoA431kaU2M'),
+    _Exercise(3, ExerciseId.chairSquats, 12, Icons.chair_alt, '7QZKb9E5dbg'),
   ];
 
   List<_Exercise> get _visibleExercises =>
@@ -106,7 +106,7 @@ class _ExercisePlanScreenState extends State<ExercisePlanScreen> {
                   index: i + 1,
                   exercise: _visibleExercises[i],
                   onTap: () => _openVideo(
-                    l10n.videoDateTitle,
+                    l10n.exerciseDayTitle(_visibleExercises[i].day),
                     _visibleExercises[i].videoId,
                   ),
                 ),
@@ -119,7 +119,8 @@ class _ExercisePlanScreenState extends State<ExercisePlanScreen> {
 }
 
 class _Exercise {
-  const _Exercise(this.id, this.minutes, this.icon, this.videoId);
+  const _Exercise(this.day, this.id, this.minutes, this.icon, this.videoId);
+  final int day;
   final ExerciseId id;
   final int minutes;
   final IconData icon;
@@ -246,7 +247,7 @@ class _ExerciseCard extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Text(
-                l10n.videoDateTitle,
+                l10n.exerciseDayTitle(exercise.day),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(

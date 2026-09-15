@@ -227,6 +227,10 @@
   "exChairSquats": "Chair Squats",
   "exStandingBalance": "Standing Balance",
   "videoDateTitle": "12 September 2026",
+  "exerciseDayTitle": "Day {number}",
+  "@exerciseDayTitle": {
+    "placeholders": { "number": { "type": "int" } }
+  },
   "durationMinutes": "{count} min",
   "@durationMinutes": {
     "placeholders": { "count": { "type": "int" } }

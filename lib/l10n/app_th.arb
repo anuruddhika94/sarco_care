@@ -200,6 +200,7 @@
   "exChairSquats": "สควอทกับเก้าอี้",
   "exStandingBalance": "ทรงตัวท่ายืน",
   "videoDateTitle": "12 กันยายน 2569",
+  "exerciseDayTitle": "วันที่ {number}",
   "durationMinutes": "{count} นาที",
   "durationHoursMinutes": "{hours} ชม. {minutes} น.",
 

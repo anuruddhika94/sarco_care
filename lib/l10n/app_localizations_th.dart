@@ -573,6 +573,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String get videoDateTitle => '12 กันยายน 2569';
 
   @override
+  String exerciseDayTitle(int number) {
+    return 'วันที่ $number';
+  }
+
+  @override
   String durationMinutes(int count) {
     return '$count นาที';
   }

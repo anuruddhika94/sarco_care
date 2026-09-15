@@ -1184,6 +1184,12 @@ abstract class AppLocalizations {
   /// **'12 September 2026'**
   String get videoDateTitle;
 
+  /// No description provided for @exerciseDayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {number}'**
+  String exerciseDayTitle(int number);
+
   /// No description provided for @durationMinutes.
   ///
   /// In en, this message translates to:
