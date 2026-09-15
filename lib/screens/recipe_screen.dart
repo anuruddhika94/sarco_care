@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 
+import '../data/meal_plan.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 
-/// Screen #5 — Recipe detail.
-/// Pure UI: hero photo, nutrition facts, ingredients, method and a
-/// "Complete Meal and Log" action that confirms and returns to the list.
+/// Screen #5 — Meal detail.
+/// Shows a meal's protein breakdown (each component with its protein grams) and
+/// the total, plus a "Complete Meal and Log" action.
 class RecipeScreen extends StatelessWidget {
-  const RecipeScreen({super.key, required this.recipeName});
+  const RecipeScreen({super.key, required this.meal});
 
-  final String recipeName;
+  final PlanMeal meal;
 
   void _completeAndLog(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -27,18 +28,6 @@ class RecipeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final ingredients = [
-      l10n.ingredient1,
-      l10n.ingredient2,
-      l10n.ingredient3,
-      l10n.ingredient4,
-    ];
-    final method = [
-      l10n.method1,
-      l10n.method2,
-      l10n.method3,
-      l10n.method4,
-    ];
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -46,7 +35,7 @@ class RecipeScreen extends StatelessWidget {
         foregroundColor: AppColors.textDark,
         elevation: 0,
         title: Text(
-          recipeName,
+          meal.title.of(context),
           style: const TextStyle(fontWeight: FontWeight.w800),
         ),
         centerTitle: true,
@@ -54,35 +43,36 @@ class RecipeScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
         children: [
-          // Hero photo (the sample recipe content is egg-based).
-          ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Image.asset(
-              'assets/images/meals/eggs_toast.png',
-              height: 200,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => Container(
-                height: 200,
-                decoration: BoxDecoration(
-                  color: AppColors.softGreen,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Icon(Icons.egg_alt, size: 88, color: AppColors.primary),
-              ),
+          // Hero: dish icon on a soft block (no photos for these dishes).
+          Container(
+            height: 150,
+            decoration: BoxDecoration(
+              color: AppColors.softGreen,
+              borderRadius: BorderRadius.circular(20),
             ),
+            child: Icon(meal.icon, size: 76, color: AppColors.primary),
           ),
-          const SizedBox(height: 20),
-          const _NutritionRow(),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              _Chip(text: mealSlotLabel(l10n, meal.slot)),
+              const SizedBox(width: 8),
+              _Chip(
+                text: '${l10n.totalProteinLabel} ${meal.totalProtein.of(context)}',
+                filled: true,
+              ),
+            ],
+          ),
           const SizedBox(height: 24),
-          _SectionTitle(l10n.sectionIngredients),
+          _SectionTitle(l10n.proteinBreakdown),
           const SizedBox(height: 12),
-          for (final item in ingredients) _BulletLine(text: item),
-          const SizedBox(height: 20),
-          _SectionTitle(l10n.sectionMethod),
-          const SizedBox(height: 12),
-          for (int i = 0; i < method.length; i++)
-            _StepLine(number: i + 1, text: method[i]),
+          for (final item in meal.items)
+            _ItemRow(name: item.name.of(context), protein: item.protein.of(context)),
+          const SizedBox(height: 8),
+          _TotalRow(
+            label: l10n.totalProteinLabel,
+            value: meal.totalProtein.of(context),
+          ),
           const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
@@ -97,54 +87,29 @@ class RecipeScreen extends StatelessWidget {
   }
 }
 
-class _NutritionRow extends StatelessWidget {
-  const _NutritionRow();
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return Row(
-      children: [
-        Expanded(child: _NutritionTile(label: l10n.nutrLabelProtein, value: '13 g')),
-        const SizedBox(width: 12),
-        Expanded(child: _NutritionTile(label: l10n.nutrLabelEnergy, value: '90 kcal')),
-        const SizedBox(width: 12),
-        Expanded(child: _NutritionTile(label: l10n.nutrLabelFat, value: '6 g')),
-      ],
-    );
-  }
-}
-
-class _NutritionTile extends StatelessWidget {
-  const _NutritionTile({required this.label, required this.value});
-  final String label;
-  final String value;
+class _Chip extends StatelessWidget {
+  const _Chip({required this.text, this.filled = false});
+  final String text;
+  final bool filled;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
+        color: filled
+            ? AppColors.primary.withValues(alpha: 0.12)
+            : AppColors.surface,
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: const Color(0xFFEAEFEA)),
       ),
-      child: Column(
-        children: [
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-              color: AppColors.primary,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(fontSize: 13, color: AppColors.textMuted),
-          ),
-        ],
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w700,
+          color: filled ? AppColors.primary : AppColors.textMuted,
+        ),
       ),
     );
   }
@@ -167,9 +132,11 @@ class _SectionTitle extends StatelessWidget {
   }
 }
 
-class _BulletLine extends StatelessWidget {
-  const _BulletLine({required this.text});
-  final String text;
+/// One component row: the food on the left, its protein badge on the right.
+class _ItemRow extends StatelessWidget {
+  const _ItemRow({required this.name, required this.protein});
+  final String name;
+  final String protein;
 
   @override
   Widget build(BuildContext context) {
@@ -192,8 +159,17 @@ class _BulletLine extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              text,
-              style: TextStyle(fontSize: 16, color: AppColors.textDark),
+              name,
+              style: TextStyle(fontSize: 16, height: 1.3, color: AppColors.textDark),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Text(
+            protein,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: AppColors.primary,
             ),
           ),
         ],
@@ -202,44 +178,37 @@ class _BulletLine extends StatelessWidget {
   }
 }
 
-class _StepLine extends StatelessWidget {
-  const _StepLine({required this.number, required this.text});
-  final int number;
-  final String text;
+class _TotalRow extends StatelessWidget {
+  const _TotalRow({required this.label, required this.value});
+  final String label;
+  final String value;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: AppColors.softGreen,
+        borderRadius: BorderRadius.circular(14),
+      ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 26,
-            height: 26,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.12),
-              shape: BoxShape.circle,
-            ),
+          Expanded(
             child: Text(
-              '$number',
+              label,
               style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: AppColors.primary,
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                color: AppColors.textDark,
               ),
             ),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              text,
-              style: TextStyle(
-                fontSize: 16,
-                height: 1.35,
-                color: AppColors.textDark,
-              ),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+              color: AppColors.primary,
             ),
           ),
         ],

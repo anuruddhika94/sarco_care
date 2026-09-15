@@ -722,6 +722,12 @@ abstract class AppLocalizations {
   /// **'Snack'**
   String get mealSnack;
 
+  /// No description provided for @mealBeforeBed.
+  ///
+  /// In en, this message translates to:
+  /// **'Before bed'**
+  String get mealBeforeBed;
+
   /// No description provided for @reminderWater.
   ///
   /// In en, this message translates to:
@@ -889,6 +895,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'View Recipes'**
   String get viewRecipes;
+
+  /// No description provided for @mealPlanSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'3-day high-protein menu for muscle health'**
+  String get mealPlanSubtitle;
+
+  /// No description provided for @proteinBreakdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Protein breakdown'**
+  String get proteinBreakdown;
+
+  /// No description provided for @totalProteinLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total protein'**
+  String get totalProteinLabel;
 
   /// No description provided for @mealEggsToast.
   ///

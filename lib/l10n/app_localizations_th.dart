@@ -333,6 +333,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get mealSnack => 'ของว่าง';
 
   @override
+  String get mealBeforeBed => 'ก่อนนอน';
+
+  @override
   String get reminderWater => 'ดื่มน้ำ';
 
   @override
@@ -418,6 +421,15 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get viewRecipes => 'ดูสูตรอาหาร';
+
+  @override
+  String get mealPlanSubtitle => 'เมนู 3 วัน เพิ่มโปรตีน เสริมกล้ามเนื้อ';
+
+  @override
+  String get proteinBreakdown => 'โปรตีนแต่ละอย่าง';
+
+  @override
+  String get totalProteinLabel => 'รวมโปรตีน';
 
   @override
   String get mealEggsToast => 'ไข่ลวกกับขนมปังปิ้ง';

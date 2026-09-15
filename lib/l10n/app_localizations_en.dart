@@ -334,6 +334,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mealSnack => 'Snack';
 
   @override
+  String get mealBeforeBed => 'Before bed';
+
+  @override
   String get reminderWater => 'Water';
 
   @override
@@ -419,6 +422,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get viewRecipes => 'View Recipes';
+
+  @override
+  String get mealPlanSubtitle => '3-day high-protein menu for muscle health';
+
+  @override
+  String get proteinBreakdown => 'Protein breakdown';
+
+  @override
+  String get totalProteinLabel => 'Total protein';
 
   @override
   String get mealEggsToast => 'Soft-boiled Eggs & Toast';

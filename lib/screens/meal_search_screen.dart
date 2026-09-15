@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../data/meal_plan.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
-import 'meals_screen.dart';
 import 'recipe_screen.dart';
 
-/// Meal Search — browse and filter recipes, opened from Meals.
-/// Pure UI: a client-side name filter over a fixed recipe list; results open
-/// the Recipe detail.
+/// Meal Search — browse and filter the plan's meals, opened from Meals.
+/// A client-side name filter over every meal across the 3 days.
 class MealSearchScreen extends StatefulWidget {
   const MealSearchScreen({super.key});
 
@@ -19,14 +18,9 @@ class _MealSearchScreenState extends State<MealSearchScreen> {
   final TextEditingController _controller = TextEditingController();
   String _query = '';
 
-  static const _recipes = [
-    _Recipe(MealId.eggsToast, 20, Icons.egg_alt),
-    _Recipe(MealId.chickenSalad, 32, Icons.rice_bowl),
-    _Recipe(MealId.salmonVeg, 28, Icons.set_meal),
-    _Recipe(MealId.yogurtNuts, 15, Icons.icecream),
-    _Recipe(MealId.lentil, 18, Icons.soup_kitchen),
-    _Recipe(MealId.tofu, 22, Icons.ramen_dining),
-    _Recipe(MealId.beefBroccoli, 30, Icons.dinner_dining),
+  // Every meal across all days, flattened.
+  static final List<PlanMeal> _allMeals = [
+    for (final day in mealPlan) ...day.meals,
   ];
 
   @override
@@ -35,24 +29,24 @@ class _MealSearchScreenState extends State<MealSearchScreen> {
     super.dispose();
   }
 
-  List<_Recipe> _results(AppLocalizations l10n) {
-    if (_query.isEmpty) return _recipes;
+  List<PlanMeal> _results() {
+    if (_query.isEmpty) return _allMeals;
     final q = _query.toLowerCase();
-    return _recipes
-        .where((r) => mealName(l10n, r.id).toLowerCase().contains(q))
+    return _allMeals
+        .where((m) => m.title.of(context).toLowerCase().contains(q))
         .toList();
   }
 
-  void _openRecipe(String name) {
+  void _openMeal(PlanMeal meal) {
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => RecipeScreen(recipeName: name)),
+      MaterialPageRoute(builder: (_) => RecipeScreen(meal: meal)),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final results = _results(l10n);
+    final results = _results();
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -107,12 +101,12 @@ class _MealSearchScreenState extends State<MealSearchScreen> {
                 : ListView(
                     padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
                     children: [
-                      for (final r in results)
+                      for (final m in results)
                         Padding(
                           padding: const EdgeInsets.only(bottom: 12),
                           child: _ResultRow(
-                            recipe: r,
-                            onTap: () => _openRecipe(mealName(l10n, r.id)),
+                            meal: m,
+                            onTap: () => _openMeal(m),
                           ),
                         ),
                     ],
@@ -124,16 +118,9 @@ class _MealSearchScreenState extends State<MealSearchScreen> {
   }
 }
 
-class _Recipe {
-  const _Recipe(this.id, this.proteinGrams, this.icon);
-  final MealId id;
-  final int proteinGrams;
-  final IconData icon;
-}
-
 class _ResultRow extends StatelessWidget {
-  const _ResultRow({required this.recipe, required this.onTap});
-  final _Recipe recipe;
+  const _ResultRow({required this.meal, required this.onTap});
+  final PlanMeal meal;
   final VoidCallback onTap;
 
   @override
@@ -160,7 +147,7 @@ class _ResultRow extends StatelessWidget {
                   color: AppColors.softGreen,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(recipe.icon, color: AppColors.primary, size: 26),
+                child: Icon(meal.icon, color: AppColors.primary, size: 26),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -168,16 +155,17 @@ class _ResultRow extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      mealName(l10n, recipe.id),
+                      meal.title.of(context),
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 15.5,
                         fontWeight: FontWeight.w700,
+                        height: 1.25,
                         color: AppColors.textDark,
                       ),
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      l10n.proteinGrams(recipe.proteinGrams),
+                      '${l10n.totalProteinLabel} ${meal.totalProtein.of(context)}',
                       style: TextStyle(fontSize: 14, color: AppColors.textMuted),
                     ),
                   ],
