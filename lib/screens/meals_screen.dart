@@ -136,6 +136,35 @@ class _DayTotal extends StatelessWidget {
   }
 }
 
+/// 64×64 meal thumbnail: dish photo when available, else the meal's icon.
+class _MealThumb extends StatelessWidget {
+  const _MealThumb({required this.meal});
+  final PlanMeal meal;
+
+  @override
+  Widget build(BuildContext context) {
+    final fallback = Container(
+      color: AppColors.softGreen,
+      alignment: Alignment.center,
+      child: Icon(meal.icon, color: AppColors.primary, size: 32),
+    );
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(14),
+      child: SizedBox(
+        width: 64,
+        height: 64,
+        child: meal.image == null
+            ? fallback
+            : Image.asset(
+                meal.image!,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) => fallback,
+              ),
+      ),
+    );
+  }
+}
+
 class _MealCard extends StatelessWidget {
   const _MealCard({required this.meal, required this.onTap});
   final PlanMeal meal;
@@ -158,15 +187,7 @@ class _MealCard extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Container(
-                width: 64,
-                height: 64,
-                decoration: BoxDecoration(
-                  color: AppColors.softGreen,
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Icon(meal.icon, color: AppColors.primary, size: 32),
-              ),
+              _MealThumb(meal: meal),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(

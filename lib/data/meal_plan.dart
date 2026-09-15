@@ -33,12 +33,16 @@ class MealItem {
 
 /// A single meal: a dish, its components, and the total protein.
 class PlanMeal {
-  const PlanMeal(this.slot, this.title, this.icon, this.items, this.totalProtein);
+  const PlanMeal(this.slot, this.title, this.icon, this.items, this.totalProtein,
+      {this.image});
   final MealSlot slot;
   final Tr title;
   final IconData icon;
   final List<MealItem> items;
   final Tr totalProtein;
+
+  /// Dish photo (from the plan infographic); null for drinks/snacks (icon shown).
+  final String? image;
 }
 
 /// One day of the plan.
@@ -50,6 +54,7 @@ class PlanDay {
 }
 
 const _g = 'g';
+const _img = 'assets/images/meals';
 
 /// 3-day high-protein plan for older adults (~50 g protein/day), from the
 /// "เมนู 3 วัน เพิ่มโปรตีน เสริมกล้ามเนื้อ สำหรับผู้สูงอายุ" guide.
@@ -71,6 +76,7 @@ const List<PlanDay> mealPlan = [
           MealItem(Tr('Boiled egg · ½', 'ไข่ต้ม ½ ฟอง'), Tr('~3 $_g', '~3 กรัม')),
         ],
         Tr('~13 $_g', '~13 กรัม'),
+        image: '$_img/plan_d1_breakfast.jpg',
       ),
       PlanMeal(
         MealSlot.lunch,
@@ -83,6 +89,7 @@ const List<PlanDay> mealPlan = [
           MealItem(Tr('Rice · ½–¾ bowl', 'ข้าวสวย ½–¾ ถ้วย'), Tr('~2 $_g', '~2 กรัม')),
         ],
         Tr('~14 $_g', '~14 กรัม'),
+        image: '$_img/plan_d1_lunch.jpg',
       ),
       PlanMeal(
         MealSlot.dinner,
@@ -94,6 +101,7 @@ const List<PlanDay> mealPlan = [
           MealItem(Tr('Rice · ½ bowl', 'ข้าวสวย ½ ถ้วย'), Tr('~2 $_g', '~2 กรัม')),
         ],
         Tr('~16 $_g', '~16 กรัม'),
+        image: '$_img/plan_d1_dinner.jpg',
       ),
       PlanMeal(
         MealSlot.beforeBed,
@@ -122,6 +130,7 @@ const List<PlanDay> mealPlan = [
           MealItem(Tr('Boiled egg · ½', 'ไข่ต้ม ½ ฟอง'), Tr('~3 $_g', '~3 กรัม')),
         ],
         Tr('~14 $_g', '~14 กรัม'),
+        image: '$_img/plan_d2_breakfast.jpg',
       ),
       PlanMeal(
         MealSlot.lunch,
@@ -135,6 +144,7 @@ const List<PlanDay> mealPlan = [
           MealItem(Tr('Rice · ½ bowl', 'ข้าวสวย ½ ถ้วย'), Tr('~2 $_g', '~2 กรัม')),
         ],
         Tr('~15–17 $_g', '~15–17 กรัม'),
+        image: '$_img/plan_d2_lunch.jpg',
       ),
       PlanMeal(
         MealSlot.dinner,
@@ -148,6 +158,7 @@ const List<PlanDay> mealPlan = [
           MealItem(Tr('Rice · ½ bowl', 'ข้าวสวย ½ ถ้วย'), Tr('~2 $_g', '~2 กรัม')),
         ],
         Tr('~16 $_g', '~16 กรัม'),
+        image: '$_img/plan_d2_dinner.jpg',
       ),
       PlanMeal(
         MealSlot.snack,
@@ -178,6 +189,7 @@ const List<PlanDay> mealPlan = [
           MealItem(Tr('Spinach · ½ cup', 'ผักโขม ½ ถ้วย'), Tr('~1 $_g', '~1 กรัม')),
         ],
         Tr('~15 $_g', '~15 กรัม'),
+        image: '$_img/plan_d3_breakfast.jpg',
       ),
       PlanMeal(
         MealSlot.lunch,
@@ -190,6 +202,7 @@ const List<PlanDay> mealPlan = [
           MealItem(Tr('Rice · ½ bowl', 'ข้าวสวย ½ ถ้วย'), Tr('~2 $_g', '~2 กรัม')),
         ],
         Tr('~15–17 $_g', '~15–17 กรัม'),
+        image: '$_img/plan_d3_lunch.jpg',
       ),
       PlanMeal(
         MealSlot.dinner,
@@ -201,6 +214,7 @@ const List<PlanDay> mealPlan = [
           MealItem(Tr('Rice · ½ bowl', 'ข้าวสวย ½ ถ้วย'), Tr('~2 $_g', '~2 กรัม')),
         ],
         Tr('~16 $_g', '~16 กรัม'),
+        image: '$_img/plan_d3_dinner.jpg',
       ),
       PlanMeal(
         MealSlot.snack,

@@ -43,15 +43,8 @@ class RecipeScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
         children: [
-          // Hero: dish icon on a soft block (no photos for these dishes).
-          Container(
-            height: 150,
-            decoration: BoxDecoration(
-              color: AppColors.softGreen,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Icon(meal.icon, size: 76, color: AppColors.primary),
-          ),
+          // Hero: dish photo when available, else an icon on a soft block.
+          _Hero(meal: meal),
           const SizedBox(height: 16),
           Row(
             children: [
@@ -82,6 +75,36 @@ class RecipeScreen extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Full-width dish photo hero, with an icon-on-soft-block fallback.
+class _Hero extends StatelessWidget {
+  const _Hero({required this.meal});
+  final PlanMeal meal;
+
+  @override
+  Widget build(BuildContext context) {
+    final fallback = Container(
+      height: 150,
+      alignment: Alignment.center,
+      color: AppColors.softGreen,
+      child: Icon(meal.icon, size: 76, color: AppColors.primary),
+    );
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(20),
+      child: SizedBox(
+        height: 170,
+        width: double.infinity,
+        child: meal.image == null
+            ? fallback
+            : Image.asset(
+                meal.image!,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) => fallback,
+              ),
       ),
     );
   }
