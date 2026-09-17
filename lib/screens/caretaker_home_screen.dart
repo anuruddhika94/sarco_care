@@ -6,6 +6,7 @@ import '../chat/chat_controller.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_avatar.dart';
+import '../widgets/feature_tile.dart';
 import 'add_patient_screen.dart';
 import 'assessment_screen.dart';
 import 'exercise_plan_screen.dart';
@@ -219,28 +220,32 @@ class _CaretakerHomeScreenState extends State<CaretakerHomeScreen> {
           crossAxisSpacing: 16,
           childAspectRatio: 1.05,
           children: [
-            _CareTile(
+            FeatureTile(
               title: l10n.careTileHealthData,
               icon: Icons.monitor_heart,
               color: const Color(0xFFB0524B),
+              image: 'assets/images/features/health.png',
               onTap: () => _open((_) => HealthTrackingScreen(patientId: patientId)),
             ),
-            _CareTile(
+            FeatureTile(
               title: l10n.navExercise,
               icon: Icons.sports_gymnastics,
               color: const Color(0xFF3E7CB1),
+              image: 'assets/images/features/exercise.png',
               onTap: () => _open((_) => ExercisePlanScreen(patientId: patientId)),
             ),
-            _CareTile(
+            FeatureTile(
               title: l10n.careTileMeals,
               icon: Icons.ramen_dining,
               color: const Color(0xFF3B8B5F),
+              image: 'assets/images/features/meals.png',
               onTap: () => _open((_) => MealsScreen(patientId: patientId)),
             ),
-            _CareTile(
+            FeatureTile(
               title: l10n.careTileSarcf,
               icon: Icons.fact_check,
               color: const Color(0xFFCB8A2E),
+              image: 'assets/images/features/assessment.png',
               onTap: () => _open((_) => AssessmentScreen(patientId: patientId)),
             ),
           ],
@@ -372,62 +377,6 @@ class _PatientPicker extends StatelessWidget {
                 onTap: () => Navigator.of(context).pop(i),
               ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _CareTile extends StatelessWidget {
-  const _CareTile({
-    required this.title,
-    required this.icon,
-    required this.color,
-    required this.onTap,
-  });
-
-  final String title;
-  final IconData icon;
-  final Color color;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.surface,
-      borderRadius: BorderRadius.circular(20),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(20),
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFFEAEFEA)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Icon(icon, color: color, size: 28),
-              ),
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textDark,
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );

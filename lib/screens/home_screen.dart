@@ -4,6 +4,7 @@ import '../api/api_client.dart';
 import '../auth/auth_controller.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
+import '../widgets/feature_tile.dart';
 import 'assessment_screen.dart';
 import 'caretaker_approval_screen.dart';
 import 'exercise_plan_screen.dart';
@@ -397,7 +398,13 @@ class _FeatureGrid extends StatelessWidget {
       childAspectRatio: 1.05,
       children: [
         for (final f in features)
-          _FeatureTile(feature: f, onTap: () => onTap(f.feature)),
+          FeatureTile(
+            title: f.title,
+            icon: f.icon,
+            color: f.color,
+            image: f.image,
+            onTap: () => onTap(f.feature),
+          ),
       ],
     );
   }
@@ -410,69 +417,4 @@ class _Feature {
   final IconData icon;
   final Color color;
   final String image;
-}
-
-class _FeatureTile extends StatelessWidget {
-  const _FeatureTile({required this.feature, required this.onTap});
-  final _Feature feature;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    // Icon-based fallback used if the illustration ever fails to load.
-    final fallback = Container(
-      color: feature.color.withValues(alpha: 0.12),
-      alignment: Alignment.center,
-      child: Icon(feature.icon, color: feature.color, size: 56),
-    );
-    return Material(
-      color: AppColors.surface,
-      borderRadius: BorderRadius.circular(20),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(20),
-        onTap: onTap,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              // The illustration fills the whole tile.
-              Image.asset(
-                feature.image,
-                fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => fallback,
-              ),
-              // Soft scrim at the bottom so the label stays readable.
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.fromLTRB(14, 24, 14, 12),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        AppColors.surface.withValues(alpha: 0),
-                        AppColors.surface.withValues(alpha: 0.75),
-                        AppColors.surface.withValues(alpha: 0.95),
-                      ],
-                    ),
-                  ),
-                  child: Text(
-                    feature.title,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.textDark,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }
