@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../api/api_client.dart';
+import '../auth/auth_controller.dart';
 import '../chat/chat_controller.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
@@ -8,9 +10,9 @@ import '../widgets/segmented_tabs.dart';
 import 'caretaker_home_screen.dart';
 import 'main_shell.dart';
 
-/// Sign Up — create an account with phone number + password.
-/// Pure UI: role picker, name/phone/password/confirm fields; Create Account
-/// routes to the patient shell or caretaker home by role. No backend/validation.
+/// Sign Up — create an account with phone number + password against the
+/// Rails API's `/auth/signup`, then route to the patient shell or caretaker
+/// home by the chosen role.
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key, this.initialRole = 0});
 
@@ -22,19 +24,51 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
+  final _nameController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmController = TextEditingController();
   late int _role = widget.initialRole;
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
+  bool _submitting = false;
 
   bool get _isPatient => _role == 0;
 
-  void _createAccount() {
-    final WidgetBuilder builder = _isPatient
-        ? (_) => const MainShell()
-        : (_) => const CaretakerHomeScreen();
-    chatController.onLogin();
-    // Replace so Back doesn't return to the sign-up form after account creation.
-    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: builder));
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _phoneController.dispose();
+    _passwordController.dispose();
+    _confirmController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _createAccount() async {
+    setState(() => _submitting = true);
+    try {
+      await authController.signup(
+        fullName: _nameController.text.trim(),
+        phoneNumber: _phoneController.text.trim(),
+        password: _passwordController.text,
+        passwordConfirmation: _confirmController.text,
+        role: _isPatient ? 'patient' : 'caretaker',
+      );
+      if (!mounted) return;
+      chatController.onLogin();
+      final WidgetBuilder builder = _isPatient
+          ? (_) => const MainShell()
+          : (_) => const CaretakerHomeScreen();
+      // Replace so Back doesn't return to the sign-up form after account creation.
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: builder));
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(e.message)));
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
   }
 
   @override
@@ -64,6 +98,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               AuthFieldLabel(l10n.fullName),
               const SizedBox(height: 8),
               TextField(
+                controller: _nameController,
                 textCapitalization: TextCapitalization.words,
                 decoration: authFieldDecoration(l10n.fullNameHint),
               ),
@@ -71,6 +106,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               AuthFieldLabel(l10n.phoneNumber),
               const SizedBox(height: 8),
               TextField(
+                controller: _phoneController,
                 keyboardType: TextInputType.phone,
                 decoration: authFieldDecoration(l10n.phoneNumberHint),
               ),
@@ -78,6 +114,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               AuthFieldLabel(l10n.password),
               const SizedBox(height: 8),
               TextField(
+                controller: _passwordController,
                 obscureText: _obscurePassword,
                 decoration: authFieldDecoration(l10n.createPasswordHint).copyWith(
                   suffixIcon: IconButton(
@@ -97,6 +134,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               AuthFieldLabel(l10n.confirmPassword),
               const SizedBox(height: 8),
               TextField(
+                controller: _confirmController,
                 obscureText: _obscureConfirm,
                 decoration: authFieldDecoration(l10n.confirmPasswordHint).copyWith(
                   suffixIcon: IconButton(
@@ -114,8 +152,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
               const SizedBox(height: 32),
               ElevatedButton(
-                onPressed: _createAccount,
-                child: Text(l10n.createAccount),
+                onPressed: _submitting ? null : _createAccount,
+                child: _submitting
+                    ? const SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Text(l10n.createAccount),
               ),
               const SizedBox(height: 16),
               Row(

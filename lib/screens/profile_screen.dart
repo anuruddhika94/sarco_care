@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../auth/auth_controller.dart';
 import '../chat/chat_controller.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
@@ -7,11 +8,11 @@ import '../widgets/app_avatar.dart';
 import 'caretaker_screen.dart';
 import 'personal_info_screen.dart';
 import 'setup_app_screen.dart';
-import 'usage_summary_screen.dart';
+import 'splash_screen.dart';
 
 /// The Profile settings rows. The enum keeps navigation independent of the
 /// (translated) row label.
-enum ProfileEntry { personalInfo, usageSummary, caretaker, setupApp }
+enum ProfileEntry { personalInfo, caretaker, setupApp }
 
 /// Profile tab — user summary, settings entries and Log Out.
 class ProfileScreen extends StatelessWidget {
@@ -19,14 +20,12 @@ class ProfileScreen extends StatelessWidget {
 
   static const _entryIcons = {
     ProfileEntry.personalInfo: Icons.person_outline,
-    ProfileEntry.usageSummary: Icons.insights_outlined,
     ProfileEntry.caretaker: Icons.people_alt_outlined,
     ProfileEntry.setupApp: Icons.settings_outlined,
   };
 
   String _label(AppLocalizations l10n, ProfileEntry entry) => switch (entry) {
         ProfileEntry.personalInfo => l10n.entryPersonalInfo,
-        ProfileEntry.usageSummary => l10n.entryUsageSummary,
         ProfileEntry.caretaker => l10n.entryCaretaker,
         ProfileEntry.setupApp => l10n.entrySetupApp,
       };
@@ -34,17 +33,22 @@ class ProfileScreen extends StatelessWidget {
   void _open(BuildContext context, ProfileEntry entry) {
     final WidgetBuilder builder = switch (entry) {
       ProfileEntry.personalInfo => (_) => const PersonalInfoScreen(),
-      ProfileEntry.usageSummary => (_) => const UsageSummaryScreen(),
       ProfileEntry.caretaker => (_) => const CaretakerScreen(),
       ProfileEntry.setupApp => (_) => const SetupAppScreen(),
     };
     Navigator.of(context).push(MaterialPageRoute(builder: builder));
   }
 
-  void _logOut(BuildContext context) {
+  Future<void> _logOut(BuildContext context) async {
+    await authController.logout();
     chatController.onLogout();
-    // Unwind back to the first route (Splash), clearing the logged-in stack.
-    Navigator.of(context).popUntil((route) => route.isFirst);
+    if (!context.mounted) return;
+    // Reset the whole stack to Splash — popUntil(isFirst) isn't enough since
+    // a restored session can start directly at MainShell with nothing to pop to.
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const SplashScreen()),
+      (route) => false,
+    );
   }
 
   @override
@@ -76,7 +80,7 @@ class ProfileScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            l10n.userFullNameTitled,
+            authController.currentUser?.fullName ?? l10n.userFullNameTitled,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 22,
@@ -84,12 +88,14 @@ class ProfileScreen extends StatelessWidget {
               color: AppColors.textDark,
             ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            l10n.profileAge(72),
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 15, color: AppColors.textMuted),
-          ),
+          if (authController.currentUser?.age != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              l10n.profileAge(authController.currentUser!.age!),
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 15, color: AppColors.textMuted),
+            ),
+          ],
           const SizedBox(height: 28),
           for (final entry in ProfileEntry.values)
             Padding(

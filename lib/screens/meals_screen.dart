@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
 
+import '../api/api_client.dart';
 import '../data/meal_plan.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../widgets/segmented_tabs.dart';
-import 'meal_search_screen.dart';
+import 'meal_log_screen.dart';
 import 'recipe_screen.dart';
 
 /// Screen #4 — Meals.
-/// A 3-day high-protein plan for older adults. Day 1 / 2 / 3 tabs; each day
-/// lists its meals with total protein. Tapping a meal opens its breakdown.
+/// The multi-day high-protein plan, loaded from `GET /meal_plan`. Day tabs;
+/// each day lists its meals with total protein. Tapping a meal opens its
+/// breakdown — or, when [logDate] is set (opened from [MealLogScreen]'s "Add
+/// Data"), logs it for that date instead.
 class MealsScreen extends StatefulWidget {
-  const MealsScreen({super.key});
+  const MealsScreen({super.key, this.logDate});
+
+  /// When set, tapping a meal logs it for this date rather than just viewing it.
+  final DateTime? logDate;
 
   @override
   State<MealsScreen> createState() => _MealsScreenState();
@@ -19,23 +25,40 @@ class MealsScreen extends StatefulWidget {
 
 class _MealsScreenState extends State<MealsScreen> {
   int _dayIndex = 0;
+  List<PlanDay>? _mealPlan;
+  String? _error;
 
-  void _openMeal(PlanMeal meal) {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => RecipeScreen(meal: meal)),
-    );
+  @override
+  void initState() {
+    super.initState();
+    _load();
   }
 
-  void _openSearch() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const MealSearchScreen()),
+  Future<void> _load() async {
+    setState(() => _error = null);
+    try {
+      final plan = await fetchMealPlan();
+      if (!mounted) return;
+      setState(() => _mealPlan = plan);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _error = e.message);
+    }
+  }
+
+  Future<void> _openMeal(PlanMeal meal) async {
+    final logged = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(builder: (_) => RecipeScreen(meal: meal, logDate: widget.logDate)),
     );
+    // In "pick a meal to log" mode: bubble the result back up once logged.
+    if (widget.logDate != null && logged == true && mounted) {
+      Navigator.of(context).pop(true);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final day = mealPlan[_dayIndex];
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -43,64 +66,90 @@ class _MealsScreenState extends State<MealsScreen> {
         foregroundColor: AppColors.textDark,
         elevation: 0,
         title: Text(
-          l10n.mealsTitle,
+          widget.logDate == null ? l10n.mealsTitle : l10n.selectAMeal,
           style: const TextStyle(fontWeight: FontWeight.w800),
         ),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: _openSearch,
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
-            child: SegmentedTabs(
-              labels: [for (final d in mealPlan) d.label.of(context)],
-              selected: _dayIndex,
-              onChanged: (i) => setState(() => _dayIndex = i),
-            ),
-          ),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
-              children: [
-                Text(
-                  l10n.mealPlanSubtitle,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: AppColors.textMuted,
+        actions: widget.logDate == null
+            ? [
+                IconButton(
+                  icon: const Icon(Icons.calendar_month_outlined),
+                  tooltip: l10n.myPlanTitle,
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const MealLogScreen()),
                   ),
                 ),
-                const SizedBox(height: 10),
-                _DayTotal(text: '${l10n.totalProteinLabel} ${day.dayTotal.of(context)}'),
-                const SizedBox(height: 16),
-                for (final meal in day.meals)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 14),
-                    child: _MealCard(
-                      meal: meal,
-                      onTap: () => _openMeal(meal),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _openSearch,
-                child: Text(l10n.viewRecipes),
-              ),
-            ),
-          ),
-        ],
+              ]
+            : null,
       ),
+      body: _buildBody(l10n),
+    );
+  }
+
+  Widget _buildBody(AppLocalizations l10n) {
+    if (_error != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.cloud_off, size: 48, color: AppColors.textMuted),
+              const SizedBox(height: 12),
+              Text(
+                _error!,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: AppColors.textMuted),
+              ),
+              const SizedBox(height: 16),
+              OutlinedButton(onPressed: _load, child: Text(l10n.retry)),
+            ],
+          ),
+        ),
+      );
+    }
+    final mealPlan = _mealPlan;
+    if (mealPlan == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    final day = mealPlan[_dayIndex];
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
+          child: SegmentedTabs(
+            labels: [for (final d in mealPlan) d.label.of(context)],
+            selected: _dayIndex,
+            onChanged: (i) => setState(() => _dayIndex = i),
+            scrollable: true,
+          ),
+        ),
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+            children: [
+              Text(
+                l10n.mealPlanSubtitle,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppColors.textMuted,
+                ),
+              ),
+              const SizedBox(height: 10),
+              _DayTotal(text: '${l10n.totalProteinLabel} ${day.dayTotal.of(context)}'),
+              const SizedBox(height: 16),
+              for (final meal in day.meals)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 14),
+                  child: _MealCard(
+                    meal: meal,
+                    onTap: () => _openMeal(meal),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
@@ -122,12 +171,14 @@ class _DayTotal extends StatelessWidget {
         children: [
           Icon(Icons.bolt, size: 18, color: AppColors.primary),
           const SizedBox(width: 8),
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w800,
-              color: AppColors.textDark,
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w800,
+                color: AppColors.textDark,
+              ),
             ),
           ),
         ],

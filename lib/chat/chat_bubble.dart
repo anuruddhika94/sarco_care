@@ -1,17 +1,76 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import 'chat_controller.dart';
 import 'chat_screen.dart';
 
-/// The floating "chat" bubble shown above every screen after login.
+const _diameter = 58.0;
+
+/// The floating "chat" bubble shown above every screen after login. Drag it
+/// anywhere on screen; its position (as a fraction of the screen size, so it
+/// adapts across devices) is remembered for next time.
 ///
 /// Painted from `MaterialApp.builder` so it sits over the whole route stack
 /// (including pushed detail screens). Tapping it opens [ChatScreen] via the
 /// app navigator key and hides the bubble while the chat is open.
-class ChatBubble extends StatelessWidget {
+class ChatBubble extends StatefulWidget {
   const ChatBubble({super.key});
+
+  @override
+  State<ChatBubble> createState() => _ChatBubbleState();
+}
+
+class _ChatBubbleState extends State<ChatBubble> {
+  static const _xKey = 'chat_bubble_x';
+  static const _yKey = 'chat_bubble_y';
+
+  Offset? _topLeft;
+  // Fractional position (0..1) restored from prefs, applied once we know the
+  // screen size on first build.
+  Offset? _pendingFraction;
+  bool _dragging = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPosition();
+  }
+
+  Future<void> _loadPosition() async {
+    final prefs = await SharedPreferences.getInstance();
+    final x = prefs.getDouble(_xKey);
+    final y = prefs.getDouble(_yKey);
+    if (x == null || y == null || !mounted) return;
+    setState(() => _pendingFraction = Offset(x, y));
+  }
+
+  Future<void> _savePosition(Offset fraction) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble(_xKey, fraction.dx);
+    await prefs.setDouble(_yKey, fraction.dy);
+  }
+
+  Offset _defaultTopLeft(Size screen, double bottomInset) {
+    // Mirrors the bubble's original fixed spot: clear of the bottom nav bar
+    // (68px) + safe area, 20px from the right edge.
+    return Offset(
+      screen.width - _diameter - 20,
+      screen.height - _diameter - 68 - bottomInset - 20,
+    );
+  }
+
+  Offset _clamp(Offset topLeft, Size screen, EdgeInsets padding) {
+    final minX = 8.0;
+    final maxX = screen.width - _diameter - 8;
+    final minY = padding.top + 8;
+    final maxY = screen.height - _diameter - padding.bottom - 8;
+    return Offset(
+      topLeft.dx.clamp(minX, maxX),
+      topLeft.dy.clamp(minY, maxY),
+    );
+  }
 
   Future<void> _openChat() async {
     final navigator = appNavigatorKey.currentState;
@@ -26,29 +85,47 @@ class ChatBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    // Clear the bottom nav bar (68px tall) plus the home-indicator safe area,
-    // with a bit of breathing room above the icons.
-    final bottomInset = MediaQuery.of(context).padding.bottom;
+    final mediaQuery = MediaQuery.of(context);
+    final screen = mediaQuery.size;
+
+    var topLeft = _topLeft;
+    if (topLeft == null) {
+      final fraction = _pendingFraction;
+      topLeft = fraction == null
+          ? _defaultTopLeft(screen, mediaQuery.padding.bottom)
+          : Offset(fraction.dx * screen.width, fraction.dy * screen.height);
+      topLeft = _clamp(topLeft, screen, mediaQuery.padding);
+    }
+
     return Positioned(
-      right: 20,
-      bottom: 68 + bottomInset + 20,
-      child: Material(
-        color: AppColors.accent,
-        shape: const CircleBorder(),
-        elevation: 4,
-        shadowColor: Colors.black45,
-        child: InkWell(
-          customBorder: const CircleBorder(),
-          onTap: _openChat,
-          // The bubble is painted above the Navigator's Overlay, so a Tooltip
-          // (which needs an Overlay ancestor) can't be used here — Semantics
-          // carries the label for accessibility instead.
+      left: topLeft.dx,
+      top: topLeft.dy,
+      child: GestureDetector(
+        onPanStart: (_) => setState(() => _dragging = true),
+        onPanUpdate: (details) {
+          setState(() {
+            _topLeft = _clamp(topLeft! + details.delta, screen, mediaQuery.padding);
+          });
+        },
+        onPanEnd: (_) {
+          setState(() => _dragging = false);
+          final t = _topLeft;
+          if (t != null) {
+            _savePosition(Offset(t.dx / screen.width, t.dy / screen.height));
+          }
+        },
+        onTap: _openChat,
+        child: Material(
+          color: AppColors.accent,
+          shape: const CircleBorder(),
+          elevation: _dragging ? 8 : 4,
+          shadowColor: Colors.black45,
           child: Semantics(
             button: true,
             label: l10n.chatBubbleTooltip,
             child: const SizedBox(
-              width: 58,
-              height: 58,
+              width: _diameter,
+              height: _diameter,
               child: Icon(
                 Icons.chat_bubble_rounded,
                 color: Colors.white,

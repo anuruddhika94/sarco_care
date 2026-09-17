@@ -902,16 +902,10 @@ abstract class AppLocalizations {
   /// **'This Week\'s Plan'**
   String get sectionThisWeekPlan;
 
-  /// No description provided for @viewRecipes.
-  ///
-  /// In en, this message translates to:
-  /// **'View Recipes'**
-  String get viewRecipes;
-
   /// No description provided for @mealPlanSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'3-day high-protein menu for muscle health'**
+  /// **'7-day high-protein menu for muscle health'**
   String get mealPlanSubtitle;
 
   /// No description provided for @proteinBreakdown.
@@ -1039,24 +1033,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sun'**
   String get dayAbbrevSun;
-
-  /// No description provided for @searchRecipesTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Search Recipes'**
-  String get searchRecipesTitle;
-
-  /// No description provided for @searchRecipesHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Search recipes'**
-  String get searchRecipesHint;
-
-  /// No description provided for @noRecipesMatch.
-  ///
-  /// In en, this message translates to:
-  /// **'No recipes match \"{query}\"'**
-  String noRecipesMatch(String query);
 
   /// No description provided for @nutrLabelProtein.
   ///
@@ -1729,6 +1705,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sorry, something went wrong. Please try again.'**
   String get chatError;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @noDataForDate.
+  ///
+  /// In en, this message translates to:
+  /// **'No data recorded for this date'**
+  String get noDataForDate;
+
+  /// No description provided for @changeDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get changeDate;
+
+  /// No description provided for @genderFemale.
+  ///
+  /// In en, this message translates to:
+  /// **'Female'**
+  String get genderFemale;
+
+  /// No description provided for @genderOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get genderOther;
+
+  /// No description provided for @articleReadMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min read'**
+  String articleReadMinutes(int minutes);
+
+  /// No description provided for @selectAMeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a meal'**
+  String get selectAMeal;
+
+  /// No description provided for @mealLogged.
+  ///
+  /// In en, this message translates to:
+  /// **'Meal logged'**
+  String get mealLogged;
+
+  /// No description provided for @mealLogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Meal Log'**
+  String get mealLogTitle;
+
+  /// No description provided for @noPatientsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re not linked to any patients yet. Add one below.'**
+  String get noPatientsYet;
+
+  /// No description provided for @noCaretakersYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No linked caretakers yet.'**
+  String get noCaretakersYet;
+
+  /// No description provided for @shareYourPhoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your phone number'**
+  String get shareYourPhoneTitle;
+
+  /// No description provided for @shareYourPhoneBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Share this number with your caretaker so they can add you: {phone}'**
+  String shareYourPhoneBody(String phone);
+
+  /// No description provided for @ok.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get ok;
 }
 
 class _AppLocalizationsDelegate

@@ -150,8 +150,7 @@
   "mealsTitle": "มื้ออาหาร",
   "sectionSuggestedToday": "มื้ออาหารแนะนำสำหรับวันนี้",
   "sectionThisWeekPlan": "แผนสัปดาห์นี้",
-  "viewRecipes": "ดูสูตรอาหาร",
-  "mealPlanSubtitle": "เมนู 3 วัน เพิ่มโปรตีน เสริมกล้ามเนื้อ",
+  "mealPlanSubtitle": "เมนู 7 วัน เพิ่มโปรตีน เสริมกล้ามเนื้อ",
   "proteinBreakdown": "โปรตีนแต่ละอย่าง",
   "totalProteinLabel": "รวมโปรตีน",
   "mealEggsToast": "ไข่ลวกกับขนมปังปิ้ง",
@@ -173,10 +172,6 @@
   "dayAbbrevFri": "ศ.",
   "dayAbbrevSat": "ส.",
   "dayAbbrevSun": "อา.",
-
-  "searchRecipesTitle": "ค้นหาสูตรอาหาร",
-  "searchRecipesHint": "ค้นหาสูตรอาหาร",
-  "noRecipesMatch": "ไม่พบสูตรที่ตรงกับ \"{query}\"",
 
   "nutrLabelProtein": "โปรตีน",
   "nutrLabelEnergy": "พลังงาน",
@@ -300,5 +295,28 @@
   "chatInputHint": "พิมพ์ข้อความ…",
   "chatSend": "ส่ง",
   "chatComingSoonReply": "ขอบคุณสำหรับข้อความ! ตอนนี้ฉันยังไม่ได้เชื่อมต่อ เมื่อเชื่อมต่อแล้ว ฉันจะให้คำแนะนำเฉพาะบุคคลเกี่ยวกับสุขภาพกล้ามเนื้อ การออกกำลังกาย และโภชนาการ",
-  "chatError": "ขออภัย เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง"
+  "chatError": "ขออภัย เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
+
+  "retry": "ลองใหม่",
+  "noDataForDate": "ไม่มีข้อมูลสำหรับวันที่นี้",
+  "changeDate": "เปลี่ยน",
+  "genderFemale": "หญิง",
+  "genderOther": "อื่น ๆ",
+  "articleReadMinutes": "อ่าน {minutes} นาที",
+  "@articleReadMinutes": {
+    "placeholders": { "minutes": { "type": "int" } }
+  },
+
+  "selectAMeal": "เลือกมื้ออาหาร",
+  "mealLogged": "บันทึกมื้ออาหารแล้ว",
+  "mealLogTitle": "บันทึกมื้ออาหาร",
+
+  "noPatientsYet": "คุณยังไม่ได้เชื่อมโยงกับผู้ป่วยรายใด เพิ่มรายชื่อด้านล่างนี้",
+  "noCaretakersYet": "ยังไม่มีผู้ดูแลที่เชื่อมโยง",
+  "shareYourPhoneTitle": "หมายเลขโทรศัพท์ของคุณ",
+  "shareYourPhoneBody": "แชร์หมายเลขนี้ให้ผู้ดูแลของคุณเพื่อเพิ่มคุณ: {phone}",
+  "@shareYourPhoneBody": {
+    "placeholders": { "phone": { "type": "String" } }
+  },
+  "ok": "ตกลง"
 }

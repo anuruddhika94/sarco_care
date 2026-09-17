@@ -3,14 +3,16 @@ import 'package:flutter_tts/flutter_tts.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
+import 'knowledge_screen.dart';
 
-/// Article detail — a readable educational article opened from Knowledge.
-/// A "Read aloud" button speaks the article (text-to-speech) in the app's
+/// Article detail — a readable educational article opened from Knowledge,
+/// rendered from the article data loaded there (`GET /articles`). A
+/// "Read aloud" button speaks the article (text-to-speech) in the app's
 /// current language, for readers who find it easier to listen.
 class ArticleDetailScreen extends StatefulWidget {
-  const ArticleDetailScreen({super.key, required this.title});
+  const ArticleDetailScreen({super.key, required this.article});
 
-  final String title;
+  final Map<String, dynamic> article;
 
   @override
   State<ArticleDetailScreen> createState() => _ArticleDetailScreenState();
@@ -58,12 +60,13 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final paragraphs = [
-      l10n.articleParagraph1,
-      l10n.articleParagraph2,
-      l10n.articleParagraph3,
-    ];
-    final spoken = '${widget.title}. ${paragraphs.join(' ')}';
+    final isThai = Localizations.localeOf(context).languageCode == 'th';
+    final title = (isThai ? widget.article['title_th'] : widget.article['title_en']) as String;
+    final paragraphs = ((isThai ? widget.article['body_th'] : widget.article['body_en']) as List)
+        .cast<String>();
+    final readMinutes = widget.article['read_minutes'] as int;
+    final icon = articleIconForKey(widget.article['icon'] as String);
+    final spoken = '$title. ${paragraphs.join(' ')}';
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -87,19 +90,19 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
               color: AppColors.softGreen,
               borderRadius: BorderRadius.circular(20),
             ),
-            child: Icon(Icons.menu_book_outlined, size: 72, color: AppColors.primary),
+            child: Icon(icon, size: 72, color: AppColors.primary),
           ),
           const SizedBox(height: 20),
           Row(
             children: [
               _MetaChip(text: l10n.navKnowledge),
               const SizedBox(width: 8),
-              _MetaChip(text: l10n.chipReadTime),
+              _MetaChip(text: l10n.articleReadMinutes(readMinutes)),
             ],
           ),
           const SizedBox(height: 16),
           Text(
-            widget.title,
+            title,
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w800,

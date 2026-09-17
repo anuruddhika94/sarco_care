@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../api/api_client.dart';
+import '../auth/auth_controller.dart';
 import '../chat/chat_controller.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
@@ -9,10 +11,12 @@ import 'assessment_screen.dart';
 import 'exercise_plan_screen.dart';
 import 'health_tracking_screen.dart';
 import 'meals_screen.dart';
+import 'splash_screen.dart';
 
 /// Caretaker home — the caretaker's landing screen after logging in.
-/// Pure UI: a patient switcher (one caretaker → many patients) and quick access
-/// into the selected patient's care screens, plus an Add Patient entry.
+/// A patient switcher (one caretaker → many patients), loaded from
+/// `GET /care_links?status=approved`, and quick access into the selected
+/// patient's care screens (each scoped to that patient via `?patient_id=`).
 class CaretakerHomeScreen extends StatefulWidget {
   const CaretakerHomeScreen({super.key});
 
@@ -20,47 +24,57 @@ class CaretakerHomeScreen extends StatefulWidget {
   State<CaretakerHomeScreen> createState() => _CaretakerHomeScreenState();
 }
 
-enum PatientId { somchai, wanida, prasert }
-
-String patientName(AppLocalizations l10n, PatientId id) => switch (id) {
-      PatientId.somchai => l10n.userFullName,
-      PatientId.wanida => l10n.patientWanida,
-      PatientId.prasert => l10n.patientPrasert,
-    };
-
-enum RiskShort { low, moderate, high }
-
-String riskShortLabel(AppLocalizations l10n, RiskShort risk) => switch (risk) {
-      RiskShort.low => l10n.riskShortLow,
-      RiskShort.moderate => l10n.riskShortModerate,
-      RiskShort.high => l10n.riskShortHigh,
-    };
-
 class _CaretakerHomeScreenState extends State<CaretakerHomeScreen> {
-  static const _patients = [
-    _Patient(PatientId.somchai, 72, RiskShort.moderate, 'assets/images/avatars/somchai.png'),
-    _Patient(PatientId.wanida, 68, RiskShort.low, null),
-    _Patient(PatientId.prasert, 75, RiskShort.high, null),
-  ];
-
+  List<Map<String, dynamic>>? _patients;
+  String? _error;
   int _selected = 0;
 
-  void _logOut() {
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    setState(() => _error = null);
+    try {
+      final links = await apiClient.get('/care_links', query: {'status': 'approved'});
+      if (!mounted) return;
+      setState(() {
+        _patients = (links as List)
+            .map((l) => (l as Map<String, dynamic>)['patient'] as Map<String, dynamic>)
+            .toList();
+        if (_selected >= _patients!.length) _selected = 0;
+      });
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _error = e.message);
+    }
+  }
+
+  Future<void> _logOut() async {
+    await authController.logout();
     chatController.onLogout();
-    Navigator.of(context).popUntil((route) => route.isFirst);
+    if (!mounted) return;
+    // Reset the whole stack to Splash — popUntil(isFirst) isn't enough since
+    // a restored session can start directly at CaretakerHomeScreen with
+    // nothing to pop to.
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const SplashScreen()),
+      (route) => false,
+    );
   }
 
   Future<void> _switchPatient() async {
+    final patients = _patients;
+    if (patients == null) return;
     final picked = await showModalBottomSheet<int>(
       context: context,
       backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (context) => _PatientPicker(
-        patients: _patients,
-        selected: _selected,
-      ),
+      builder: (context) => _PatientPicker(patients: patients, selected: _selected),
     );
     if (picked != null) setState(() => _selected = picked);
   }
@@ -69,11 +83,18 @@ class _CaretakerHomeScreenState extends State<CaretakerHomeScreen> {
     Navigator.of(context).push(MaterialPageRoute(builder: builder));
   }
 
+  Future<void> _openAddPatient() async {
+    final sent = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(builder: (_) => const AddPatientScreen()),
+    );
+    // A new request is pending approval, not approved yet, so the list
+    // itself doesn't change — nothing to reload.
+    if (sent == true) return;
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final patient = _patients[_selected];
-    final firstName = patientName(l10n, patient.id).split(' ').first;
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -94,112 +115,153 @@ class _CaretakerHomeScreenState extends State<CaretakerHomeScreen> {
           ),
         ],
       ),
-      body: ListView(
+      body: _buildBody(l10n),
+    );
+  }
+
+  Widget _buildBody(AppLocalizations l10n) {
+    if (_error != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.cloud_off, size: 48, color: AppColors.textMuted),
+              const SizedBox(height: 12),
+              Text(_error!, textAlign: TextAlign.center, style: TextStyle(color: AppColors.textMuted)),
+              const SizedBox(height: 16),
+              OutlinedButton(onPressed: _load, child: Text(l10n.retry)),
+            ],
+          ),
+        ),
+      );
+    }
+    final patients = _patients;
+    if (patients == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final addPatientButton = SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: _openAddPatient,
+        icon: const Icon(Icons.person_add_alt),
+        label: Text(l10n.addPatient),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.primary,
+          minimumSize: const Size.fromHeight(56),
+          side: const BorderSide(color: AppColors.primary, width: 1.5),
+          textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      ),
+    );
+
+    if (patients.isEmpty) {
+      return ListView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
         children: [
           Text(
             l10n.helloCaretaker(l10n.caretakerFirstName),
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w800,
-              color: AppColors.textDark,
-            ),
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.textDark),
           ),
-          const SizedBox(height: 4),
-          Text(
-            l10n.caringForPatients(_patients.length),
-            style: TextStyle(fontSize: 15, color: AppColors.textMuted),
-          ),
-          const SizedBox(height: 20),
-          _PatientSwitcher(patient: patient, onTap: _switchPatient),
           const SizedBox(height: 24),
           Text(
-            l10n.careForName(firstName),
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textDark,
-            ),
+            l10n.noPatientsYet,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: AppColors.textMuted, fontSize: 16),
           ),
-          const SizedBox(height: 16),
-          GridView.count(
-            crossAxisCount: 2,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: 16,
-            crossAxisSpacing: 16,
-            childAspectRatio: 1.05,
-            children: [
-              _CareTile(
-                title: l10n.careTileHealthData,
-                icon: Icons.monitor_heart,
-                color: const Color(0xFFB0524B),
-                onTap: () => _open((_) => const HealthTrackingScreen()),
-              ),
-              _CareTile(
-                title: l10n.navExercise,
-                icon: Icons.sports_gymnastics,
-                color: const Color(0xFF3E7CB1),
-                onTap: () => _open((_) => const ExercisePlanScreen()),
-              ),
-              _CareTile(
-                title: l10n.careTileMeals,
-                icon: Icons.ramen_dining,
-                color: const Color(0xFF3B8B5F),
-                onTap: () => _open((_) => const MealsScreen()),
-              ),
-              _CareTile(
-                title: l10n.careTileSarcf,
-                icon: Icons.fact_check,
-                color: const Color(0xFFCB8A2E),
-                onTap: () => _open((_) => const AssessmentScreen()),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () => _open((_) => const AddPatientScreen()),
-              icon: const Icon(Icons.person_add_alt),
-              label: Text(l10n.addPatient),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primary,
-                minimumSize: const Size.fromHeight(56),
-                side: const BorderSide(color: AppColors.primary, width: 1.5),
-                textStyle: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ),
+          const SizedBox(height: 24),
+          addPatientButton,
         ],
-      ),
+      );
+    }
+
+    final patient = patients[_selected];
+    final fullName = patient['full_name'] as String;
+    final firstName = fullName.split(' ').first;
+    final patientId = patient['id'] as int;
+
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+      children: [
+        Text(
+          l10n.helloCaretaker(l10n.caretakerFirstName),
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w800,
+            color: AppColors.textDark,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          l10n.caringForPatients(patients.length),
+          style: TextStyle(fontSize: 15, color: AppColors.textMuted),
+        ),
+        const SizedBox(height: 20),
+        _PatientSwitcher(patient: patient, onTap: _switchPatient),
+        const SizedBox(height: 24),
+        Text(
+          l10n.careForName(firstName),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textDark,
+          ),
+        ),
+        const SizedBox(height: 16),
+        GridView.count(
+          crossAxisCount: 2,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          mainAxisSpacing: 16,
+          crossAxisSpacing: 16,
+          childAspectRatio: 1.05,
+          children: [
+            _CareTile(
+              title: l10n.careTileHealthData,
+              icon: Icons.monitor_heart,
+              color: const Color(0xFFB0524B),
+              onTap: () => _open((_) => HealthTrackingScreen(patientId: patientId)),
+            ),
+            _CareTile(
+              title: l10n.navExercise,
+              icon: Icons.sports_gymnastics,
+              color: const Color(0xFF3E7CB1),
+              onTap: () => _open((_) => const ExercisePlanScreen()),
+            ),
+            _CareTile(
+              title: l10n.careTileMeals,
+              icon: Icons.ramen_dining,
+              color: const Color(0xFF3B8B5F),
+              onTap: () => _open((_) => const MealsScreen()),
+            ),
+            _CareTile(
+              title: l10n.careTileSarcf,
+              icon: Icons.fact_check,
+              color: const Color(0xFFCB8A2E),
+              onTap: () => _open((_) => AssessmentScreen(patientId: patientId)),
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+        addPatientButton,
+      ],
     );
   }
-}
-
-class _Patient {
-  const _Patient(this.id, this.age, this.risk, this.image);
-  final PatientId id;
-  final int age;
-  final RiskShort risk;
-  final String? image;
 }
 
 /// The current-patient card that opens the switcher sheet.
 class _PatientSwitcher extends StatelessWidget {
   const _PatientSwitcher({required this.patient, required this.onTap});
-  final _Patient patient;
+  final Map<String, dynamic> patient;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final age = patient['age'] as int?;
     return Material(
       color: AppColors.surface,
       borderRadius: BorderRadius.circular(18),
@@ -215,7 +277,7 @@ class _PatientSwitcher extends StatelessWidget {
           child: Row(
             children: [
               AppAvatar(
-                asset: patient.image,
+                asset: patient['avatar_url'] as String?,
                 fallbackIcon: Icons.elderly,
                 size: 56,
               ),
@@ -225,19 +287,20 @@ class _PatientSwitcher extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      patientName(l10n, patient.id),
+                      patient['full_name'] as String,
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w700,
                         color: AppColors.textDark,
                       ),
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      l10n.ageRiskSubtitle(
-                          patient.age, riskShortLabel(l10n, patient.risk)),
-                      style: TextStyle(fontSize: 14, color: AppColors.textMuted),
-                    ),
+                    if (age != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        l10n.ageLabel(age),
+                        style: TextStyle(fontSize: 14, color: AppColors.textMuted),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -265,7 +328,7 @@ class _PatientSwitcher extends StatelessWidget {
 /// Bottom-sheet list for choosing the active patient.
 class _PatientPicker extends StatelessWidget {
   const _PatientPicker({required this.patients, required this.selected});
-  final List<_Patient> patients;
+  final List<Map<String, dynamic>> patients;
   final int selected;
 
   @override
@@ -291,19 +354,18 @@ class _PatientPicker extends StatelessWidget {
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: AppAvatar(
-                  asset: patients[i].image,
+                  asset: patients[i]['avatar_url'] as String?,
                   fallbackIcon: Icons.elderly,
                   size: 44,
                 ),
                 title: Text(
-                  patientName(l10n, patients[i].id),
+                  patients[i]['full_name'] as String,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     color: AppColors.textDark,
                   ),
                 ),
-                subtitle: Text(l10n.ageRiskSubtitle(
-                    patients[i].age, riskShortLabel(l10n, patients[i].risk))),
+                subtitle: patients[i]['age'] != null ? Text(l10n.ageLabel(patients[i]['age'] as int)) : null,
                 trailing: i == selected
                     ? Icon(Icons.check_circle, color: AppColors.primary)
                     : null,

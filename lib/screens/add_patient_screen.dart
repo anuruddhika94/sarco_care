@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../api/api_client.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 
-/// Add Patient (caretaker side) — find a patient by phone and send a link
-/// request. Pure UI: mock search reveals a result card; sending a request
-/// moves it to a pending state (the patient approves on their device).
+/// Add Patient (caretaker side) — find a patient by phone (`GET
+/// /care_links/lookup`) and send a link request (`POST /care_links`). The
+/// patient approves on their own device (see HomeScreen's request banner).
 class AddPatientScreen extends StatefulWidget {
   const AddPatientScreen({super.key});
 
@@ -15,8 +16,11 @@ class AddPatientScreen extends StatefulWidget {
 
 class _AddPatientScreenState extends State<AddPatientScreen> {
   final TextEditingController _controller = TextEditingController();
-  bool _searched = false;
+  bool _searching = false;
+  bool _sending = false;
   bool _requestSent = false;
+  Map<String, dynamic>? _found;
+  String? _searchError;
 
   @override
   void dispose() {
@@ -24,25 +28,53 @@ class _AddPatientScreenState extends State<AddPatientScreen> {
     super.dispose();
   }
 
-  void _search() {
+  Future<void> _search() async {
     FocusScope.of(context).unfocus();
     setState(() {
-      _searched = true;
+      _searching = true;
+      _searchError = null;
+      _found = null;
       _requestSent = false;
     });
+    try {
+      final patient = await apiClient.get('/care_links/lookup', query: {
+        'phone_number': _controller.text.trim(),
+      }) as Map<String, dynamic>;
+      if (!mounted) return;
+      setState(() => _found = patient);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _searchError = e.message);
+    } finally {
+      if (mounted) setState(() => _searching = false);
+    }
   }
 
-  void _sendRequest() {
+  Future<void> _sendRequest() async {
     final l10n = AppLocalizations.of(context);
-    setState(() => _requestSent = true);
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(l10n.requestSentWaiting),
-          backgroundColor: AppColors.primary,
-        ),
-      );
+    setState(() => _sending = true);
+    try {
+      await apiClient.post('/care_links', body: {
+        'phone_number': _found!['phone_number'],
+      });
+      if (!mounted) return;
+      setState(() => _requestSent = true);
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(l10n.requestSentWaiting),
+            backgroundColor: AppColors.primary,
+          ),
+        );
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(e.message)));
+    } finally {
+      if (mounted) setState(() => _sending = false);
+    }
   }
 
   @override
@@ -100,31 +132,53 @@ class _AddPatientScreenState extends State<AddPatientScreen> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: hasQuery ? _search : null,
-              child: Text(l10n.search),
+              onPressed: (hasQuery && !_searching) ? _search : null,
+              child: _searching
+                  ? const SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
+                    )
+                  : Text(l10n.search),
             ),
           ),
           const SizedBox(height: 24),
-          if (_searched) _ResultCard(
-            sent: _requestSent,
-            onSendRequest: _sendRequest,
-          ),
+          if (_searchError != null)
+            Text(
+              _searchError!,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: AppColors.textMuted),
+            ),
+          if (_found != null)
+            _ResultCard(
+              patient: _found!,
+              sent: _requestSent,
+              sending: _sending,
+              onSendRequest: _sendRequest,
+            ),
         ],
       ),
     );
   }
 }
 
-/// Mock search result — one found patient. Name is shown so the caretaker can
-/// confirm the right person before sending a request.
+/// The found patient card, with a "Send Request" action.
 class _ResultCard extends StatelessWidget {
-  const _ResultCard({required this.sent, required this.onSendRequest});
+  const _ResultCard({
+    required this.patient,
+    required this.sent,
+    required this.sending,
+    required this.onSendRequest,
+  });
+  final Map<String, dynamic> patient;
   final bool sent;
+  final bool sending;
   final VoidCallback onSendRequest;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final age = patient['age'] as int?;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -151,18 +205,20 @@ class _ResultCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      l10n.userFullName,
+                      patient['full_name'] as String,
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w700,
                         color: AppColors.textDark,
                       ),
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      l10n.ageLabel(72),
-                      style: TextStyle(fontSize: 14, color: AppColors.textMuted),
-                    ),
+                    if (age != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        l10n.ageLabel(age),
+                        style: TextStyle(fontSize: 14, color: AppColors.textMuted),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -196,8 +252,14 @@ class _ResultCard extends StatelessWidget {
                     ),
                   )
                 : ElevatedButton(
-                    onPressed: onSendRequest,
-                    child: Text(l10n.sendRequest),
+                    onPressed: sending ? null : onSendRequest,
+                    child: sending
+                        ? const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
+                          )
+                        : Text(l10n.sendRequest),
                   ),
           ),
         ],

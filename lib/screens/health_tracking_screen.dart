@@ -1,54 +1,93 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
+import '../api/api_client.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
-import '../widgets/segmented_tabs.dart';
 import 'add_data_screen.dart';
 
-/// Screen #10 — Health Tracking.
-/// Pure UI: time-range tabs, a list of body metrics and an Add Data action.
+/// Screen #10 — General Information Record (health tracking).
+/// Loads the patient's readings from `GET /health_readings`, defaults to the
+/// most recent one, and lets the date picker jump to any other recorded day.
+/// [patientId] lets a caretaker view a linked patient's data instead of their
+/// own (the API rejects the request unless there's an approved care link).
 class HealthTrackingScreen extends StatefulWidget {
-  const HealthTrackingScreen({super.key, this.showBackButton = true});
+  const HealthTrackingScreen({super.key, this.showBackButton = true, this.patientId});
 
   /// False when shown as a shell tab root (no route to pop back to).
   final bool showBackButton;
+  final int? patientId;
 
   @override
   State<HealthTrackingScreen> createState() => _HealthTrackingScreenState();
 }
 
 class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
-  int _tabIndex = 0;
+  List<Map<String, dynamic>>? _readings;
+  String? _error;
+  DateTime? _selectedDate;
 
-  // Latest reading vs weekly/monthly averages.
-  static const _daily = [
-    _Metric(MetricKind.weight, '55.0', 'kg', Icons.monitor_weight_outlined),
-    _Metric(MetricKind.height, '160', 'cm', Icons.height),
-    _Metric(MetricKind.bmi, '21.5', '', Icons.calculate_outlined, normal: true),
-    _Metric(MetricKind.calf, '34.0', 'cm', Icons.straighten),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
 
-  static const _weekly = [
-    _Metric(MetricKind.weight, '55.3', 'kg', Icons.monitor_weight_outlined),
-    _Metric(MetricKind.height, '160', 'cm', Icons.height),
-    _Metric(MetricKind.bmi, '21.6', '', Icons.calculate_outlined, normal: true),
-    _Metric(MetricKind.calf, '33.8', 'cm', Icons.straighten),
-  ];
+  Future<void> _load({DateTime? selectDate}) async {
+    setState(() => _error = null);
+    try {
+      final data = await apiClient.get('/health_readings', query: _patientQuery);
+      if (!mounted) return;
+      final readings = (data as List).cast<Map<String, dynamic>>();
+      setState(() {
+        _readings = readings;
+        _selectedDate = selectDate ??
+            (readings.isEmpty ? DateTime.now() : DateTime.parse(readings.first['recorded_on'] as String));
+      });
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _error = e.message);
+    }
+  }
 
-  static const _monthly = [
-    _Metric(MetricKind.weight, '55.8', 'kg', Icons.monitor_weight_outlined),
-    _Metric(MetricKind.height, '160', 'cm', Icons.height),
-    _Metric(MetricKind.bmi, '21.8', '', Icons.calculate_outlined, normal: true),
-    _Metric(MetricKind.calf, '33.5', 'cm', Icons.straighten),
-  ];
+  Map<String, String>? get _patientQuery =>
+      widget.patientId == null ? null : {'patient_id': '${widget.patientId}'};
 
-  List<_Metric> get _visibleMetrics =>
-      [_daily, _weekly, _monthly][_tabIndex];
+  Map<String, dynamic>? get _selectedReading {
+    final readings = _readings;
+    final date = _selectedDate;
+    if (readings == null || date == null) return null;
+    for (final r in readings) {
+      final recorded = DateTime.parse(r['recorded_on'] as String);
+      if (recorded.year == date.year && recorded.month == date.month && recorded.day == date.day) {
+        return r;
+      }
+    }
+    return null;
+  }
 
-  void _addData() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const AddDataScreen()),
+  Future<void> _pickDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate ?? DateTime.now(),
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
     );
+    if (picked != null) setState(() => _selectedDate = picked);
+  }
+
+  Future<void> _addData() async {
+    final saved = await Navigator.of(context).push<String>(
+      MaterialPageRoute(
+        builder: (_) => AddDataScreen(
+          initialDate: _selectedDate ?? DateTime.now(),
+          existing: _selectedReading,
+          patientId: widget.patientId,
+        ),
+      ),
+    );
+    if (saved == null) return;
+    await _load(selectDate: DateTime.parse(saved));
   }
 
   @override
@@ -67,40 +106,132 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
         ),
         centerTitle: true,
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
-            child: SegmentedTabs(
-              labels: [l10n.tabDaily, l10n.tabWeekly, l10n.tabMonthly],
-              selected: _tabIndex,
-              onChanged: (i) => setState(() => _tabIndex = i),
-            ),
+      body: _buildBody(l10n),
+    );
+  }
+
+  Widget _buildBody(AppLocalizations l10n) {
+    if (_error != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.cloud_off, size: 48, color: AppColors.textMuted),
+              const SizedBox(height: 12),
+              Text(_error!, textAlign: TextAlign.center, style: TextStyle(color: AppColors.textMuted)),
+              const SizedBox(height: 16),
+              OutlinedButton(onPressed: () => _load(), child: Text(l10n.retry)),
+            ],
           ),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
-              children: [
-                for (final m in _visibleMetrics)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: _MetricRow(metric: m),
+        ),
+      );
+    }
+    if (_readings == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final reading = _selectedReading;
+    final isToday = _selectedDate != null && DateUtils.isSameDay(_selectedDate, DateTime.now());
+    final metrics = reading == null
+        ? const <_Metric>[]
+        : [
+            _Metric(MetricKind.weight, reading['weight_kg'], 'kg', Icons.monitor_weight_outlined),
+            _Metric(MetricKind.height, reading['height_cm'], 'cm', Icons.height),
+            _Metric(MetricKind.bmi, reading['bmi'], '', Icons.calculate_outlined, normal: _isNormalBmi(reading['bmi'])),
+            _Metric(MetricKind.calf, reading['calf_cm'], 'cm', Icons.straighten),
+          ];
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
+          child: _DateSelector(
+            date: _selectedDate ?? DateTime.now(),
+            isToday: isToday,
+            onTap: _pickDate,
+          ),
+        ),
+        Expanded(
+          child: reading == null
+              ? Center(
+                  child: Text(
+                    l10n.noDataForDate,
+                    style: TextStyle(color: AppColors.textMuted, fontSize: 16),
                   ),
-              ],
+                )
+              : ListView(
+                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+                  children: [
+                    for (final m in metrics)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: _MetricRow(metric: m),
+                      ),
+                  ],
+                ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+          child: SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: _addData,
+              icon: const Icon(Icons.add),
+              label: Text(l10n.addData),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: _addData,
-                icon: const Icon(Icons.add),
-                label: Text(l10n.addData),
+        ),
+      ],
+    );
+  }
+
+  bool _isNormalBmi(dynamic bmi) {
+    if (bmi == null) return false;
+    final value = double.tryParse(bmi.toString());
+    return value != null && value >= 18.5 && value < 23;
+  }
+}
+
+class _DateSelector extends StatelessWidget {
+  const _DateSelector({required this.date, required this.isToday, required this.onTap});
+  final DateTime date;
+  final bool isToday;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Material(
+      color: AppColors.surface,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: const Color(0xFFEAEFEA)),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.calendar_today_outlined, color: AppColors.primary, size: 22),
+              const SizedBox(width: 14),
+              Text(
+                isToday ? l10n.dateToday : DateFormat.yMMMd().format(date),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textDark),
               ),
-            ),
+              const Spacer(),
+              Text(
+                l10n.changeDate,
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.primary),
+              ),
+              Icon(Icons.expand_more, color: AppColors.primary),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -116,13 +247,19 @@ String metricLabel(AppLocalizations l10n, MetricKind kind) => switch (kind) {
     };
 
 class _Metric {
-  const _Metric(this.kind, this.value, this.unit, this.icon,
-      {this.normal = false});
+  const _Metric(this.kind, this.rawValue, this.unit, this.icon, {this.normal = false});
   final MetricKind kind;
-  final String value;
+  final dynamic rawValue;
   final String unit;
   final IconData icon;
   final bool normal;
+
+  String get value {
+    if (rawValue == null) return '—';
+    if (kind == MetricKind.bmi) return rawValue.toString();
+    final n = double.tryParse(rawValue.toString());
+    return n == null ? rawValue.toString() : n.toStringAsFixed(1);
+  }
 }
 
 class _MetricRow extends StatelessWidget {

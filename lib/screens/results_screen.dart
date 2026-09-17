@@ -5,19 +5,23 @@ import '../theme/app_theme.dart';
 import 'assessment_screen.dart';
 
 /// Screen #9 — SARC-F Assessment Results.
-/// Pure UI: risk badge derived from the score, tailored recommendations and a
-/// Retake Assessment action. Score classification is simple arithmetic.
+/// Risk badge, tailored recommendations and a Retake Assessment action. The
+/// score and risk level come from `POST /assessments`'s response, not local
+/// arithmetic.
 class ResultsScreen extends StatelessWidget {
-  const ResultsScreen({super.key, required this.score});
+  const ResultsScreen({super.key, required this.score, required this.riskLevel});
 
   /// Total of the selected answer severities (0 = best).
   final int score;
 
-  _RiskLevel get _level {
-    if (score <= 3) return _RiskLevel.low;
-    if (score <= 7) return _RiskLevel.moderate;
-    return _RiskLevel.high;
-  }
+  /// 'low' | 'moderate' | 'high', as returned by the API.
+  final String riskLevel;
+
+  _RiskLevel get _level => switch (riskLevel) {
+        'low' => _RiskLevel.low,
+        'moderate' => _RiskLevel.moderate,
+        _ => _RiskLevel.high,
+      };
 
   void _retake(BuildContext context) {
     Navigator.of(context).pushReplacement(

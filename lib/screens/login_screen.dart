@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../api/api_client.dart';
+import '../auth/auth_controller.dart';
 import '../chat/chat_controller.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
@@ -10,9 +12,10 @@ import 'main_shell.dart';
 import 'signup_screen.dart';
 
 /// Screen #2 — Login.
-/// Pure UI: a Patient/Caretaker role picker, username/phone + password fields,
-/// a primary "Log In" action and a patient-only guest entry. No auth logic;
-/// login routes to the patient app shell or the caretaker home by role.
+/// A Patient/Caretaker role picker (used only to carry over into Sign Up —
+/// the account's real role from the API decides where login lands),
+/// phone + password fields, and a primary "Log In" action against the Rails
+/// API's `/auth/login`.
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -21,17 +24,41 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final _phoneController = TextEditingController();
+  final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _submitting = false;
   int _role = 0; // 0 = Patient, 1 = Caretaker
 
-  bool get _isPatient => _role == 0;
+  @override
+  void dispose() {
+    _phoneController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
-  void _login() {
-    final WidgetBuilder builder = _isPatient
-        ? (_) => const MainShell()
-        : (_) => const CaretakerHomeScreen();
-    chatController.onLogin();
-    Navigator.of(context).push(MaterialPageRoute(builder: builder));
+  Future<void> _login() async {
+    setState(() => _submitting = true);
+    try {
+      await authController.login(
+        phoneNumber: _phoneController.text.trim(),
+        password: _passwordController.text,
+        role: _role == 0 ? 'patient' : 'caretaker',
+      );
+      if (!mounted) return;
+      chatController.onLogin();
+      final WidgetBuilder builder = authController.currentUser!.isPatient
+          ? (_) => const MainShell()
+          : (_) => const CaretakerHomeScreen();
+      Navigator.of(context).push(MaterialPageRoute(builder: builder));
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(e.message)));
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
   }
 
   void _openSignUp() {
@@ -64,6 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
               AuthFieldLabel(l10n.phoneNumber),
               const SizedBox(height: 8),
               TextField(
+                controller: _phoneController,
                 keyboardType: TextInputType.phone,
                 decoration: authFieldDecoration(l10n.phoneNumberHint),
               ),
@@ -71,6 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
               AuthFieldLabel(l10n.password),
               const SizedBox(height: 8),
               TextField(
+                controller: _passwordController,
                 obscureText: _obscurePassword,
                 decoration: authFieldDecoration(l10n.passwordHint).copyWith(
                   suffixIcon: IconButton(
@@ -88,8 +117,17 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 32),
               ElevatedButton(
-                onPressed: _login,
-                child: Text(l10n.logIn),
+                onPressed: _submitting ? null : _login,
+                child: _submitting
+                    ? const SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Text(l10n.logIn),
               ),
               const SizedBox(height: 28),
               Row(

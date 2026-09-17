@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 
+import '../api/api_client.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import 'results_screen.dart';
 
 /// Screen #8 — SARC-F Assessment.
-/// Pure UI: a stepped 5-question survey with radio answers, a progress bar and
-/// a Next button that advances and finally opens the Results placeholder (#9).
+/// A stepped 5-question survey with radio answers and a progress bar. The
+/// final "See Results" submits the answers to `POST /assessments`, which
+/// computes and returns the score and risk level.
 class AssessmentScreen extends StatefulWidget {
-  const AssessmentScreen({super.key});
+  const AssessmentScreen({super.key, this.patientId});
+
+  /// Set when a caretaker is filling this out on behalf of a linked patient.
+  final int? patientId;
 
   @override
   State<AssessmentScreen> createState() => _AssessmentScreenState();
@@ -20,6 +25,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
   int _index = 0;
   // One selected option index per question (null = unanswered).
   final List<int?> _answers = List<int?>.filled(_questionCount, null);
+  bool _submitting = false;
 
   bool get _isLast => _index == _questionCount - 1;
   bool get _hasAnswer => _answers[_index] != null;
@@ -32,16 +38,34 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
     }
   }
 
-  void _next() {
+  Future<void> _next() async {
     if (!_isLast) {
       setState(() => _index++);
       return;
     }
-    // Total the selected severities (0 = best) as a simple SARC-F-style score.
-    final score = _answers.fold<int>(0, (sum, a) => sum + (a ?? 0));
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => ResultsScreen(score: score)),
-    );
+
+    setState(() => _submitting = true);
+    try {
+      final result = await apiClient.post('/assessments', body: {
+        'answers': _answers,
+        if (widget.patientId != null) 'patient_id': widget.patientId,
+      }) as Map<String, dynamic>;
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => ResultsScreen(
+            score: result['score'] as int,
+            riskLevel: result['risk_level'] as String,
+          ),
+        ),
+      );
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _submitting = false);
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(e.message)));
+    }
   }
 
   @override
@@ -122,8 +146,17 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 // Require an answer before advancing.
-                onPressed: _hasAnswer ? _next : null,
-                child: Text(_isLast ? l10n.seeResults : l10n.next),
+                onPressed: (_hasAnswer && !_submitting) ? _next : null,
+                child: _submitting
+                    ? const SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Text(_isLast ? l10n.seeResults : l10n.next),
               ),
             ),
           ],

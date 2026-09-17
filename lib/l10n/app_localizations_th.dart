@@ -426,10 +426,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get sectionThisWeekPlan => 'แผนสัปดาห์นี้';
 
   @override
-  String get viewRecipes => 'ดูสูตรอาหาร';
-
-  @override
-  String get mealPlanSubtitle => 'เมนู 3 วัน เพิ่มโปรตีน เสริมกล้ามเนื้อ';
+  String get mealPlanSubtitle => 'เมนู 7 วัน เพิ่มโปรตีน เสริมกล้ามเนื้อ';
 
   @override
   String get proteinBreakdown => 'โปรตีนแต่ละอย่าง';
@@ -495,17 +492,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get dayAbbrevSun => 'อา.';
-
-  @override
-  String get searchRecipesTitle => 'ค้นหาสูตรอาหาร';
-
-  @override
-  String get searchRecipesHint => 'ค้นหาสูตรอาหาร';
-
-  @override
-  String noRecipesMatch(String query) {
-    return 'ไม่พบสูตรที่ตรงกับ \"$query\"';
-  }
 
   @override
   String get nutrLabelProtein => 'โปรตีน';
@@ -881,4 +867,51 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get chatError => 'ขออภัย เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง';
+
+  @override
+  String get retry => 'ลองใหม่';
+
+  @override
+  String get noDataForDate => 'ไม่มีข้อมูลสำหรับวันที่นี้';
+
+  @override
+  String get changeDate => 'เปลี่ยน';
+
+  @override
+  String get genderFemale => 'หญิง';
+
+  @override
+  String get genderOther => 'อื่น ๆ';
+
+  @override
+  String articleReadMinutes(int minutes) {
+    return 'อ่าน $minutes นาที';
+  }
+
+  @override
+  String get selectAMeal => 'เลือกมื้ออาหาร';
+
+  @override
+  String get mealLogged => 'บันทึกมื้ออาหารแล้ว';
+
+  @override
+  String get mealLogTitle => 'บันทึกมื้ออาหาร';
+
+  @override
+  String get noPatientsYet =>
+      'คุณยังไม่ได้เชื่อมโยงกับผู้ป่วยรายใด เพิ่มรายชื่อด้านล่างนี้';
+
+  @override
+  String get noCaretakersYet => 'ยังไม่มีผู้ดูแลที่เชื่อมโยง';
+
+  @override
+  String get shareYourPhoneTitle => 'หมายเลขโทรศัพท์ของคุณ';
+
+  @override
+  String shareYourPhoneBody(String phone) {
+    return 'แชร์หมายเลขนี้ให้ผู้ดูแลของคุณเพื่อเพิ่มคุณ: $phone';
+  }
+
+  @override
+  String get ok => 'ตกลง';
 }

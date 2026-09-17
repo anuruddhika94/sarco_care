@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../api/api_client.dart';
+import '../auth/auth_controller.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import 'assessment_screen.dart';
@@ -9,13 +11,14 @@ import 'health_tracking_screen.dart';
 import 'meals_screen.dart';
 import 'notifications_screen.dart';
 
-/// Screen #3 — Home / dashboard (the Home tab of the app shell).
-/// Pure UI: greeting header, Daily Goals checklist and a grid of feature tiles.
-/// The bottom navigation bar lives in [MainShell]; tiles push full screens.
 /// The four dashboard shortcuts. The enum keeps navigation independent of the
 /// (translated) tile label.
 enum HomeFeature { mealMenus, exercisePlan, sarcfAssessment, healthTracking }
 
+/// Screen #3 — Home / dashboard (the Home tab of the app shell).
+/// Greeting, a pending-caretaker-request banner and Daily Goals are loaded
+/// from the Rails API; the feature grid below is static navigation.
+/// The bottom navigation bar lives in [MainShell]; tiles push full screens.
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -32,6 +35,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final name = authController.currentUser?.firstName ?? l10n.userFirstName;
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -41,7 +45,7 @@ class HomeScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _GreetingHeader(
-                name: l10n.userFirstName,
+                name: name,
                 onBellTap: () => Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (_) => const NotificationsScreen(),
@@ -139,8 +143,9 @@ class _GreetingHeader extends StatelessWidget {
   }
 }
 
-/// Pending caretaker link request shown to the patient. Tapping it opens the
-/// approval screen; once approved or declined the banner dismisses itself.
+/// Pending caretaker link request shown to the patient, loaded from
+/// `GET /care_links?status=pending`. Tapping it opens the approval screen;
+/// approving/declining calls `PATCH /care_links/:id` and the banner hides.
 class _CaretakerRequestBanner extends StatefulWidget {
   const _CaretakerRequestBanner();
 
@@ -150,36 +155,72 @@ class _CaretakerRequestBanner extends StatefulWidget {
 }
 
 class _CaretakerRequestBannerState extends State<_CaretakerRequestBanner> {
-  bool _visible = true;
+  int? _linkId;
+  String? _caretakerName;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPendingRequest();
+  }
+
+  Future<void> _loadPendingRequest() async {
+    try {
+      final links = await apiClient.get('/care_links', query: {'status': 'pending'});
+      if (!mounted || links is! List || links.isEmpty) return;
+      final link = links.first as Map<String, dynamic>;
+      setState(() {
+        _linkId = link['id'] as int;
+        _caretakerName = (link['caretaker'] as Map<String, dynamic>)['full_name'] as String;
+      });
+    } on ApiException {
+      // No pending-request banner if the API call fails; the rest of Home
+      // still renders.
+    }
+  }
 
   Future<void> _review() async {
     final l10n = AppLocalizations.of(context);
-    final caretakerName = l10n.caretakerFullName;
+    final linkId = _linkId;
+    final caretakerName = _caretakerName;
+    if (linkId == null || caretakerName == null) return;
+
     final approved = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
-        builder: (_) =>
-            CaretakerApprovalScreen(caretakerName: caretakerName),
+        builder: (_) => CaretakerApprovalScreen(caretakerName: caretakerName),
       ),
     );
     if (approved == null || !mounted) return;
-    setState(() => _visible = false);
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(
-            approved
-                ? l10n.caretakerNowYours(caretakerName)
-                : l10n.requestDeclined,
+
+    try {
+      await apiClient.patch('/care_links/$linkId', body: {
+        'status': approved ? 'approved' : 'declined',
+      });
+      if (!mounted) return;
+      setState(() => _linkId = null);
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(
+              approved
+                  ? l10n.caretakerNowYours(caretakerName)
+                  : l10n.requestDeclined,
+            ),
+            backgroundColor: AppColors.primary,
           ),
-          backgroundColor: AppColors.primary,
-        ),
-      );
+        );
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(e.message)));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!_visible) return const SizedBox.shrink();
+    if (_linkId == null) return const SizedBox.shrink();
     final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.only(top: 16),
@@ -200,7 +241,7 @@ class _CaretakerRequestBannerState extends State<_CaretakerRequestBanner> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        l10n.caretakerWantsToBe(l10n.caretakerFullName),
+                        l10n.caretakerWantsToBe(_caretakerName!),
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
@@ -225,8 +266,40 @@ class _CaretakerRequestBannerState extends State<_CaretakerRequestBanner> {
   }
 }
 
-class _DailyGoalsCard extends StatelessWidget {
+/// Today's goal completion, loaded from `GET /daily_goals?range=daily`. No
+/// record yet for today just means nothing is checked off.
+class _DailyGoalsCard extends StatefulWidget {
   const _DailyGoalsCard();
+
+  @override
+  State<_DailyGoalsCard> createState() => _DailyGoalsCardState();
+}
+
+class _DailyGoalsCardState extends State<_DailyGoalsCard> {
+  bool _protein = false;
+  bool _exercise = false;
+  bool _water = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTodayGoals();
+  }
+
+  Future<void> _loadTodayGoals() async {
+    try {
+      final goals = await apiClient.get('/daily_goals', query: {'range': 'daily'});
+      if (!mounted || goals is! List || goals.isEmpty) return;
+      final today = goals.first as Map<String, dynamic>;
+      setState(() {
+        _protein = today['protein_done'] as bool;
+        _exercise = today['exercise_done'] as bool;
+        _water = today['water_done'] as bool;
+      });
+    } on ApiException {
+      // Keep everything unchecked if the API call fails.
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -250,9 +323,9 @@ class _DailyGoalsCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          _GoalItem(text: l10n.goalProtein),
-          _GoalItem(text: l10n.goalExercise),
-          _GoalItem(text: l10n.goalWater),
+          _GoalItem(text: l10n.goalProtein, done: _protein),
+          _GoalItem(text: l10n.goalExercise, done: _exercise),
+          _GoalItem(text: l10n.goalWater, done: _water),
         ],
       ),
     );
@@ -260,8 +333,9 @@ class _DailyGoalsCard extends StatelessWidget {
 }
 
 class _GoalItem extends StatelessWidget {
-  const _GoalItem({required this.text});
+  const _GoalItem({required this.text, required this.done});
   final String text;
+  final bool done;
 
   @override
   Widget build(BuildContext context) {
@@ -272,11 +346,14 @@ class _GoalItem extends StatelessWidget {
           Container(
             width: 24,
             height: 24,
-            decoration: const BoxDecoration(
-              color: AppColors.primary,
+            decoration: BoxDecoration(
+              color: done ? AppColors.primary : AppColors.surface,
               shape: BoxShape.circle,
+              border: done ? null : Border.all(color: const Color(0xFFDDD0AE)),
             ),
-            child: const Icon(Icons.check, size: 16, color: Colors.white),
+            child: done
+                ? const Icon(Icons.check, size: 16, color: Colors.white)
+                : null,
           ),
           const SizedBox(width: 12),
           Text(

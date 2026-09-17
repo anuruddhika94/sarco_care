@@ -427,10 +427,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sectionThisWeekPlan => 'This Week\'s Plan';
 
   @override
-  String get viewRecipes => 'View Recipes';
-
-  @override
-  String get mealPlanSubtitle => '3-day high-protein menu for muscle health';
+  String get mealPlanSubtitle => '7-day high-protein menu for muscle health';
 
   @override
   String get proteinBreakdown => 'Protein breakdown';
@@ -496,17 +493,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dayAbbrevSun => 'Sun';
-
-  @override
-  String get searchRecipesTitle => 'Search Recipes';
-
-  @override
-  String get searchRecipesHint => 'Search recipes';
-
-  @override
-  String noRecipesMatch(String query) {
-    return 'No recipes match \"$query\"';
-  }
 
   @override
   String get nutrLabelProtein => 'Protein';
@@ -881,4 +867,51 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chatError => 'Sorry, something went wrong. Please try again.';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get noDataForDate => 'No data recorded for this date';
+
+  @override
+  String get changeDate => 'Change';
+
+  @override
+  String get genderFemale => 'Female';
+
+  @override
+  String get genderOther => 'Other';
+
+  @override
+  String articleReadMinutes(int minutes) {
+    return '$minutes min read';
+  }
+
+  @override
+  String get selectAMeal => 'Select a meal';
+
+  @override
+  String get mealLogged => 'Meal logged';
+
+  @override
+  String get mealLogTitle => 'Meal Log';
+
+  @override
+  String get noPatientsYet =>
+      'You\'re not linked to any patients yet. Add one below.';
+
+  @override
+  String get noCaretakersYet => 'No linked caretakers yet.';
+
+  @override
+  String get shareYourPhoneTitle => 'Your phone number';
+
+  @override
+  String shareYourPhoneBody(String phone) {
+    return 'Share this number with your caretaker so they can add you: $phone';
+  }
+
+  @override
+  String get ok => 'OK';
 }

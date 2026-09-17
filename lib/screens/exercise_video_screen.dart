@@ -1,22 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
+import '../api/api_client.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import 'my_plan_screen.dart';
 
 /// Screen #7 — Exercise Video.
 /// Plays the exercise's YouTube video, with duration, step instructions and
-/// Start/Complete + My Plan actions. Start toggles to Complete, then returns.
+/// Start/Complete + My Plan actions. Start toggles to Complete; completing
+/// logs it for today via `POST /exercise_logs`, then returns.
 class ExerciseVideoScreen extends StatefulWidget {
   const ExerciseVideoScreen({
     super.key,
+    required this.exerciseId,
     required this.exerciseName,
     required this.videoId,
+    required this.minutes,
   });
 
+  final int exerciseId;
   final String exerciseName;
   final String videoId;
+  final int minutes;
 
   @override
   State<ExerciseVideoScreen> createState() => _ExerciseVideoScreenState();
@@ -24,6 +30,7 @@ class ExerciseVideoScreen extends StatefulWidget {
 
 class _ExerciseVideoScreenState extends State<ExerciseVideoScreen> {
   bool _started = false;
+  bool _completing = false;
   late final YoutubePlayerController _controller;
 
   @override
@@ -42,20 +49,36 @@ class _ExerciseVideoScreenState extends State<ExerciseVideoScreen> {
     super.dispose();
   }
 
-  void _onPrimary() {
+  Future<void> _onPrimary() async {
     if (!_started) {
       setState(() => _started = true);
       return;
     }
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context).exerciseCompletedLogged),
-          backgroundColor: AppColors.primary,
-        ),
-      );
-    Navigator.of(context).pop();
+
+    setState(() => _completing = true);
+    final l10n = AppLocalizations.of(context);
+    try {
+      await apiClient.post('/exercise_logs', body: {
+        'exercise_id': widget.exerciseId,
+        'minutes': widget.minutes,
+      });
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(l10n.exerciseCompletedLogged),
+            backgroundColor: AppColors.primary,
+          ),
+        );
+      Navigator.of(context).pop();
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _completing = false);
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(e.message)));
+    }
   }
 
   void _openMyPlan() {
@@ -95,6 +118,15 @@ class _ExerciseVideoScreenState extends State<ExerciseVideoScreen> {
               aspectRatio: 16 / 9,
             ),
           ),
+          const SizedBox(height: 16),
+          Text(
+            widget.exerciseName,
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+              color: AppColors.textDark,
+            ),
+          ),
           const SizedBox(height: 24),
           Text(
             l10n.sectionInstructions,
@@ -110,8 +142,14 @@ class _ExerciseVideoScreenState extends State<ExerciseVideoScreen> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: _onPrimary,
-              child: Text(_started ? l10n.complete : l10n.startExercise),
+              onPressed: _completing ? null : _onPrimary,
+              child: _completing
+                  ? const SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
+                    )
+                  : Text(_started ? l10n.complete : l10n.startExercise),
             ),
           ),
           const SizedBox(height: 12),

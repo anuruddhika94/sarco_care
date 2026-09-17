@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../api/api_client.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../widgets/segmented_tabs.dart';
 import 'article_detail_screen.dart';
 
-/// Knowledge tab (#12) — educational articles with category filters.
-/// Pure UI: category tabs and a list of article rows opening the detail screen.
+/// Knowledge tab (#12) — educational articles with category filters, loaded
+/// from `GET /articles`. 'general' articles surface only under the "All" tab.
 class KnowledgeScreen extends StatefulWidget {
   const KnowledgeScreen({super.key});
 
@@ -14,65 +15,43 @@ class KnowledgeScreen extends StatefulWidget {
   State<KnowledgeScreen> createState() => _KnowledgeScreenState();
 }
 
-/// Article categories. [general] articles surface only under the "All" tab.
-enum ArticleCategory { general, food, exercise, prevention }
-
-enum ArticleId {
-  overview,
-  whatIs,
-  causes,
-  exerciseGuide,
-  nutrition,
-  prevention,
-}
-
-String articleTitle(AppLocalizations l10n, ArticleId id) => switch (id) {
-      ArticleId.overview => l10n.artOverviewTitle,
-      ArticleId.whatIs => l10n.artWhatIsTitle,
-      ArticleId.causes => l10n.artCausesTitle,
-      ArticleId.exerciseGuide => l10n.artExerciseGuideTitle,
-      ArticleId.nutrition => l10n.artNutritionTitle,
-      ArticleId.prevention => l10n.artPreventionTitle,
-    };
-
-String articleSummary(AppLocalizations l10n, ArticleId id) => switch (id) {
-      ArticleId.overview => l10n.artOverviewSummary,
-      ArticleId.whatIs => l10n.artWhatIsSummary,
-      ArticleId.causes => l10n.artCausesSummary,
-      ArticleId.exerciseGuide => l10n.artExerciseGuideSummary,
-      ArticleId.nutrition => l10n.artNutritionSummary,
-      ArticleId.prevention => l10n.artPreventionSummary,
-    };
-
 class _KnowledgeScreenState extends State<KnowledgeScreen> {
   int _tabIndex = 0;
+  List<Map<String, dynamic>>? _articles;
+  String? _error;
 
   // Tab index → category filter (null = show all).
-  static const _filters = [
-    null,
-    ArticleCategory.food,
-    ArticleCategory.exercise,
-    ArticleCategory.prevention,
-  ];
+  static const _filters = [null, 'food', 'exercise', 'prevention'];
 
-  static const _articles = [
-    _Article(ArticleId.overview, Icons.menu_book_outlined, ArticleCategory.general),
-    _Article(ArticleId.whatIs, Icons.help_outline, ArticleCategory.general),
-    _Article(ArticleId.causes, Icons.report_outlined, ArticleCategory.prevention),
-    _Article(ArticleId.exerciseGuide, Icons.fitness_center, ArticleCategory.exercise),
-    _Article(ArticleId.nutrition, Icons.restaurant_menu, ArticleCategory.food),
-    _Article(ArticleId.prevention, Icons.shield_outlined, ArticleCategory.prevention),
-  ];
-
-  List<_Article> get _visibleArticles {
-    final filter = _filters[_tabIndex];
-    if (filter == null) return _articles;
-    return _articles.where((a) => a.category == filter).toList();
+  @override
+  void initState() {
+    super.initState();
+    _load();
   }
 
-  void _openArticle(String title) {
+  Future<void> _load() async {
+    setState(() => _error = null);
+    try {
+      final data = await apiClient.get('/articles');
+      if (!mounted) return;
+      setState(() => _articles = (data as List).cast<Map<String, dynamic>>());
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _error = e.message);
+    }
+  }
+
+  List<Map<String, dynamic>> get _visibleArticles {
+    final articles = _articles;
+    if (articles == null) return const [];
+    final filter = _filters[_tabIndex];
+    if (filter == null) return articles;
+    return articles.where((a) => a['category'] == filter).toList();
+  }
+
+  void _openArticle(Map<String, dynamic> article) {
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => ArticleDetailScreen(title: title)),
+      MaterialPageRoute(builder: (_) => ArticleDetailScreen(article: article)),
     );
   }
 
@@ -102,42 +81,67 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
               onChanged: (i) => setState(() => _tabIndex = i),
             ),
           ),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
-              children: [
-                for (final a in _visibleArticles)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: _ArticleRow(
-                      article: a,
-                      onTap: () => _openArticle(articleTitle(l10n, a.id)),
-                    ),
-                  ),
-              ],
-            ),
-          ),
+          Expanded(child: _buildList(l10n)),
         ],
       ),
     );
   }
+
+  Widget _buildList(AppLocalizations l10n) {
+    if (_error != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.cloud_off, size: 48, color: AppColors.textMuted),
+              const SizedBox(height: 12),
+              Text(_error!, textAlign: TextAlign.center, style: TextStyle(color: AppColors.textMuted)),
+              const SizedBox(height: 16),
+              OutlinedButton(onPressed: _load, child: Text(l10n.retry)),
+            ],
+          ),
+        ),
+      );
+    }
+    if (_articles == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+      children: [
+        for (final a in _visibleArticles)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: _ArticleRow(article: a, onTap: () => _openArticle(a)),
+          ),
+      ],
+    );
+  }
 }
 
-class _Article {
-  const _Article(this.id, this.icon, this.category);
-  final ArticleId id;
-  final IconData icon;
-  final ArticleCategory category;
-}
+/// Maps the API's icon key (a Material icon name) to its constant.
+IconData articleIconForKey(String key) => switch (key) {
+      'menu_book_outlined' => Icons.menu_book_outlined,
+      'help_outline' => Icons.help_outline,
+      'report_outlined' => Icons.report_outlined,
+      'fitness_center' => Icons.fitness_center,
+      'restaurant_menu' => Icons.restaurant_menu,
+      'shield_outlined' => Icons.shield_outlined,
+      _ => Icons.menu_book_outlined,
+    };
 
 class _ArticleRow extends StatelessWidget {
   const _ArticleRow({required this.article, required this.onTap});
-  final _Article article;
+  final Map<String, dynamic> article;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
+    final isThai = Localizations.localeOf(context).languageCode == 'th';
+    final title = (isThai ? article['title_th'] : article['title_en']) as String;
+    final summary = (isThai ? article['summary_th'] : article['summary_en']) as String;
     return Material(
       color: AppColors.surface,
       borderRadius: BorderRadius.circular(16),
@@ -159,7 +163,7 @@ class _ArticleRow extends StatelessWidget {
                   color: AppColors.softGreen,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(article.icon, color: AppColors.primary, size: 24),
+                child: Icon(articleIconForKey(article['icon'] as String), color: AppColors.primary, size: 24),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -167,7 +171,7 @@ class _ArticleRow extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      articleTitle(l10n, article.id),
+                      title,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -176,7 +180,7 @@ class _ArticleRow extends StatelessWidget {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      articleSummary(l10n, article.id),
+                      summary,
                       style: TextStyle(
                         fontSize: 13,
                         color: AppColors.textMuted,

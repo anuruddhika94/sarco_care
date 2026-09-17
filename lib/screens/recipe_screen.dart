@@ -1,28 +1,57 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
+import '../api/api_client.dart';
 import '../data/meal_plan.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 
 /// Screen #5 — Meal detail.
 /// Shows a meal's protein breakdown (each component with its protein grams) and
-/// the total, plus a "Complete Meal and Log" action.
-class RecipeScreen extends StatelessWidget {
-  const RecipeScreen({super.key, required this.meal});
+/// the total, plus a "Complete Meal and Log" action that records it via
+/// `POST /meal_logs` — for today, or for [logDate] when opened from
+/// [MealLogScreen]'s "Add Data".
+class RecipeScreen extends StatefulWidget {
+  const RecipeScreen({super.key, required this.meal, this.logDate});
 
   final PlanMeal meal;
+  final DateTime? logDate;
 
-  void _completeAndLog(BuildContext context) {
+  @override
+  State<RecipeScreen> createState() => _RecipeScreenState();
+}
+
+class _RecipeScreenState extends State<RecipeScreen> {
+  bool _logging = false;
+
+  PlanMeal get meal => widget.meal;
+
+  Future<void> _completeAndLog() async {
+    setState(() => _logging = true);
     final l10n = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(l10n.mealLoggedToday),
-          backgroundColor: AppColors.primary,
-        ),
-      );
-    Navigator.of(context).pop();
+    final logDate = widget.logDate;
+    try {
+      await apiClient.post('/meal_logs', body: {
+        'meal_plan_meal_id': meal.id,
+        if (logDate != null) 'eaten_on': DateFormat('yyyy-MM-dd').format(logDate),
+      });
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(logDate == null ? l10n.mealLoggedToday : l10n.mealLogged),
+            backgroundColor: AppColors.primary,
+          ),
+        );
+      Navigator.of(context).pop(true);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _logging = false);
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(e.message)));
+    }
   }
 
   @override
@@ -70,8 +99,14 @@ class RecipeScreen extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () => _completeAndLog(context),
-              child: Text(l10n.completeMealAndLog),
+              onPressed: _logging ? null : _completeAndLog,
+              child: _logging
+                  ? const SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
+                    )
+                  : Text(l10n.completeMealAndLog),
             ),
           ),
         ],

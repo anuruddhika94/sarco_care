@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 
+import 'api/api_client.dart';
+import 'auth/auth_controller.dart';
 import 'chat/chat_bubble.dart';
 import 'chat/chat_controller.dart';
 import 'l10n/app_localizations.dart';
 import 'l10n/locale_controller.dart';
+import 'screens/caretaker_home_screen.dart';
+import 'screens/main_shell.dart';
 import 'screens/splash_screen.dart';
 import 'settings/settings_controller.dart';
 import 'theme/app_theme.dart';
@@ -14,6 +18,10 @@ Future<void> main() async {
   await localeController.load();
   settingsController = SettingsController();
   await settingsController.load();
+  apiClient = ApiClient();
+  authController = AuthController();
+  await authController.load();
+  if (authController.isSignedIn) chatController.onLogin();
   runApp(const SarcoCareApp());
 }
 
@@ -59,7 +67,13 @@ class SarcoCareApp extends StatelessWidget {
               },
             );
           },
-          home: const SplashScreen(),
+          // Restore a saved session straight into the right shell; otherwise
+          // start at the splash/onboarding flow.
+          home: switch (authController.currentUser?.isPatient) {
+            true => const MainShell(),
+            false => const CaretakerHomeScreen(),
+            null => const SplashScreen(),
+          },
         );
       },
     );

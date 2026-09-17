@@ -1,25 +1,65 @@
 import 'package:flutter/material.dart';
 
+import '../api/api_client.dart';
 import '../l10n/app_localizations.dart';
 import '../l10n/l10n_format.dart';
 import '../theme/app_theme.dart';
-import '../widgets/segmented_tabs.dart';
 import 'exercise_video_screen.dart';
+import 'my_plan_screen.dart';
 
-/// Stable identifiers for the sample exercises, so their names translate
-/// consistently across the Exercise Plan and My Plan screens.
-enum ExerciseId { seatedLegLift, armCurls, chairSquats, standingBalance }
+/// An exercise from the shared catalog, `GET /exercises` — the same list for
+/// every patient. What a patient actually did on a given day is tracked
+/// separately (see [MyPlanScreen], backed by `exercise_logs`).
+class CatalogExercise {
+  const CatalogExercise({
+    required this.id,
+    required this.nameEn,
+    required this.nameTh,
+    required this.icon,
+    required this.videoId,
+    required this.defaultMinutes,
+  });
 
-String exerciseName(AppLocalizations l10n, ExerciseId id) => switch (id) {
-      ExerciseId.seatedLegLift => l10n.exSeatedLegLift,
-      ExerciseId.armCurls => l10n.exArmCurls,
-      ExerciseId.chairSquats => l10n.exChairSquats,
-      ExerciseId.standingBalance => l10n.exStandingBalance,
+  factory CatalogExercise.fromJson(Map<String, dynamic> json) => CatalogExercise(
+        id: json['id'] as int,
+        nameEn: json['name_en'] as String,
+        nameTh: json['name_th'] as String,
+        icon: iconForKey(json['icon'] as String),
+        videoId: json['video_id'] as String,
+        defaultMinutes: json['default_minutes'] as int,
+      );
+
+  final int id;
+  final String nameEn;
+  final String nameTh;
+  final IconData icon;
+  final String videoId;
+  final int defaultMinutes;
+
+  String name(BuildContext context) =>
+      Localizations.localeOf(context).languageCode == 'th' ? nameTh : nameEn;
+}
+
+/// Maps the API's icon key (a Material icon name, e.g. "fitness_center") to
+/// its constant. Add cases here as new exercises introduce new icons.
+IconData iconForKey(String key) => switch (key) {
+      'airline_seat_recline_normal' => Icons.airline_seat_recline_normal,
+      'fitness_center' => Icons.fitness_center,
+      'chair_alt' => Icons.chair_alt,
+      'accessibility_new' => Icons.accessibility_new,
+      _ => Icons.sports_gymnastics,
     };
 
+/// Fetches the shared exercise catalog from `GET /exercises`.
+Future<List<CatalogExercise>> fetchExercises() async {
+  final data = await apiClient.get('/exercises');
+  return (data as List).map((e) => CatalogExercise.fromJson(e as Map<String, dynamic>)).toList();
+}
+
 /// Screen #6 — Exercise Plan.
-/// Pure UI: featured video, plan type, Exercises/My Plan tabs and a grid of
-/// exercise cards. Cards forward to the Exercise Video screen (#7).
+/// The shared exercise catalog (same for every patient); tap a card to watch
+/// its video. A history icon opens [MyPlanScreen] to see/record what was
+/// actually done on any given date.
 class ExercisePlanScreen extends StatefulWidget {
   const ExercisePlanScreen({super.key, this.showBackButton = true});
 
@@ -31,31 +71,43 @@ class ExercisePlanScreen extends StatefulWidget {
 }
 
 class _ExercisePlanScreenState extends State<ExercisePlanScreen> {
-  int _tabIndex = 0;
+  List<CatalogExercise>? _exercises;
+  String? _error;
 
-  // All recommended exercises vs the ones the user added to their plan.
-  static const _allExercises = [
-    _Exercise(1, ExerciseId.seatedLegLift, 10, Icons.airline_seat_recline_normal, 'BoA431kaU2M'),
-    _Exercise(2, ExerciseId.armCurls, 8, Icons.fitness_center, 'eZhhNN4QkSk'),
-    _Exercise(3, ExerciseId.chairSquats, 12, Icons.chair_alt, '7QZKb9E5dbg'),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
 
-  static const _myPlan = [
-    _Exercise(1, ExerciseId.seatedLegLift, 10, Icons.airline_seat_recline_normal, 'BoA431kaU2M'),
-    _Exercise(3, ExerciseId.chairSquats, 12, Icons.chair_alt, '7QZKb9E5dbg'),
-  ];
+  Future<void> _load() async {
+    setState(() => _error = null);
+    try {
+      final exercises = await fetchExercises();
+      if (!mounted) return;
+      setState(() => _exercises = exercises);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _error = e.message);
+    }
+  }
 
-  List<_Exercise> get _visibleExercises =>
-      _tabIndex == 0 ? _allExercises : _myPlan;
-
-  void _openVideo(String exerciseName, String videoId) {
+  void _openVideo(CatalogExercise exercise) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => ExerciseVideoScreen(
-          exerciseName: exerciseName,
-          videoId: videoId,
+          exerciseId: exercise.id,
+          exerciseName: exercise.name(context),
+          videoId: exercise.videoId,
+          minutes: exercise.defaultMinutes,
         ),
       ),
+    );
+  }
+
+  void _openHistory() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const MyPlanScreen()),
     );
   }
 
@@ -74,57 +126,87 @@ class _ExercisePlanScreenState extends State<ExercisePlanScreen> {
           style: const TextStyle(fontWeight: FontWeight.w800),
         ),
         centerTitle: true,
-      ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-        children: [
-          Text(
-            l10n.exerciseTypeLabel(l10n.planTypeBasicStrength),
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textDark,
-            ),
-          ),
-          const SizedBox(height: 16),
-          SegmentedTabs(
-            labels: [l10n.tabExercises, l10n.myPlanTitle],
-            selected: _tabIndex,
-            onChanged: (i) => setState(() => _tabIndex = i),
-          ),
-          const SizedBox(height: 20),
-          GridView.count(
-            crossAxisCount: 2,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: 16,
-            crossAxisSpacing: 16,
-            childAspectRatio: 0.82,
-            children: [
-              for (int i = 0; i < _visibleExercises.length; i++)
-                _ExerciseCard(
-                  index: i + 1,
-                  exercise: _visibleExercises[i],
-                  onTap: () => _openVideo(
-                    l10n.exerciseDayTitle(_visibleExercises[i].day),
-                    _visibleExercises[i].videoId,
-                  ),
-                ),
-            ],
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.calendar_month_outlined),
+            tooltip: l10n.myPlanTitle,
+            onPressed: _openHistory,
           ),
         ],
       ),
+      body: _buildBody(l10n),
+    );
+  }
+
+  Widget _buildBody(AppLocalizations l10n) {
+    if (_error != null) {
+      return _ErrorState(message: _error!, onRetry: _load);
+    }
+    final exercises = _exercises;
+    if (exercises == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+      children: [
+        Text(
+          l10n.exerciseTypeLabel(l10n.planTypeBasicStrength),
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textDark,
+          ),
+        ),
+        const SizedBox(height: 20),
+        GridView.count(
+          crossAxisCount: 2,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          mainAxisSpacing: 16,
+          crossAxisSpacing: 16,
+          childAspectRatio: 0.82,
+          children: [
+            for (int i = 0; i < exercises.length; i++)
+              _ExerciseCard(
+                index: i + 1,
+                exercise: exercises[i],
+                onTap: () => _openVideo(exercises[i]),
+              ),
+          ],
+        ),
+      ],
     );
   }
 }
 
-class _Exercise {
-  const _Exercise(this.day, this.id, this.minutes, this.icon, this.videoId);
-  final int day;
-  final ExerciseId id;
-  final int minutes;
-  final IconData icon;
-  final String videoId;
+class _ErrorState extends StatelessWidget {
+  const _ErrorState({required this.message, required this.onRetry});
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.cloud_off, size: 48, color: AppColors.textMuted),
+            const SizedBox(height: 12),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: AppColors.textMuted),
+            ),
+            const SizedBox(height: 16),
+            OutlinedButton(onPressed: onRetry, child: Text(l10n.retry)),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 /// YouTube thumbnail with a play overlay; falls back to an icon if it fails.
@@ -148,15 +230,21 @@ class _Thumb extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          Image.network(
-            'https://img.youtube.com/vi/$videoId/hqdefault.jpg',
-            fit: BoxFit.cover,
-            errorBuilder: (_, _, _) => Container(
-              color: AppColors.softGreen,
-              alignment: Alignment.center,
-              child: Icon(fallbackIcon, size: 40, color: AppColors.primary),
-            ),
-          ),
+          videoId.isEmpty
+              ? Container(
+                  color: AppColors.softGreen,
+                  alignment: Alignment.center,
+                  child: Icon(fallbackIcon, size: 40, color: AppColors.primary),
+                )
+              : Image.network(
+                  'https://img.youtube.com/vi/$videoId/hqdefault.jpg',
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, _, _) => Container(
+                    color: AppColors.softGreen,
+                    alignment: Alignment.center,
+                    child: Icon(fallbackIcon, size: 40, color: AppColors.primary),
+                  ),
+                ),
           // Subtle scrim so the play button reads on any thumbnail.
           Container(color: Colors.black.withValues(alpha: 0.12)),
           Center(
@@ -188,7 +276,7 @@ class _ExerciseCard extends StatelessWidget {
   });
 
   final int index;
-  final _Exercise exercise;
+  final CatalogExercise exercise;
   final VoidCallback onTap;
 
   @override
@@ -247,7 +335,7 @@ class _ExerciseCard extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Text(
-                l10n.exerciseDayTitle(exercise.day),
+                exercise.name(context),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
@@ -258,7 +346,7 @@ class _ExerciseCard extends StatelessWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                formatDuration(l10n, exercise.minutes),
+                formatDuration(l10n, exercise.defaultMinutes),
                 style: TextStyle(fontSize: 13, color: AppColors.textMuted),
               ),
             ],

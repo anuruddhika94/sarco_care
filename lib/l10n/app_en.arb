@@ -168,8 +168,7 @@
   "mealsTitle": "Meals",
   "sectionSuggestedToday": "Suggested Meals for Today",
   "sectionThisWeekPlan": "This Week's Plan",
-  "viewRecipes": "View Recipes",
-  "mealPlanSubtitle": "3-day high-protein menu for muscle health",
+  "mealPlanSubtitle": "7-day high-protein menu for muscle health",
   "proteinBreakdown": "Protein breakdown",
   "totalProteinLabel": "Total protein",
   "mealEggsToast": "Soft-boiled Eggs & Toast",
@@ -194,13 +193,6 @@
   "dayAbbrevFri": "Fri",
   "dayAbbrevSat": "Sat",
   "dayAbbrevSun": "Sun",
-
-  "searchRecipesTitle": "Search Recipes",
-  "searchRecipesHint": "Search recipes",
-  "noRecipesMatch": "No recipes match \"{query}\"",
-  "@noRecipesMatch": {
-    "placeholders": { "query": { "type": "String" } }
-  },
 
   "nutrLabelProtein": "Protein",
   "nutrLabelEnergy": "Energy",
@@ -378,5 +370,28 @@
   "chatInputHint": "Type a message…",
   "chatSend": "Send",
   "chatComingSoonReply": "Thanks for your message! I'm not connected yet — once I am, I'll give you personalized guidance on muscle health, exercise and nutrition.",
-  "chatError": "Sorry, something went wrong. Please try again."
+  "chatError": "Sorry, something went wrong. Please try again.",
+
+  "retry": "Retry",
+  "noDataForDate": "No data recorded for this date",
+  "changeDate": "Change",
+  "genderFemale": "Female",
+  "genderOther": "Other",
+  "articleReadMinutes": "{minutes} min read",
+  "@articleReadMinutes": {
+    "placeholders": { "minutes": { "type": "int" } }
+  },
+
+  "selectAMeal": "Select a meal",
+  "mealLogged": "Meal logged",
+  "mealLogTitle": "Meal Log",
+
+  "noPatientsYet": "You're not linked to any patients yet. Add one below.",
+  "noCaretakersYet": "No linked caretakers yet.",
+  "shareYourPhoneTitle": "Your phone number",
+  "shareYourPhoneBody": "Share this number with your caretaker so they can add you: {phone}",
+  "@shareYourPhoneBody": {
+    "placeholders": { "phone": { "type": "String" } }
+  },
+  "ok": "OK"
 }
