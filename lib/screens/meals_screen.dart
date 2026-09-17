@@ -14,10 +14,13 @@ import 'recipe_screen.dart';
 /// breakdown — or, when [logDate] is set (opened from [MealLogScreen]'s "Add
 /// Data"), logs it for that date instead.
 class MealsScreen extends StatefulWidget {
-  const MealsScreen({super.key, this.logDate});
+  const MealsScreen({super.key, this.logDate, this.patientId});
 
   /// When set, tapping a meal logs it for this date rather than just viewing it.
   final DateTime? logDate;
+
+  /// Set when a caretaker is viewing/logging for a linked patient.
+  final int? patientId;
 
   @override
   State<MealsScreen> createState() => _MealsScreenState();
@@ -48,7 +51,9 @@ class _MealsScreenState extends State<MealsScreen> {
 
   Future<void> _openMeal(PlanMeal meal) async {
     final logged = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(builder: (_) => RecipeScreen(meal: meal, logDate: widget.logDate)),
+      MaterialPageRoute(
+        builder: (_) => RecipeScreen(meal: meal, logDate: widget.logDate, patientId: widget.patientId),
+      ),
     );
     // In "pick a meal to log" mode: bubble the result back up once logged.
     if (widget.logDate != null && logged == true && mounted) {
@@ -76,7 +81,7 @@ class _MealsScreenState extends State<MealsScreen> {
                   icon: const Icon(Icons.calendar_month_outlined),
                   tooltip: l10n.myPlanTitle,
                   onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const MealLogScreen()),
+                    MaterialPageRoute(builder: (_) => MealLogScreen(patientId: widget.patientId)),
                   ),
                 ),
               ]

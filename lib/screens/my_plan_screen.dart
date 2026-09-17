@@ -12,7 +12,10 @@ import 'exercise_plan_screen.dart';
 /// Information) shows what was done that day; "Add Data" logs an exercise
 /// from the shared catalog for the selected date.
 class MyPlanScreen extends StatefulWidget {
-  const MyPlanScreen({super.key});
+  const MyPlanScreen({super.key, this.patientId});
+
+  /// Set when a caretaker is viewing/logging for a linked patient.
+  final int? patientId;
 
   @override
   State<MyPlanScreen> createState() => _MyPlanScreenState();
@@ -30,11 +33,14 @@ class _MyPlanScreenState extends State<MyPlanScreen> {
     _load();
   }
 
+  Map<String, String>? get _patientQuery =>
+      widget.patientId == null ? null : {'patient_id': '${widget.patientId}'};
+
   Future<void> _load({DateTime? selectDate}) async {
     setState(() => _error = null);
     try {
       final results = await Future.wait([
-        apiClient.get('/exercise_logs'),
+        apiClient.get('/exercise_logs', query: _patientQuery),
         fetchExercises(),
       ]);
       if (!mounted) return;
@@ -89,6 +95,7 @@ class _MyPlanScreenState extends State<MyPlanScreen> {
         'exercise_id': exercise.id,
         'completed_on': DateFormat('yyyy-MM-dd').format(_selectedDate ?? DateTime.now()),
         'minutes': exercise.defaultMinutes,
+        if (widget.patientId != null) 'patient_id': widget.patientId,
       });
       await _load(selectDate: _selectedDate);
     } on ApiException catch (e) {

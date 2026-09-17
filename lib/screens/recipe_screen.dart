@@ -12,10 +12,13 @@ import '../theme/app_theme.dart';
 /// `POST /meal_logs` — for today, or for [logDate] when opened from
 /// [MealLogScreen]'s "Add Data".
 class RecipeScreen extends StatefulWidget {
-  const RecipeScreen({super.key, required this.meal, this.logDate});
+  const RecipeScreen({super.key, required this.meal, this.logDate, this.patientId});
 
   final PlanMeal meal;
   final DateTime? logDate;
+
+  /// Set when a caretaker is logging this on behalf of a linked patient.
+  final int? patientId;
 
   @override
   State<RecipeScreen> createState() => _RecipeScreenState();
@@ -34,6 +37,7 @@ class _RecipeScreenState extends State<RecipeScreen> {
       await apiClient.post('/meal_logs', body: {
         'meal_plan_meal_id': meal.id,
         if (logDate != null) 'eaten_on': DateFormat('yyyy-MM-dd').format(logDate),
+        if (widget.patientId != null) 'patient_id': widget.patientId,
       });
       if (!mounted) return;
       ScaffoldMessenger.of(context)

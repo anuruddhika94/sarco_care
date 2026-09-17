@@ -12,7 +12,10 @@ import 'meals_screen.dart';
 /// Information) shows that day's meals; "Add Data" picks a meal from the
 /// shared plan to log for the selected date.
 class MealLogScreen extends StatefulWidget {
-  const MealLogScreen({super.key});
+  const MealLogScreen({super.key, this.patientId});
+
+  /// Set when a caretaker is viewing/logging for a linked patient.
+  final int? patientId;
 
   @override
   State<MealLogScreen> createState() => _MealLogScreenState();
@@ -29,10 +32,13 @@ class _MealLogScreenState extends State<MealLogScreen> {
     _load();
   }
 
+  Map<String, String>? get _patientQuery =>
+      widget.patientId == null ? null : {'patient_id': '${widget.patientId}'};
+
   Future<void> _load({DateTime? selectDate}) async {
     setState(() => _error = null);
     try {
-      final data = await apiClient.get('/meal_logs');
+      final data = await apiClient.get('/meal_logs', query: _patientQuery);
       if (!mounted) return;
       final logs = (data as List).cast<Map<String, dynamic>>();
       setState(() {
@@ -68,7 +74,9 @@ class _MealLogScreenState extends State<MealLogScreen> {
 
   Future<void> _addData() async {
     final logged = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(builder: (_) => MealsScreen(logDate: _selectedDate ?? DateTime.now())),
+      MaterialPageRoute(
+        builder: (_) => MealsScreen(logDate: _selectedDate ?? DateTime.now(), patientId: widget.patientId),
+      ),
     );
     if (logged == true) await _load(selectDate: _selectedDate);
   }

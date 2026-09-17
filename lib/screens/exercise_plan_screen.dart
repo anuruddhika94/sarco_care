@@ -61,10 +61,13 @@ Future<List<CatalogExercise>> fetchExercises() async {
 /// its video. A history icon opens [MyPlanScreen] to see/record what was
 /// actually done on any given date.
 class ExercisePlanScreen extends StatefulWidget {
-  const ExercisePlanScreen({super.key, this.showBackButton = true});
+  const ExercisePlanScreen({super.key, this.showBackButton = true, this.patientId});
 
   /// False when shown as a shell tab root (no route to pop back to).
   final bool showBackButton;
+
+  /// Set when a caretaker is viewing/logging for a linked patient.
+  final int? patientId;
 
   @override
   State<ExercisePlanScreen> createState() => _ExercisePlanScreenState();
@@ -100,6 +103,7 @@ class _ExercisePlanScreenState extends State<ExercisePlanScreen> {
           exerciseName: exercise.name(context),
           videoId: exercise.videoId,
           minutes: exercise.defaultMinutes,
+          patientId: widget.patientId,
         ),
       ),
     );
@@ -107,7 +111,7 @@ class _ExercisePlanScreenState extends State<ExercisePlanScreen> {
 
   void _openHistory() {
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const MyPlanScreen()),
+      MaterialPageRoute(builder: (_) => MyPlanScreen(patientId: widget.patientId)),
     );
   }
 

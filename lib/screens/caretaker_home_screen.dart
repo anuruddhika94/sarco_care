@@ -229,13 +229,13 @@ class _CaretakerHomeScreenState extends State<CaretakerHomeScreen> {
               title: l10n.navExercise,
               icon: Icons.sports_gymnastics,
               color: const Color(0xFF3E7CB1),
-              onTap: () => _open((_) => const ExercisePlanScreen()),
+              onTap: () => _open((_) => ExercisePlanScreen(patientId: patientId)),
             ),
             _CareTile(
               title: l10n.careTileMeals,
               icon: Icons.ramen_dining,
               color: const Color(0xFF3B8B5F),
-              onTap: () => _open((_) => const MealsScreen()),
+              onTap: () => _open((_) => MealsScreen(patientId: patientId)),
             ),
             _CareTile(
               title: l10n.careTileSarcf,

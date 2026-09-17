@@ -17,12 +17,16 @@ class ExerciseVideoScreen extends StatefulWidget {
     required this.exerciseName,
     required this.videoId,
     required this.minutes,
+    this.patientId,
   });
 
   final int exerciseId;
   final String exerciseName;
   final String videoId;
   final int minutes;
+
+  /// Set when a caretaker is logging this on behalf of a linked patient.
+  final int? patientId;
 
   @override
   State<ExerciseVideoScreen> createState() => _ExerciseVideoScreenState();
@@ -61,6 +65,7 @@ class _ExerciseVideoScreenState extends State<ExerciseVideoScreen> {
       await apiClient.post('/exercise_logs', body: {
         'exercise_id': widget.exerciseId,
         'minutes': widget.minutes,
+        if (widget.patientId != null) 'patient_id': widget.patientId,
       });
       if (!mounted) return;
       ScaffoldMessenger.of(context)
@@ -83,7 +88,7 @@ class _ExerciseVideoScreenState extends State<ExerciseVideoScreen> {
 
   void _openMyPlan() {
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const MyPlanScreen()),
+      MaterialPageRoute(builder: (_) => MyPlanScreen(patientId: widget.patientId)),
     );
   }
 
