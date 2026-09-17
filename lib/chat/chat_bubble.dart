@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../l10n/app_localizations.dart';
-import '../theme/app_theme.dart';
 import 'chat_controller.dart';
 import 'chat_screen.dart';
 
@@ -115,22 +114,66 @@ class _ChatBubbleState extends State<ChatBubble> {
           }
         },
         onTap: _openChat,
-        child: Material(
-          color: AppColors.accent,
-          shape: const CircleBorder(),
-          elevation: _dragging ? 8 : 4,
-          shadowColor: Colors.black45,
-          child: Semantics(
-            button: true,
-            label: l10n.chatBubbleTooltip,
-            child: const SizedBox(
-              width: _diameter,
-              height: _diameter,
-              child: Icon(
-                Icons.support_agent_rounded,
-                color: Colors.white,
-                size: 30,
+        child: Semantics(
+          button: true,
+          label: l10n.chatBubbleTooltip,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            width: _diameter,
+            height: _diameter,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: const RadialGradient(
+                center: Alignment(-0.35, -0.45),
+                radius: 1.1,
+                colors: [
+                  Color(0xFFFF6B5B),
+                  Color(0xFFE0342A),
+                  Color(0xFFA30F0F),
+                ],
+                stops: [0.0, 0.55, 1.0],
               ),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.25), width: 1),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: _dragging ? 0.5 : 0.35),
+                  blurRadius: _dragging ? 18 : 10,
+                  offset: Offset(0, _dragging ? 9 : 5),
+                ),
+                BoxShadow(
+                  color: const Color(0xFFA30F0F).withValues(alpha: 0.5),
+                  blurRadius: 2,
+                  offset: const Offset(0, 1),
+                ),
+              ],
+            ),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // Gloss highlight for a glassy 3D sheen.
+                Positioned(
+                  top: _diameter * 0.1,
+                  left: _diameter * 0.16,
+                  child: Container(
+                    width: _diameter * 0.4,
+                    height: _diameter * 0.22,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          Colors.white.withValues(alpha: 0.55),
+                          Colors.white.withValues(alpha: 0.0),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const Icon(
+                  Icons.support_agent_rounded,
+                  color: Colors.white,
+                  size: 30,
+                ),
+              ],
             ),
           ),
         ),
