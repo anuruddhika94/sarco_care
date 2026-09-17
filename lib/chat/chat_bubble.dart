@@ -26,11 +26,14 @@ class ChatBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    // Clear the bottom nav bar (68px tall) plus the home-indicator safe area,
+    // with a bit of breathing room above the icons.
+    final bottomInset = MediaQuery.of(context).padding.bottom;
     return Positioned(
       right: 20,
-      bottom: 90,
+      bottom: 68 + bottomInset + 20,
       child: Material(
-        color: AppColors.primary,
+        color: AppColors.accent,
         shape: const CircleBorder(),
         elevation: 4,
         shadowColor: Colors.black45,

@@ -48,6 +48,16 @@ class _MainShellState extends State<MainShell> {
     Icons.person_rounded,
   ];
 
+  // Each tab gets its own accent color so the bar reads as colorful now that
+  // labels are gone.
+  static const List<Color> _tabColors = [
+    AppColors.primary,
+    Color(0xFFE0952B),
+    Color(0xFFD9534F),
+    Color(0xFF3D7FBF),
+    Color(0xFF8B5FBF),
+  ];
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -66,32 +76,17 @@ class _MainShellState extends State<MainShell> {
           indicatorColor: AppColors.softGreen,
           indicatorShape: const StadiumBorder(),
           surfaceTintColor: Colors.transparent,
-          labelTextStyle: WidgetStateProperty.resolveWith((states) {
-            final selected = states.contains(WidgetState.selected);
-            return TextStyle(
-              fontSize: 12,
-              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-              color: selected ? AppColors.primary : AppColors.textMuted,
-            );
-          }),
-          iconTheme: WidgetStateProperty.resolveWith((states) {
-            final selected = states.contains(WidgetState.selected);
-            return IconThemeData(
-              size: 26,
-              color: selected ? AppColors.primary : AppColors.textMuted,
-            );
-          }),
         ),
         child: NavigationBar(
           selectedIndex: _index,
           onDestinationSelected: (i) => setState(() => _index = i),
-          height: 74,
-          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+          height: 68,
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
           destinations: [
             for (int i = 0; i < _icons.length; i++)
               NavigationDestination(
-                icon: Icon(_icons[i]),
-                selectedIcon: Icon(_activeIcons[i]),
+                icon: Icon(_icons[i], size: 32, color: _tabColors[i]),
+                selectedIcon: Icon(_activeIcons[i], size: 36, color: _tabColors[i]),
                 label: labels[i],
               ),
           ],

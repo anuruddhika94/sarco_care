@@ -20,6 +20,10 @@ class AppColors {
 
   /// Soft green used for illustration/placeholder blocks.
   static const Color softGreen = Color(0xFFE4EFE7);
+
+  /// Bright blue used for the floating chat bubble so it stands out against
+  /// the green-dominant palette.
+  static const Color accent = Color(0xFF2F80ED);
 }
 
 class AppTheme {
