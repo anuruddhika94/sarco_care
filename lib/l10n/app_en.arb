@@ -88,6 +88,10 @@
   "fieldEmail": "Email",
   "genderMale": "Male",
   "profileUpdated": "Profile updated",
+  "changePhoto": "Change photo",
+  "takePhoto": "Take photo",
+  "chooseFromGallery": "Choose from gallery",
+  "photoUpdated": "Photo updated",
 
   "tabDaily": "Daily",
   "tabWeekly": "Weekly",

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
+import '../api/api_client.dart';
 import '../auth/auth_controller.dart';
 import '../chat/chat_controller.dart';
 import '../l10n/app_localizations.dart';
@@ -15,9 +17,14 @@ import 'splash_screen.dart';
 enum ProfileEntry { personalInfo, caretaker, setupApp }
 
 /// Profile tab — user summary, settings entries and Log Out.
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
   static const _entryIcons = {
     ProfileEntry.personalInfo: Icons.person_outline,
     ProfileEntry.caretaker: Icons.people_alt_outlined,
@@ -25,10 +32,10 @@ class ProfileScreen extends StatelessWidget {
   };
 
   String _label(AppLocalizations l10n, ProfileEntry entry) => switch (entry) {
-        ProfileEntry.personalInfo => l10n.entryPersonalInfo,
-        ProfileEntry.caretaker => l10n.entryCaretaker,
-        ProfileEntry.setupApp => l10n.entrySetupApp,
-      };
+    ProfileEntry.personalInfo => l10n.entryPersonalInfo,
+    ProfileEntry.caretaker => l10n.entryCaretaker,
+    ProfileEntry.setupApp => l10n.entrySetupApp,
+  };
 
   void _open(BuildContext context, ProfileEntry entry) {
     final WidgetBuilder builder = switch (entry) {
@@ -51,6 +58,75 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  bool _uploadingPhoto = false;
+
+  Future<void> _changePhoto() async {
+    final l10n = AppLocalizations.of(context);
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            ListTile(
+              leading: const Icon(Icons.photo_camera_outlined),
+              title: Text(l10n.takePhoto),
+              onTap: () => Navigator.of(context).pop(ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: Text(l10n.chooseFromGallery),
+              onTap: () => Navigator.of(context).pop(ImageSource.gallery),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+    if (source == null || !mounted) return;
+
+    final picked = await ImagePicker().pickImage(
+      source: source,
+      maxWidth: 1024,
+      imageQuality: 85,
+    );
+    if (picked == null || !mounted) return;
+
+    setState(() => _uploadingPhoto = true);
+    try {
+      final bytes = await picked.readAsBytes();
+      await apiClient.uploadFile(
+        '/me',
+        method: 'PATCH',
+        fieldName: 'avatar',
+        bytes: bytes,
+        filename: picked.name,
+      );
+      await authController.refreshUser();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(l10n.photoUpdated),
+            backgroundColor: AppColors.primary,
+          ),
+        );
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(e.message)));
+    } finally {
+      if (mounted) setState(() => _uploadingPhoto = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -71,11 +147,65 @@ class ProfileScreen extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
         children: [
           const SizedBox(height: 8),
-          const Center(
-            child: AppAvatar(
-              asset: 'assets/images/avatars/somchai.png',
-              fallbackIcon: Icons.elderly,
-              size: 110,
+          Center(
+            child: GestureDetector(
+              onTap: _uploadingPhoto ? null : _changePhoto,
+              child: Semantics(
+                button: true,
+                label: l10n.changePhoto,
+                child: Stack(
+                  children: [
+                    AppAvatar(
+                      asset: authController.currentUser?.avatarUrl,
+                      fallbackIcon:
+                          authController.currentUser?.isPatient == false
+                          ? Icons.person
+                          : Icons.elderly,
+                      size: 110,
+                    ),
+                    if (_uploadingPhoto)
+                      Positioned.fill(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.black.withValues(alpha: 0.35),
+                          ),
+                          child: const Center(
+                            child: SizedBox(
+                              width: 28,
+                              height: 28,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.5,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    Positioned(
+                      right: 0,
+                      bottom: 0,
+                      child: Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: AppColors.background,
+                            width: 3,
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.photo_camera,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
           const SizedBox(height: 16),

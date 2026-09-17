@@ -31,19 +31,46 @@ class ApiClient {
 
   Future<dynamic> post(String path, {Map<String, dynamic>? body}) {
     final uri = Uri.parse('$_baseUrl$path');
-    return _send(() => _client.post(uri, headers: _headers, body: jsonEncode(body ?? {})));
+    return _send(
+      () => _client.post(uri, headers: _headers, body: jsonEncode(body ?? {})),
+    );
   }
 
   Future<dynamic> patch(String path, {Map<String, dynamic>? body}) {
     final uri = Uri.parse('$_baseUrl$path');
-    return _send(() => _client.patch(uri, headers: _headers, body: jsonEncode(body ?? {})));
+    return _send(
+      () => _client.patch(uri, headers: _headers, body: jsonEncode(body ?? {})),
+    );
+  }
+
+  /// Multipart upload (e.g. `PATCH /me` with an `avatar` file field).
+  Future<dynamic> uploadFile(
+    String path, {
+    required String method,
+    required String fieldName,
+    required List<int> bytes,
+    required String filename,
+  }) {
+    final uri = Uri.parse('$_baseUrl$path');
+    return _send(() async {
+      final request = http.MultipartRequest(method, uri)
+        ..headers.addAll({
+          'Accept': 'application/json',
+          if (authToken != null) 'Authorization': 'Bearer $authToken',
+        })
+        ..files.add(
+          http.MultipartFile.fromBytes(fieldName, bytes, filename: filename),
+        );
+      final streamed = await _client.send(request);
+      return http.Response.fromStream(streamed);
+    });
   }
 
   Map<String, String> get _headers => {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        if (authToken != null) 'Authorization': 'Bearer $authToken',
-      };
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    if (authToken != null) 'Authorization': 'Bearer $authToken',
+  };
 
   Future<dynamic> _send(Future<http.Response> Function() request) async {
     late final http.Response response;
@@ -65,7 +92,11 @@ class ApiClient {
     final message = decoded is Map && decoded['error'] != null
         ? decoded['error'].toString()
         : 'Request failed (${response.statusCode})';
-    throw ApiException(message, statusCode: response.statusCode, errors: decoded is Map ? decoded['errors'] : null);
+    throw ApiException(
+      message,
+      statusCode: response.statusCode,
+      errors: decoded is Map ? decoded['errors'] : null,
+    );
   }
 
   void dispose() => _client.close();

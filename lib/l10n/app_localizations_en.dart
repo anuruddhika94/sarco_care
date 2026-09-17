@@ -219,6 +219,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileUpdated => 'Profile updated';
 
   @override
+  String get changePhoto => 'Change photo';
+
+  @override
+  String get takePhoto => 'Take photo';
+
+  @override
+  String get chooseFromGallery => 'Choose from gallery';
+
+  @override
+  String get photoUpdated => 'Photo updated';
+
+  @override
   String get tabDaily => 'Daily';
 
   @override

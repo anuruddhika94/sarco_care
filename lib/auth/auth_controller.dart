@@ -30,7 +30,9 @@ class AuthController extends ChangeNotifier {
     if (token == null || userJson == null) return;
 
     apiClient.authToken = token;
-    _currentUser = AppUser.fromJson(jsonDecode(userJson) as Map<String, dynamic>);
+    _currentUser = AppUser.fromJson(
+      jsonDecode(userJson) as Map<String, dynamic>,
+    );
     notifyListeners();
     await _applyBackendSettings(_currentUser!.settings);
   }
@@ -43,11 +45,10 @@ class AuthController extends ChangeNotifier {
     required String password,
     required String role,
   }) async {
-    final data = await apiClient.post('/auth/login', body: {
-      'phone_number': phoneNumber,
-      'password': password,
-      'role': role,
-    });
+    final data = await apiClient.post(
+      '/auth/login',
+      body: {'phone_number': phoneNumber, 'password': password, 'role': role},
+    );
     await _applySession(data as Map<String, dynamic>);
   }
 
@@ -58,14 +59,30 @@ class AuthController extends ChangeNotifier {
     required String passwordConfirmation,
     required String role,
   }) async {
-    final data = await apiClient.post('/auth/signup', body: {
-      'full_name': fullName,
-      'phone_number': phoneNumber,
-      'password': password,
-      'password_confirmation': passwordConfirmation,
-      'role': role,
-    });
+    final data = await apiClient.post(
+      '/auth/signup',
+      body: {
+        'full_name': fullName,
+        'phone_number': phoneNumber,
+        'password': password,
+        'password_confirmation': passwordConfirmation,
+        'role': role,
+      },
+    );
     await _applySession(data as Map<String, dynamic>);
+  }
+
+  /// Re-fetches the current user from `GET /me` and refreshes both the
+  /// in-memory and persisted copies — call after any profile edit (e.g. an
+  /// avatar upload) so the rest of the app picks up the change immediately.
+  Future<void> refreshUser() async {
+    final data = await apiClient.get('/me') as Map<String, dynamic>;
+    final user = AppUser.fromJson(data);
+    _currentUser = user;
+    notifyListeners();
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_userKey, jsonEncode(user.toJson()));
   }
 
   Future<void> logout() async {

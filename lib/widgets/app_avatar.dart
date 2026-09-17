@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 
-/// Circular avatar that shows an asset image, falling back to an icon on a
-/// soft-green circle when no asset is given or the image fails to load.
+/// Circular avatar that shows an image — a bundled asset, or a network URL
+/// (e.g. an uploaded profile photo served from the API) — falling back to an
+/// icon on a soft-green circle when no image is given or it fails to load.
 class AppAvatar extends StatelessWidget {
   const AppAvatar({
     super.key,
@@ -36,15 +37,24 @@ class AppAvatar extends StatelessWidget {
     );
 
     if (asset == null) return placeholder;
+    final isNetwork = asset!.startsWith('http');
 
     return ClipOval(
-      child: Image.asset(
-        asset!,
-        width: size,
-        height: size,
-        fit: BoxFit.cover,
-        errorBuilder: (_, _, _) => placeholder,
-      ),
+      child: isNetwork
+          ? Image.network(
+              asset!,
+              width: size,
+              height: size,
+              fit: BoxFit.cover,
+              errorBuilder: (_, _, _) => placeholder,
+            )
+          : Image.asset(
+              asset!,
+              width: size,
+              height: size,
+              fit: BoxFit.cover,
+              errorBuilder: (_, _, _) => placeholder,
+            ),
     );
   }
 }

@@ -76,6 +76,10 @@
   "fieldEmail": "อีเมล",
   "genderMale": "ชาย",
   "profileUpdated": "อัปเดตโปรไฟล์แล้ว",
+  "changePhoto": "เปลี่ยนรูปภาพ",
+  "takePhoto": "ถ่ายรูป",
+  "chooseFromGallery": "เลือกจากคลังภาพ",
+  "photoUpdated": "อัปเดตรูปภาพแล้ว",
 
   "tabDaily": "รายวัน",
   "tabWeekly": "รายสัปดาห์",

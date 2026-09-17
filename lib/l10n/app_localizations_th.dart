@@ -218,6 +218,18 @@ class AppLocalizationsTh extends AppLocalizations {
   String get profileUpdated => 'อัปเดตโปรไฟล์แล้ว';
 
   @override
+  String get changePhoto => 'เปลี่ยนรูปภาพ';
+
+  @override
+  String get takePhoto => 'ถ่ายรูป';
+
+  @override
+  String get chooseFromGallery => 'เลือกจากคลังภาพ';
+
+  @override
+  String get photoUpdated => 'อัปเดตรูปภาพแล้ว';
+
+  @override
   String get tabDaily => 'รายวัน';
 
   @override
