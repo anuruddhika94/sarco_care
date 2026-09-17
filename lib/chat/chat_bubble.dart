@@ -127,9 +127,9 @@ class _ChatBubbleState extends State<ChatBubble> {
               width: _diameter,
               height: _diameter,
               child: Icon(
-                Icons.chat_bubble_rounded,
+                Icons.support_agent_rounded,
                 color: Colors.white,
-                size: 26,
+                size: 30,
               ),
             ),
           ),
