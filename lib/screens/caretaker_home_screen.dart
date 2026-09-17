@@ -132,25 +132,25 @@ class _CaretakerHomeScreenState extends State<CaretakerHomeScreen> {
             children: [
               _CareTile(
                 title: l10n.careTileHealthData,
-                icon: Icons.monitor_heart_outlined,
+                icon: Icons.monitor_heart,
                 color: const Color(0xFFB0524B),
                 onTap: () => _open((_) => const HealthTrackingScreen()),
               ),
               _CareTile(
                 title: l10n.navExercise,
-                icon: Icons.fitness_center,
+                icon: Icons.sports_gymnastics,
                 color: const Color(0xFF3E7CB1),
                 onTap: () => _open((_) => const ExercisePlanScreen()),
               ),
               _CareTile(
                 title: l10n.careTileMeals,
-                icon: Icons.restaurant_menu,
+                icon: Icons.ramen_dining,
                 color: const Color(0xFF3B8B5F),
                 onTap: () => _open((_) => const MealsScreen()),
               ),
               _CareTile(
                 title: l10n.careTileSarcf,
-                icon: Icons.assignment_outlined,
+                icon: Icons.fact_check,
                 color: const Color(0xFFCB8A2E),
                 onTap: () => _open((_) => const AssessmentScreen()),
               ),

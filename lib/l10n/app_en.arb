@@ -61,7 +61,7 @@
   "featureMealMenus": "Meal Menus",
   "featureExercisePlan": "Exercise Plan",
   "featureSarcfAssessment": "SARC-F Assessment",
-  "featureHealthTracking": "Health Tracking",
+  "featureHealthTracking": "General Information Record",
 
   "userFullNameTitled": "Mr. Somchai Jai-Dee",
   "userFullName": "Somchai Jai-Dee",
@@ -157,6 +157,8 @@
   "artPreventionTitle": "Prevention",
   "artPreventionSummary": "Daily habits that protect you",
 
+  "readAloud": "Read aloud",
+  "stopReading": "Stop",
   "articleAppbar": "Article",
   "chipReadTime": "3 min read",
   "articleParagraph1": "Sarcopenia is the gradual loss of muscle mass, strength and function that often comes with ageing. It can make everyday tasks — standing up, climbing stairs, carrying shopping — feel harder over time.",

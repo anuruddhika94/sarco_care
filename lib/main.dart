@@ -5,12 +5,15 @@ import 'chat/chat_controller.dart';
 import 'l10n/app_localizations.dart';
 import 'l10n/locale_controller.dart';
 import 'screens/splash_screen.dart';
+import 'settings/settings_controller.dart';
 import 'theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   localeController = LocaleController(const Locale('en'));
   await localeController.load();
+  settingsController = SettingsController();
+  await settingsController.load();
   runApp(const SarcoCareApp());
 }
 
@@ -34,16 +37,26 @@ class SarcoCareApp extends StatelessWidget {
           // Paint the floating chat bubble above the whole route stack; it
           // shows only after login (driven by chatController).
           builder: (context, child) {
-            return Stack(
-              children: [
-                ?child,
-                ListenableBuilder(
-                  listenable: chatController,
-                  builder: (context, _) => chatController.bubbleVisible
-                      ? const ChatBubble()
-                      : const SizedBox.shrink(),
-                ),
-              ],
+            // Scale all text app-wide from the Large Text setting.
+            return ListenableBuilder(
+              listenable: settingsController,
+              builder: (context, _) {
+                return MediaQuery(
+                  data: MediaQuery.of(context)
+                      .copyWith(textScaler: settingsController.textScaler),
+                  child: Stack(
+                    children: [
+                      ?child,
+                      ListenableBuilder(
+                        listenable: chatController,
+                        builder: (context, _) => chatController.bubbleVisible
+                            ? const ChatBubble()
+                            : const SizedBox.shrink(),
+                      ),
+                    ],
+                  ),
+                );
+              },
             );
           },
           home: const SplashScreen(),

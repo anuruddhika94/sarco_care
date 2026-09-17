@@ -28,7 +28,6 @@ class AddDataScreen extends StatelessWidget {
       (l10n.metricWeight, 'kg', Icons.monitor_weight_outlined),
       (l10n.metricHeight, 'cm', Icons.height),
       (l10n.metricCalf, 'cm', Icons.straighten),
-      (l10n.metricHandgrip, 'kg', Icons.back_hand_outlined),
     ];
     return Scaffold(
       backgroundColor: AppColors.background,

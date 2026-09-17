@@ -153,7 +153,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get featureSarcfAssessment => 'แบบประเมิน SARC-F';
 
   @override
-  String get featureHealthTracking => 'ติดตามสุขภาพ';
+  String get featureHealthTracking => 'บันทึกข้อมูลทั่วไป';
 
   @override
   String get userFullNameTitled => 'คุณสมชาย ใจดี';
@@ -391,6 +391,12 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get artPreventionSummary => 'นิสัยประจำวันที่ปกป้องคุณ';
+
+  @override
+  String get readAloud => 'อ่านออกเสียง';
+
+  @override
+  String get stopReading => 'หยุด';
 
   @override
   String get articleAppbar => 'บทความ';

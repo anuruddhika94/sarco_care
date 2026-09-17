@@ -377,7 +377,7 @@ abstract class AppLocalizations {
   /// No description provided for @featureHealthTracking.
   ///
   /// In en, this message translates to:
-  /// **'Health Tracking'**
+  /// **'General Information Record'**
   String get featureHealthTracking;
 
   /// No description provided for @userFullNameTitled.
@@ -841,6 +841,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Daily habits that protect you'**
   String get artPreventionSummary;
+
+  /// No description provided for @readAloud.
+  ///
+  /// In en, this message translates to:
+  /// **'Read aloud'**
+  String get readAloud;
+
+  /// No description provided for @stopReading.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get stopReading;
 
   /// No description provided for @articleAppbar.
   ///

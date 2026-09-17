@@ -40,6 +40,7 @@ dependencies:
   intl: any
   shared_preferences: ^2.3.0
   http: ^1.2.0
+  flutter_tts: ^4.2.0
 
 dev_dependencies:
   flutter_test:
@@ -72,6 +73,7 @@ flutter:
     - assets/images/avatars/
     - assets/images/meals/
     - assets/images/knowledge/
+    - assets/images/features/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

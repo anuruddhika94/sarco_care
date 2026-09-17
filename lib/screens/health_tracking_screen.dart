@@ -26,7 +26,6 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
     _Metric(MetricKind.height, '160', 'cm', Icons.height),
     _Metric(MetricKind.bmi, '21.5', '', Icons.calculate_outlined, normal: true),
     _Metric(MetricKind.calf, '34.0', 'cm', Icons.straighten),
-    _Metric(MetricKind.handgrip, '18.0', 'kg', Icons.back_hand_outlined),
   ];
 
   static const _weekly = [
@@ -34,7 +33,6 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
     _Metric(MetricKind.height, '160', 'cm', Icons.height),
     _Metric(MetricKind.bmi, '21.6', '', Icons.calculate_outlined, normal: true),
     _Metric(MetricKind.calf, '33.8', 'cm', Icons.straighten),
-    _Metric(MetricKind.handgrip, '17.8', 'kg', Icons.back_hand_outlined),
   ];
 
   static const _monthly = [
@@ -42,7 +40,6 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
     _Metric(MetricKind.height, '160', 'cm', Icons.height),
     _Metric(MetricKind.bmi, '21.8', '', Icons.calculate_outlined, normal: true),
     _Metric(MetricKind.calf, '33.5', 'cm', Icons.straighten),
-    _Metric(MetricKind.handgrip, '17.5', 'kg', Icons.back_hand_outlined),
   ];
 
   List<_Metric> get _visibleMetrics =>
@@ -109,14 +106,13 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
   }
 }
 
-enum MetricKind { weight, height, bmi, calf, handgrip }
+enum MetricKind { weight, height, bmi, calf }
 
 String metricLabel(AppLocalizations l10n, MetricKind kind) => switch (kind) {
       MetricKind.weight => l10n.metricWeight,
       MetricKind.height => l10n.metricHeight,
       MetricKind.bmi => l10n.metricBmi,
       MetricKind.calf => l10n.metricCalf,
-      MetricKind.handgrip => l10n.metricHandgrip,
     };
 
 class _Metric {

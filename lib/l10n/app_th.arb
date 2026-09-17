@@ -52,7 +52,7 @@
   "featureMealMenus": "เมนูอาหาร",
   "featureExercisePlan": "แผนออกกำลังกาย",
   "featureSarcfAssessment": "แบบประเมิน SARC-F",
-  "featureHealthTracking": "ติดตามสุขภาพ",
+  "featureHealthTracking": "บันทึกข้อมูลทั่วไป",
 
   "userFullNameTitled": "คุณสมชาย ใจดี",
   "userFullName": "สมชาย ใจดี",
@@ -139,6 +139,8 @@
   "artPreventionTitle": "การป้องกัน",
   "artPreventionSummary": "นิสัยประจำวันที่ปกป้องคุณ",
 
+  "readAloud": "อ่านออกเสียง",
+  "stopReading": "หยุด",
   "articleAppbar": "บทความ",
   "chipReadTime": "อ่าน 3 นาที",
   "articleParagraph1": "ภาวะมวลกล้ามเนื้อน้อย (Sarcopenia) คือการสูญเสียมวล ความแข็งแรง และการทำงานของกล้ามเนื้ออย่างค่อยเป็นค่อยไป ซึ่งมักมากับวัยที่เพิ่มขึ้น อาจทำให้กิจวัตรประจำวัน เช่น การลุกยืน การขึ้นบันได การถือของ ยากขึ้นเมื่อเวลาผ่านไป",

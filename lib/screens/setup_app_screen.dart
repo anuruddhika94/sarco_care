@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 import '../l10n/locale_controller.dart';
+import '../settings/settings_controller.dart';
 import '../theme/app_theme.dart';
 
 /// Setup App — device and app settings opened from Profile.
@@ -14,7 +15,6 @@ class SetupAppScreen extends StatefulWidget {
 }
 
 class _SetupAppScreenState extends State<SetupAppScreen> {
-  bool _largeText = true;
   bool _sound = true;
 
   Future<void> _pickLanguage() async {
@@ -68,8 +68,11 @@ class _SetupAppScreenState extends State<SetupAppScreen> {
           _ToggleRow(
             icon: Icons.text_fields,
             label: l10n.setupLargeText,
-            value: _largeText,
-            onChanged: (v) => setState(() => _largeText = v),
+            value: settingsController.largeText,
+            onChanged: (v) {
+              settingsController.setLargeText(v);
+              setState(() {});
+            },
           ),
           const SizedBox(height: 12),
           _ToggleRow(

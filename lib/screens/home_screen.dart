@@ -298,13 +298,17 @@ class _FeatureGrid extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final features = [
       _Feature(HomeFeature.mealMenus, l10n.featureMealMenus,
-          Icons.restaurant_menu, const Color(0xFF3B8B5F)),
+          Icons.ramen_dining, const Color(0xFF3B8B5F),
+          'assets/images/features/meals.png'),
       _Feature(HomeFeature.exercisePlan, l10n.featureExercisePlan,
-          Icons.fitness_center, const Color(0xFF3E7CB1)),
+          Icons.sports_gymnastics, const Color(0xFF3E7CB1),
+          'assets/images/features/exercise.png'),
       _Feature(HomeFeature.sarcfAssessment, l10n.featureSarcfAssessment,
-          Icons.assignment_outlined, const Color(0xFFCB8A2E)),
+          Icons.fact_check, const Color(0xFFCB8A2E),
+          'assets/images/features/assessment.png'),
       _Feature(HomeFeature.healthTracking, l10n.featureHealthTracking,
-          Icons.monitor_heart_outlined, const Color(0xFFB0524B)),
+          Icons.monitor_heart, const Color(0xFFB0524B),
+          'assets/images/features/health.png'),
     ];
 
     return GridView.count(
@@ -323,11 +327,12 @@ class _FeatureGrid extends StatelessWidget {
 }
 
 class _Feature {
-  const _Feature(this.feature, this.title, this.icon, this.color);
+  const _Feature(this.feature, this.title, this.icon, this.color, this.image);
   final HomeFeature feature;
   final String title;
   final IconData icon;
   final Color color;
+  final String image;
 }
 
 class _FeatureTile extends StatelessWidget {
@@ -337,37 +342,54 @@ class _FeatureTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Icon-based fallback used if the illustration ever fails to load.
+    final fallback = Container(
+      color: feature.color.withValues(alpha: 0.12),
+      alignment: Alignment.center,
+      child: Icon(feature.icon, color: feature.color, size: 56),
+    );
     return Material(
       color: AppColors.surface,
       borderRadius: BorderRadius.circular(20),
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
         onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFFEAEFEA)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: Stack(
+            fit: StackFit.expand,
             children: [
-              Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: feature.color.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Icon(feature.icon, color: feature.color, size: 28),
+              // The illustration fills the whole tile.
+              Image.asset(
+                feature.image,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) => fallback,
               ),
-              Text(
-                feature.title,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textDark,
+              // Soft scrim at the bottom so the label stays readable.
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(14, 24, 14, 12),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        AppColors.surface.withValues(alpha: 0),
+                        AppColors.surface.withValues(alpha: 0.75),
+                        AppColors.surface.withValues(alpha: 0.95),
+                      ],
+                    ),
+                  ),
+                  child: Text(
+                    feature.title,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.textDark,
+                    ),
+                  ),
                 ),
               ),
             ],

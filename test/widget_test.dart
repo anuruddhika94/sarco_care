@@ -8,15 +8,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sarco_care/chat/chat_controller.dart';
 import 'package:sarco_care/l10n/locale_controller.dart';
 import 'package:sarco_care/main.dart';
+import 'package:sarco_care/settings/settings_controller.dart';
 
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     localeController = LocaleController(const Locale('en'));
+    settingsController = SettingsController();
     chatController.onLogout(); // reset global state between tests
   });
 
   testWidgets('splash toggle switches EN → TH live', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(800, 1000));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
     await tester.pumpWidget(const SarcoCareApp());
     await tester.pumpAndSettle();
 
@@ -31,6 +35,8 @@ void main() {
 
   testWidgets('chat bubble appears after login and opens the chat',
       (tester) async {
+    await tester.binding.setSurfaceSize(const Size(800, 1000));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
     await tester.pumpWidget(const SarcoCareApp());
     await tester.pumpAndSettle();
 

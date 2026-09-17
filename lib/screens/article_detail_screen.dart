@@ -1,14 +1,59 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 
 /// Article detail — a readable educational article opened from Knowledge.
-/// Pure UI: hero, meta chips and body paragraphs (shared sample content).
-class ArticleDetailScreen extends StatelessWidget {
+/// A "Read aloud" button speaks the article (text-to-speech) in the app's
+/// current language, for readers who find it easier to listen.
+class ArticleDetailScreen extends StatefulWidget {
   const ArticleDetailScreen({super.key, required this.title});
 
   final String title;
+
+  @override
+  State<ArticleDetailScreen> createState() => _ArticleDetailScreenState();
+}
+
+class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
+  final FlutterTts _tts = FlutterTts();
+  bool _speaking = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _tts.setCompletionHandler(() {
+      if (mounted) setState(() => _speaking = false);
+    });
+    _tts.setCancelHandler(() {
+      if (mounted) setState(() => _speaking = false);
+    });
+    _tts.setErrorHandler((_) {
+      if (mounted) setState(() => _speaking = false);
+    });
+  }
+
+  @override
+  void dispose() {
+    _tts.stop();
+    super.dispose();
+  }
+
+  Future<void> _toggleReadAloud(String text) async {
+    if (_speaking) {
+      await _tts.stop();
+      if (mounted) setState(() => _speaking = false);
+      return;
+    }
+    final lang =
+        Localizations.localeOf(context).languageCode == 'th' ? 'th-TH' : 'en-US';
+    await _tts.setLanguage(lang);
+    await _tts.setSpeechRate(0.44); // a little slower, easier to follow
+    await _tts.setPitch(1.0);
+    if (mounted) setState(() => _speaking = true);
+    await _tts.speak(text);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +63,8 @@ class ArticleDetailScreen extends StatelessWidget {
       l10n.articleParagraph2,
       l10n.articleParagraph3,
     ];
+    final spoken = '${widget.title}. ${paragraphs.join(' ')}';
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -52,7 +99,7 @@ class ArticleDetailScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            title,
+            widget.title,
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w800,
@@ -61,6 +108,16 @@ class ArticleDetailScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
+          // Read-aloud control.
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () => _toggleReadAloud(spoken),
+              icon: Icon(_speaking ? Icons.stop_rounded : Icons.record_voice_over),
+              label: Text(_speaking ? l10n.stopReading : l10n.readAloud),
+            ),
+          ),
+          const SizedBox(height: 20),
           for (final p in paragraphs) ...[
             Text(
               p,

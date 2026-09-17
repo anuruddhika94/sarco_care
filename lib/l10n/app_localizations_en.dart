@@ -154,7 +154,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get featureSarcfAssessment => 'SARC-F Assessment';
 
   @override
-  String get featureHealthTracking => 'Health Tracking';
+  String get featureHealthTracking => 'General Information Record';
 
   @override
   String get userFullNameTitled => 'Mr. Somchai Jai-Dee';
@@ -392,6 +392,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get artPreventionSummary => 'Daily habits that protect you';
+
+  @override
+  String get readAloud => 'Read aloud';
+
+  @override
+  String get stopReading => 'Stop';
 
   @override
   String get articleAppbar => 'Article';

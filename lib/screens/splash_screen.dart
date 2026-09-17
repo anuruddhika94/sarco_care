@@ -119,7 +119,9 @@ class _Logo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
@@ -144,6 +146,7 @@ class _Logo extends StatelessWidget {
         const SizedBox(width: 6),
         Icon(Icons.eco, color: AppColors.primary, size: 30),
       ],
+      ),
     );
   }
 }

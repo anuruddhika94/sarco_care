@@ -31,12 +31,21 @@ class _MainShellState extends State<MainShell> {
     ProfileScreen(),
   ];
 
+  // Outlined when idle, filled (rounded) when selected — the icon "fills in"
+  // on the active tab behind a soft-green selection pill.
   static const List<IconData> _icons = [
-    Icons.home_rounded,
-    Icons.fitness_center,
+    Icons.home_outlined,
+    Icons.sports_gymnastics,
     Icons.favorite_border,
     Icons.menu_book_outlined,
     Icons.person_outline,
+  ];
+  static const List<IconData> _activeIcons = [
+    Icons.home_rounded,
+    Icons.sports_gymnastics,
+    Icons.favorite_rounded,
+    Icons.menu_book_rounded,
+    Icons.person_rounded,
   ];
 
   @override
@@ -51,19 +60,42 @@ class _MainShellState extends State<MainShell> {
     ];
     return Scaffold(
       body: IndexedStack(index: _index, children: _tabs),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _index,
-        onTap: (i) => setState(() => _index = i),
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: AppColors.surface,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.textMuted,
-        selectedFontSize: 12,
-        unselectedFontSize: 12,
-        items: [
-          for (int i = 0; i < _icons.length; i++)
-            BottomNavigationBarItem(icon: Icon(_icons[i]), label: labels[i]),
-        ],
+      bottomNavigationBar: NavigationBarTheme(
+        data: NavigationBarThemeData(
+          backgroundColor: AppColors.surface,
+          indicatorColor: AppColors.softGreen,
+          indicatorShape: const StadiumBorder(),
+          surfaceTintColor: Colors.transparent,
+          labelTextStyle: WidgetStateProperty.resolveWith((states) {
+            final selected = states.contains(WidgetState.selected);
+            return TextStyle(
+              fontSize: 12,
+              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+              color: selected ? AppColors.primary : AppColors.textMuted,
+            );
+          }),
+          iconTheme: WidgetStateProperty.resolveWith((states) {
+            final selected = states.contains(WidgetState.selected);
+            return IconThemeData(
+              size: 26,
+              color: selected ? AppColors.primary : AppColors.textMuted,
+            );
+          }),
+        ),
+        child: NavigationBar(
+          selectedIndex: _index,
+          onDestinationSelected: (i) => setState(() => _index = i),
+          height: 74,
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+          destinations: [
+            for (int i = 0; i < _icons.length; i++)
+              NavigationDestination(
+                icon: Icon(_icons[i]),
+                selectedIcon: Icon(_activeIcons[i]),
+                label: labels[i],
+              ),
+          ],
+        ),
       ),
     );
   }
