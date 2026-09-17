@@ -12,7 +12,12 @@ import '../theme/app_theme.dart';
 /// `POST /meal_logs` — for today, or for [logDate] when opened from
 /// [MealLogScreen]'s "Add Data".
 class RecipeScreen extends StatefulWidget {
-  const RecipeScreen({super.key, required this.meal, this.logDate, this.patientId});
+  const RecipeScreen({
+    super.key,
+    required this.meal,
+    this.logDate,
+    this.patientId,
+  });
 
   final PlanMeal meal;
   final DateTime? logDate;
@@ -34,17 +39,23 @@ class _RecipeScreenState extends State<RecipeScreen> {
     final l10n = AppLocalizations.of(context);
     final logDate = widget.logDate;
     try {
-      await apiClient.post('/meal_logs', body: {
-        'meal_plan_meal_id': meal.id,
-        if (logDate != null) 'eaten_on': DateFormat('yyyy-MM-dd').format(logDate),
-        if (widget.patientId != null) 'patient_id': widget.patientId,
-      });
+      await apiClient.post(
+        '/meal_logs',
+        body: {
+          'meal_plan_meal_id': meal.id,
+          if (logDate != null)
+            'eaten_on': DateFormat('yyyy-MM-dd').format(logDate),
+          if (widget.patientId != null) 'patient_id': widget.patientId,
+        },
+      );
       if (!mounted) return;
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
           SnackBar(
-            content: Text(logDate == null ? l10n.mealLoggedToday : l10n.mealLogged),
+            content: Text(
+              logDate == null ? l10n.mealLoggedToday : l10n.mealLogged,
+            ),
             backgroundColor: AppColors.primary,
           ),
         );
@@ -84,7 +95,8 @@ class _RecipeScreenState extends State<RecipeScreen> {
               _Chip(text: mealSlotLabel(l10n, meal.slot)),
               const SizedBox(width: 8),
               _Chip(
-                text: '${l10n.totalProteinLabel} ${meal.totalProtein.of(context)}',
+                text:
+                    '${l10n.totalProteinLabel} ${meal.totalProtein.of(context)}',
                 filled: true,
               ),
             ],
@@ -93,7 +105,10 @@ class _RecipeScreenState extends State<RecipeScreen> {
           _SectionTitle(l10n.proteinBreakdown),
           const SizedBox(height: 12),
           for (final item in meal.items)
-            _ItemRow(name: item.name.of(context), protein: item.protein.of(context)),
+            _ItemRow(
+              name: item.name.of(context),
+              protein: item.protein.of(context),
+            ),
           const SizedBox(height: 8),
           _TotalRow(
             label: l10n.totalProteinLabel,
@@ -108,7 +123,10 @@ class _RecipeScreenState extends State<RecipeScreen> {
                   ? const SizedBox(
                       width: 22,
                       height: 22,
-                      child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        color: Colors.white,
+                      ),
                     )
                   : Text(l10n.completeMealAndLog),
             ),
@@ -137,13 +155,7 @@ class _Hero extends StatelessWidget {
       child: SizedBox(
         height: 170,
         width: double.infinity,
-        child: meal.image == null
-            ? fallback
-            : Image.asset(
-                meal.image!,
-                fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => fallback,
-              ),
+        child: dishImage(image: meal.image, fallback: fallback),
       ),
     );
   }
@@ -222,7 +234,11 @@ class _ItemRow extends StatelessWidget {
           Expanded(
             child: Text(
               name,
-              style: TextStyle(fontSize: 16, height: 1.3, color: AppColors.textDark),
+              style: TextStyle(
+                fontSize: 16,
+                height: 1.3,
+                color: AppColors.textDark,
+              ),
             ),
           ),
           const SizedBox(width: 10),

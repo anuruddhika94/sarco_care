@@ -52,7 +52,11 @@ class _MealsScreenState extends State<MealsScreen> {
   Future<void> _openMeal(PlanMeal meal) async {
     final logged = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
-        builder: (_) => RecipeScreen(meal: meal, logDate: widget.logDate, patientId: widget.patientId),
+        builder: (_) => RecipeScreen(
+          meal: meal,
+          logDate: widget.logDate,
+          patientId: widget.patientId,
+        ),
       ),
     );
     // In "pick a meal to log" mode: bubble the result back up once logged.
@@ -81,7 +85,10 @@ class _MealsScreenState extends State<MealsScreen> {
                   icon: const Icon(Icons.calendar_month_outlined),
                   tooltip: l10n.myPlanTitle,
                   onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => MealLogScreen(patientId: widget.patientId)),
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          MealLogScreen(patientId: widget.patientId),
+                    ),
                   ),
                 ),
               ]
@@ -135,21 +142,17 @@ class _MealsScreenState extends State<MealsScreen> {
             children: [
               Text(
                 l10n.mealPlanSubtitle,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textMuted,
-                ),
+                style: TextStyle(fontSize: 14, color: AppColors.textMuted),
               ),
               const SizedBox(height: 10),
-              _DayTotal(text: '${l10n.totalProteinLabel} ${day.dayTotal.of(context)}'),
+              _DayTotal(
+                text: '${l10n.totalProteinLabel} ${day.dayTotal.of(context)}',
+              ),
               const SizedBox(height: 16),
               for (final meal in day.meals)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 14),
-                  child: _MealCard(
-                    meal: meal,
-                    onTap: () => _openMeal(meal),
-                  ),
+                  child: _MealCard(meal: meal, onTap: () => _openMeal(meal)),
                 ),
             ],
           ),
@@ -209,13 +212,7 @@ class _MealThumb extends StatelessWidget {
       child: SizedBox(
         width: 64,
         height: 64,
-        child: meal.image == null
-            ? fallback
-            : Image.asset(
-                meal.image!,
-                fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => fallback,
-              ),
+        child: dishImage(image: meal.image, fallback: fallback),
       ),
     );
   }
@@ -270,7 +267,10 @@ class _MealCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       '${l10n.totalProteinLabel} ${meal.totalProtein.of(context)}',
-                      style: TextStyle(fontSize: 13.5, color: AppColors.textMuted),
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        color: AppColors.textMuted,
+                      ),
                     ),
                   ],
                 ),
