@@ -4,10 +4,9 @@ import 'package:http/http.dart' as http;
 
 /// Thin JSON client for the SarcoCare Rails API.
 ///
-/// The base URL points at a local `rails server` by default — the iOS
-/// Simulator and Flutter web share the host's network, so `localhost` reaches
-/// a Mac-side Rails process directly. Override for other setups (an Android
-/// emulator needs `10.0.2.2`, a real device needs the host's LAN IP) with:
+/// The base URL points at the deployed Render API by default. Override for
+/// local development against a Mac-side `rails server` (an Android emulator
+/// needs `10.0.2.2`, a real device needs the host's LAN IP) with:
 ///
 ///   flutter run --dart-define=API_BASE_URL=http://10.0.2.2:3000/api/v1
 class ApiClient {
@@ -17,7 +16,7 @@ class ApiClient {
 
   static const _baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://localhost:3000/api/v1',
+    defaultValue: 'https://sarco-care-rails.onrender.com/api/v1',
   );
 
   /// The bearer token attached to every request once signed in. Set by
