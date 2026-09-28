@@ -77,9 +77,9 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
     final voice = preferredVoice(await _tts.getVoices as List<dynamic>, lang);
     if (voice != null) await _tts.setVoice(voice);
     // 0.5 is the engine's normal speaking speed on both Android and iOS.
-    // This is about 40% above that — brisk, and roughly where Thai voices
-    // start to run words together, so don't push it much further.
-    await _tts.setSpeechRate(0.7);
+    // This is half again as fast; past roughly this point Thai voices start
+    // running words together, so it shouldn't go higher.
+    await _tts.setSpeechRate(0.75);
     await _tts.setPitch(1.0);
 
     final run = ++_speechRun;
@@ -89,8 +89,9 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
         if (run != _speechRun) return;
         await _tts.speak(utterance);
         if (run != _speechRun) return;
-        // A beat between paragraphs, the way a person reading aloud would.
-        await Future<void>.delayed(const Duration(milliseconds: 350));
+        // A beat between paragraphs, the way a person reading aloud would —
+        // shorter now the delivery itself is quicker.
+        await Future<void>.delayed(const Duration(milliseconds: 220));
       }
     } finally {
       if (mounted && run == _speechRun) setState(() => _speaking = false);

@@ -65,10 +65,10 @@ Map<String, String>? preferredVoice(List<dynamic> voices, String locale) {
   candidates.sort((a, b) {
     final byQuality = _qualityRank(b['quality']).compareTo(_qualityRank(a['quality']));
     if (byQuality != 0) return byQuality;
-    // Same quality: prefer an exact locale match, then one that works offline.
+    // Same quality: prefer an exact locale match, then a server-side voice.
     final byLocale = _localeRank(b['locale'], locale).compareTo(_localeRank(a['locale'], locale));
     if (byLocale != 0) return byLocale;
-    return _offlineRank(b).compareTo(_offlineRank(a));
+    return _networkRank(b).compareTo(_networkRank(a));
   });
 
   final best = candidates.first;
@@ -89,5 +89,8 @@ int _qualityRank(String? quality) => switch (quality?.toLowerCase()) {
 int _localeRank(String? voiceLocale, String locale) =>
     (voiceLocale ?? '').toLowerCase() == locale.toLowerCase() ? 1 : 0;
 
-int _offlineRank(Map<String, String> voice) =>
-    voice['network_required'] == '1' ? 0 : 1;
+/// Android's network voices are synthesised server-side and sound markedly
+/// more natural than the on-device ones. The app needs a connection for its
+/// data anyway, so there's nothing to lose by preferring them.
+int _networkRank(Map<String, String> voice) =>
+    voice['network_required'] == '1' ? 1 : 0;

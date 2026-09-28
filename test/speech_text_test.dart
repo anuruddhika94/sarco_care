@@ -86,12 +86,12 @@ void _voiceTests() {
     expect(preferredVoice(voices, 'th-TH')!['name'], 'Narisa');
   });
 
-  test('prefers an offline voice when quality ties', () {
+  test('prefers a network voice when quality ties, as it sounds better', () {
     final voices = [
-      {'name': 'th-network', 'locale': 'th-TH', 'quality': 'high', 'network_required': '1'},
       {'name': 'th-local', 'locale': 'th-TH', 'quality': 'high', 'network_required': '0'},
+      {'name': 'th-network', 'locale': 'th-TH', 'quality': 'high', 'network_required': '1'},
     ];
-    expect(preferredVoice(voices, 'th-TH')!['name'], 'th-local');
+    expect(preferredVoice(voices, 'th-TH')!['name'], 'th-network');
   });
 
   test('ignores voices for other languages', () {
