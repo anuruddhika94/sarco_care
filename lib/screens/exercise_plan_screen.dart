@@ -178,7 +178,9 @@ class _ExercisePlanScreenState extends State<ExercisePlanScreen> {
           physics: const NeverScrollableScrollPhysics(),
           mainAxisSpacing: 16,
           crossAxisSpacing: 16,
-          childAspectRatio: 0.82,
+          // Portrait cards: the videos are YouTube Shorts and the uploaded
+          // thumbnails are vertical, so a tall card wastes no space on bars.
+          childAspectRatio: 0.62,
           children: [
             for (int i = 0; i < exercises.length; i++)
               _ExerciseCard(

@@ -116,12 +116,27 @@ class _ExerciseVideoScreenState extends State<ExerciseVideoScreen> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: YoutubePlayer(
-              controller: _controller,
-              aspectRatio: 16 / 9,
-            ),
+          // The exercise videos are YouTube Shorts, so the player is portrait
+          // (9:16). Its height is capped at two thirds of the screen, so the
+          // title and the Start button stay in view on a tall phone.
+          Builder(
+            builder: (context) {
+              final screen = MediaQuery.sizeOf(context);
+              final width = screen.width - 40;
+              final height = (width * 16 / 9).clamp(0.0, screen.height * 0.66);
+              return Center(
+                child: ClipRRect(
+                  borderRadius: AppRadius.medium,
+                  child: SizedBox(
+                    width: height * 9 / 16,
+                    child: YoutubePlayer(
+                      controller: _controller,
+                      aspectRatio: 9 / 16,
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
           const SizedBox(height: 16),
           Text(
