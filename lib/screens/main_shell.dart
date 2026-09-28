@@ -51,10 +51,22 @@ class _MainShellState extends State<MainShell> {
   ];
 
   Widget _navIcon(int i, {required bool active}) {
-    return ImageIcon(
+    final icon = ImageIcon(
       AssetImage(active ? _activeIcons[i] : _icons[i]),
-      size: active ? 38 : 34,
+      size: active ? 34 : 32,
       color: _tabColors[i],
+    );
+    if (!active) return icon;
+    // The selected tab sits on a soft round badge. NavigationBar's own
+    // indicator is a wide 64x32 pill, so it's switched off in the theme and
+    // drawn here instead, where it can be a true circle.
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: const BoxDecoration(
+        color: AppColors.softGreen,
+        shape: BoxShape.circle,
+      ),
+      child: icon,
     );
   }
 
