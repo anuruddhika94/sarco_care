@@ -56,8 +56,8 @@ class _MainShellState extends State<MainShell> {
     // indicator is a wide 64x32 pill, so it's switched off in the theme and
     // the badge drawn here instead.
     return Container(
-      width: 48,
-      height: 48,
+      width: 52,
+      height: 52,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: active ? AppColors.softGreen : Colors.transparent,
@@ -65,7 +65,7 @@ class _MainShellState extends State<MainShell> {
       ),
       child: ImageIcon(
         AssetImage(active ? _activeIcons[i] : _icons[i]),
-        size: 30,
+        size: 36,
         color: _tabColors[i],
       ),
     );
@@ -102,7 +102,7 @@ class _MainShellState extends State<MainShell> {
         child: NavigationBar(
           selectedIndex: _index,
           onDestinationSelected: (i) => setState(() => _index = i),
-          height: 68,
+          height: 72,
           labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
           destinations: [
             for (int i = 0; i < _icons.length; i++)
