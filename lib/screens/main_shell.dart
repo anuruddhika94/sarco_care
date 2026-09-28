@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:iconsax_flutter/iconsax_flutter.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
@@ -32,52 +31,29 @@ class _MainShellState extends State<MainShell> {
     ProfileScreen(),
   ];
 
-  // Iconsax: the outline set when idle and its matching solid set (the
-  // "_copy" names) when selected, so the icon "fills in" on the active tab
-  // behind a soft-green selection pill. Both weights are the same drawing,
-  // which the Material outlined/filled pairs were not.
-  static const List<IconData> _icons = [
-    Iconsax.home_2,
-    Iconsax.weight,
-    Iconsax.activity,
-    Iconsax.book_1,
-    Iconsax.user,
-  ];
-  static const List<IconData> _activeIcons = [
-    Iconsax.home_2_copy,
-    Iconsax.weight_copy,
-    Iconsax.activity_copy,
-    Iconsax.book_1_copy,
-    Iconsax.user_copy,
-  ];
-
-  // Custom drawn icons, where we have them: null falls back to the Iconsax
-  // glyph above. They are black on transparent, so [ImageIcon] tints them
-  // with the tab's colour exactly as a font icon would be.
-  static const List<String?> _iconAssets = [
+  // Custom drawn icons: the outline set when idle and the matching solid set
+  // when selected, so the icon "fills in" on the active tab. They are black
+  // on transparent, so [ImageIcon] tints them with the tab's colour exactly
+  // as a font icon would.
+  static const List<String> _icons = [
     'assets/images/nav/home.png',
     'assets/images/nav/exercise.png',
-    null,
-    null,
-    null,
+    'assets/images/nav/health.png',
+    'assets/images/nav/knowledge.png',
+    'assets/images/nav/profile.png',
   ];
-  static const List<String?> _activeIconAssets = [
+  static const List<String> _activeIcons = [
     'assets/images/nav/home_filled.png',
     'assets/images/nav/exercise_filled.png',
-    null,
-    null,
-    null,
+    'assets/images/nav/health_filled.png',
+    'assets/images/nav/knowledge_filled.png',
+    'assets/images/nav/profile_filled.png',
   ];
 
   Widget _navIcon(int i, {required bool active}) {
-    final asset = active ? _activeIconAssets[i] : _iconAssets[i];
-    final size = active ? 32.0 : 28.0;
-    if (asset != null) {
-      return ImageIcon(AssetImage(asset), size: size, color: _tabColors[i]);
-    }
-    return Icon(
-      active ? _activeIcons[i] : _icons[i],
-      size: size,
+    return ImageIcon(
+      AssetImage(active ? _activeIcons[i] : _icons[i]),
+      size: active ? 38 : 34,
       color: _tabColors[i],
     );
   }
@@ -107,7 +83,7 @@ class _MainShellState extends State<MainShell> {
       bottomNavigationBar: NavigationBarTheme(
         data: NavigationBarThemeData(
           backgroundColor: AppColors.surface,
-          indicatorColor: AppColors.softGreen,
+          indicatorColor: Colors.transparent,
           indicatorShape: const StadiumBorder(),
           surfaceTintColor: Colors.transparent,
         ),
