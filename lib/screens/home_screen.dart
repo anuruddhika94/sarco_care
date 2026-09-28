@@ -468,16 +468,16 @@ class _FeatureGrid extends StatelessWidget {
     final features = [
       _Feature(HomeFeature.mealMenus, l10n.featureMealMenus,
           Icons.ramen_dining, const Color(0xFF3B8B5F),
-          'assets/images/features/meals.png'),
+          'assets/images/features/meals.jpg'),
       _Feature(HomeFeature.exercisePlan, l10n.featureExercisePlan,
           Icons.sports_gymnastics, const Color(0xFF3E7CB1),
-          'assets/images/features/exercise.png'),
+          'assets/images/features/exercise.jpg'),
       _Feature(HomeFeature.sarcfAssessment, l10n.featureSarcfAssessment,
           Icons.fact_check, const Color(0xFFCB8A2E),
-          'assets/images/features/assessment.png'),
+          'assets/images/features/assessment.jpg'),
       _Feature(HomeFeature.healthTracking, l10n.featureHealthTracking,
           Icons.monitor_heart, const Color(0xFFB0524B),
-          'assets/images/features/health.png'),
+          'assets/images/features/health.jpg'),
     ];
 
     final gap = compact ? 12.0 : 16.0;
