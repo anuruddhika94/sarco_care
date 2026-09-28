@@ -182,7 +182,6 @@ class _ExercisePlanScreenState extends State<ExercisePlanScreen> {
           children: [
             for (int i = 0; i < exercises.length; i++)
               _ExerciseCard(
-                index: i + 1,
                 exercise: exercises[i],
                 onTap: () => _openVideo(exercises[i]),
               ),
@@ -261,12 +260,10 @@ class _Thumb extends StatelessWidget {
 
 class _ExerciseCard extends StatelessWidget {
   const _ExerciseCard({
-    required this.index,
     required this.exercise,
     required this.onTap,
   });
 
-  final int index;
   final CatalogExercise exercise;
   final VoidCallback onTap;
 
@@ -288,40 +285,12 @@ class _ExerciseCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // YouTube thumbnail with a number badge.
               Expanded(
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                      child: _Thumb(
-                        imageUrl: exercise.thumbnailUrl,
-                        fallbackIcon: exercise.icon,
-                        radius: 12,
-                        playSize: 40,
-                      ),
-                    ),
-                    Positioned(
-                      left: 8,
-                      top: 8,
-                      child: Container(
-                        width: 24,
-                        height: 24,
-                        alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFE05B4B),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Text(
-                          '$index',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                child: _Thumb(
+                  imageUrl: exercise.thumbnailUrl,
+                  fallbackIcon: exercise.icon,
+                  radius: 12,
+                  playSize: 40,
                 ),
               ),
               const SizedBox(height: 10),
