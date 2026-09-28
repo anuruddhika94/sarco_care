@@ -6,6 +6,7 @@ import '../chat/chat_bubble.dart';
 import '../chat/chat_controller.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_card.dart';
 import '../widgets/feature_tile.dart';
 import 'assessment_screen.dart';
 import 'caretaker_approval_screen.dart';
@@ -180,7 +181,8 @@ class _GreetingHeader extends StatelessWidget {
                 height: compact ? 42 : 48,
                 decoration: BoxDecoration(
                   color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: AppShadows.card,
+                  borderRadius: AppRadius.small,
                   border: Border.all(color: const Color(0xFFE4EAE4)),
                 ),
                 child: Icon(
@@ -372,13 +374,10 @@ class _DailyGoalsCardState extends State<_DailyGoalsCard> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final compact = widget.compact;
-    return Container(
-      width: double.infinity,
+    return AppCard(
+      color: const Color(0xFFFDF3D8),
+      border: false,
       padding: EdgeInsets.all(compact ? 12 : 20),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFDF3D8),
-        borderRadius: BorderRadius.circular(20),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -5,6 +5,7 @@ import '../auth/auth_controller.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_avatar.dart';
+import '../widgets/screen_states.dart';
 
 /// Caretaker — the linked caregiver(s) opened from Profile, loaded from
 /// `GET /care_links?status=approved`. A caretaker links to a patient (not
@@ -78,25 +79,11 @@ class _CaretakerScreenState extends State<CaretakerScreen> {
 
   Widget _buildBody(AppLocalizations l10n) {
     if (_error != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.cloud_off, size: 48, color: AppColors.textMuted),
-              const SizedBox(height: 12),
-              Text(_error!, textAlign: TextAlign.center, style: TextStyle(color: AppColors.textMuted)),
-              const SizedBox(height: 16),
-              OutlinedButton(onPressed: _load, child: Text(l10n.retry)),
-            ],
-          ),
-        ),
-      );
+      return ErrorStateView(message: _error!, onRetry: _load);
     }
     final links = _links;
     if (links == null) {
-      return const Center(child: CircularProgressIndicator());
+      return const LoadingList();
     }
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),

@@ -31,14 +31,19 @@ class FeatureTile extends StatelessWidget {
       alignment: Alignment.center,
       child: Icon(icon, color: color, size: 56),
     );
-    return Material(
-      color: AppColors.surface,
-      borderRadius: BorderRadius.circular(20),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(20),
-        onTap: onTap,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: AppRadius.large,
+        boxShadow: AppShadows.card,
+      ),
+      child: Material(
+        color: AppColors.surface,
+        borderRadius: AppRadius.large,
+        child: InkWell(
+          borderRadius: AppRadius.large,
+          onTap: onTap,
+          child: ClipRRect(
+            borderRadius: AppRadius.large,
           child: Stack(
             fit: StackFit.expand,
             children: [
@@ -67,15 +72,19 @@ class FeatureTile extends StatelessWidget {
                   ),
                   child: Text(
                     title,
-                    style: TextStyle(
-                      fontSize: 16,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 15,
                       fontWeight: FontWeight.w800,
+                      height: 1.2,
                       color: AppColors.textDark,
                     ),
                   ),
                 ),
               ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

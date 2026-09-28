@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../l10n/l10n_format.dart';
 import '../theme/app_theme.dart';
 import 'exercise_plan_screen.dart';
+import '../widgets/screen_states.dart';
 
 /// My Plan — the patient's exercise history, backed by `exercise_logs`.
 /// A date picker (defaulting to the most recently logged date, like General
@@ -127,24 +128,10 @@ class _MyPlanScreenState extends State<MyPlanScreen> {
 
   Widget _buildBody(AppLocalizations l10n) {
     if (_error != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.cloud_off, size: 48, color: AppColors.textMuted),
-              const SizedBox(height: 12),
-              Text(_error!, textAlign: TextAlign.center, style: TextStyle(color: AppColors.textMuted)),
-              const SizedBox(height: 16),
-              OutlinedButton(onPressed: () => _load(), child: Text(l10n.retry)),
-            ],
-          ),
-        ),
-      );
+      return ErrorStateView(message: _error!, onRetry: () => _load());
     }
     if (_logs == null || _catalog == null) {
-      return const Center(child: CircularProgressIndicator());
+      return const LoadingList();
     }
 
     final entries = _entriesForSelectedDate;

@@ -7,6 +7,7 @@ import '../theme/app_theme.dart';
 import '../widgets/segmented_tabs.dart';
 import 'meal_log_screen.dart';
 import 'recipe_screen.dart';
+import '../widgets/screen_states.dart';
 
 /// Screen #4 — Meals.
 /// The multi-day high-protein plan, loaded from `GET /meal_plan`. Day tabs;
@@ -100,29 +101,11 @@ class _MealsScreenState extends State<MealsScreen> {
 
   Widget _buildBody(AppLocalizations l10n) {
     if (_error != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.cloud_off, size: 48, color: AppColors.textMuted),
-              const SizedBox(height: 12),
-              Text(
-                _error!,
-                textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.textMuted),
-              ),
-              const SizedBox(height: 16),
-              OutlinedButton(onPressed: _load, child: Text(l10n.retry)),
-            ],
-          ),
-        ),
-      );
+      return ErrorStateView(message: _error!, onRetry: _load);
     }
     final mealPlan = _mealPlan;
     if (mealPlan == null) {
-      return const Center(child: CircularProgressIndicator());
+      return const LoadingList();
     }
     final day = mealPlan[_dayIndex];
     return Column(

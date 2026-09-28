@@ -13,6 +13,7 @@ import 'exercise_plan_screen.dart';
 import 'health_tracking_screen.dart';
 import 'meals_screen.dart';
 import 'splash_screen.dart';
+import '../widgets/screen_states.dart';
 
 /// Caretaker home — the caretaker's landing screen after logging in.
 /// A patient switcher (one caretaker → many patients), loaded from
@@ -122,25 +123,11 @@ class _CaretakerHomeScreenState extends State<CaretakerHomeScreen> {
 
   Widget _buildBody(AppLocalizations l10n) {
     if (_error != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.cloud_off, size: 48, color: AppColors.textMuted),
-              const SizedBox(height: 12),
-              Text(_error!, textAlign: TextAlign.center, style: TextStyle(color: AppColors.textMuted)),
-              const SizedBox(height: 16),
-              OutlinedButton(onPressed: _load, child: Text(l10n.retry)),
-            ],
-          ),
-        ),
-      );
+      return ErrorStateView(message: _error!, onRetry: _load);
     }
     final patients = _patients;
     if (patients == null) {
-      return const Center(child: CircularProgressIndicator());
+      return const LoadingList();
     }
 
     final addPatientButton = SizedBox(

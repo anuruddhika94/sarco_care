@@ -6,6 +6,7 @@ import '../l10n/l10n_format.dart';
 import '../theme/app_theme.dart';
 import 'exercise_video_screen.dart';
 import 'my_plan_screen.dart';
+import '../widgets/screen_states.dart';
 
 /// An exercise from the shared catalog, `GET /exercises` — the same list for
 /// every patient. What a patient actually did on a given day is tracked
@@ -144,11 +145,11 @@ class _ExercisePlanScreenState extends State<ExercisePlanScreen> {
 
   Widget _buildBody(AppLocalizations l10n) {
     if (_error != null) {
-      return _ErrorState(message: _error!, onRetry: _load);
+      return ErrorStateView(message: _error!, onRetry: _load);
     }
     final exercises = _exercises;
     if (exercises == null) {
-      return const Center(child: CircularProgressIndicator());
+      return const LoadingList();
     }
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
@@ -179,36 +180,6 @@ class _ExercisePlanScreenState extends State<ExercisePlanScreen> {
           ],
         ),
       ],
-    );
-  }
-}
-
-class _ErrorState extends StatelessWidget {
-  const _ErrorState({required this.message, required this.onRetry});
-  final String message;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.cloud_off, size: 48, color: AppColors.textMuted),
-            const SizedBox(height: 12),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: AppColors.textMuted),
-            ),
-            const SizedBox(height: 16),
-            OutlinedButton(onPressed: onRetry, child: Text(l10n.retry)),
-          ],
-        ),
-      ),
     );
   }
 }
