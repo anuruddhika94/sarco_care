@@ -46,3 +46,8 @@ app.*.map.json
 
 # Local secrets for --dart-define-from-file (never commit)
 env.json
+
+# Android release signing (passwords + keystore path).
+/android/key.properties
+*.jks
+*.keystore

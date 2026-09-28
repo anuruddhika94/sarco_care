@@ -1,4 +1,4 @@
-package com.example.sarco_care
+package com.sarcocare.app
 
 import io.flutter.embedding.android.FlutterActivity
 
