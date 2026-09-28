@@ -6,6 +6,7 @@ import '../chat/chat_bubble.dart';
 import '../chat/chat_controller.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_avatar.dart';
 import '../widgets/app_card.dart';
 import '../widgets/feature_tile.dart';
 import 'assessment_screen.dart';
@@ -142,8 +143,15 @@ class _GreetingHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final user = authController.currentUser;
     return Row(
       children: [
+        AppAvatar(
+          asset: user?.avatarUrl,
+          fallbackIcon: user?.isPatient == false ? Icons.person : Icons.elderly,
+          size: compact ? 44 : 52,
+        ),
+        const SizedBox(width: AppSpacing.md),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
