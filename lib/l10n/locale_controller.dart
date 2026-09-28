@@ -37,9 +37,10 @@ class LocaleController extends ValueNotifier<Locale> {
     await prefs.setString(_prefsKey, locale.languageCode);
     if (authController.isSignedIn) {
       try {
-        await apiClient.patch('/me', body: {
+        final updated = await apiClient.patch('/me', body: {
           'settings': {...authController.currentUser!.settings, 'language': locale.languageCode},
         });
+        await authController.cacheUpdatedUser(updated as Map<String, dynamic>);
       } on ApiException {
         // Local setting still applies; it'll sync next time this changes.
       }

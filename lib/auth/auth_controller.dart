@@ -85,6 +85,19 @@ class AuthController extends ChangeNotifier {
     await prefs.setString(_userKey, jsonEncode(user.toJson()));
   }
 
+  /// Caches an updated user straight from a `PATCH /me` response, in memory
+  /// and on disk. Settings synced to the backend (language, Large Text) must
+  /// go through here: [load] restores settings from this cached copy on the
+  /// next start, so a stale copy would undo the change on the next reload.
+  Future<void> cacheUpdatedUser(Map<String, dynamic> json) async {
+    final user = AppUser.fromJson(json);
+    _currentUser = user;
+    notifyListeners();
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_userKey, jsonEncode(user.toJson()));
+  }
+
   Future<void> logout() async {
     apiClient.authToken = null;
     _currentUser = null;
