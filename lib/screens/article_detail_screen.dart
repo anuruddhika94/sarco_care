@@ -77,8 +77,9 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
     final voice = preferredVoice(await _tts.getVoices as List<dynamic>, lang);
     if (voice != null) await _tts.setVoice(voice);
     // 0.5 is the engine's normal speaking speed on both Android and iOS;
-    // a touch above that reads briskly without clipping words.
-    await _tts.setSpeechRate(0.56);
+    // this reads briskly, roughly a quarter faster than normal, without
+    // running words together.
+    await _tts.setSpeechRate(0.62);
     await _tts.setPitch(1.0);
 
     final run = ++_speechRun;
