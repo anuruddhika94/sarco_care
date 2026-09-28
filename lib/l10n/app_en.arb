@@ -163,6 +163,7 @@
 
   "readAloud": "Read aloud",
   "stopReading": "Stop",
+  "readAloudVoiceMissing": "This device has no voice installed for this language. Add one in your device's text-to-speech settings.",
   "articleAppbar": "Article",
   "chipReadTime": "3 min read",
   "articleParagraph1": "Sarcopenia is the gradual loss of muscle mass, strength and function that often comes with ageing. It can make everyday tasks — standing up, climbing stairs, carrying shopping — feel harder over time.",

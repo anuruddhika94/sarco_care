@@ -411,6 +411,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get stopReading => 'หยุด';
 
   @override
+  String get readAloudVoiceMissing =>
+      'อุปกรณ์นี้ยังไม่มีเสียงพูดสำหรับภาษานี้ กรุณาเพิ่มในการตั้งค่าการอ่านออกเสียงของอุปกรณ์';
+
+  @override
   String get articleAppbar => 'บทความ';
 
   @override

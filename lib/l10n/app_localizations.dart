@@ -878,6 +878,12 @@ abstract class AppLocalizations {
   /// **'Stop'**
   String get stopReading;
 
+  /// No description provided for @readAloudVoiceMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'This device has no voice installed for this language. Add one in your device\'s text-to-speech settings.'**
+  String get readAloudVoiceMissing;
+
   /// No description provided for @articleAppbar.
   ///
   /// In en, this message translates to:

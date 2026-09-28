@@ -412,6 +412,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stopReading => 'Stop';
 
   @override
+  String get readAloudVoiceMissing =>
+      'This device has no voice installed for this language. Add one in your device\'s text-to-speech settings.';
+
+  @override
   String get articleAppbar => 'Article';
 
   @override

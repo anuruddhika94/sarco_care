@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
 import '../l10n/app_localizations.dart';
+import '../l10n/speech_text.dart';
 import '../theme/app_theme.dart';
 import 'knowledge_screen.dart';
 
@@ -22,12 +23,16 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
   final FlutterTts _tts = FlutterTts();
   bool _speaking = false;
 
+  /// Bumped on every stop so an in-flight [_readAloud] loop knows to bail out
+  /// instead of carrying on with the next paragraph.
+  int _speechRun = 0;
+
   @override
   void initState() {
     super.initState();
-    _tts.setCompletionHandler(() {
-      if (mounted) setState(() => _speaking = false);
-    });
+    // Without this, speak() returns as soon as the engine has queued the text,
+    // so paragraphs would all be fired off at once instead of in sequence.
+    _tts.awaitSpeakCompletion(true);
     _tts.setCancelHandler(() {
       if (mounted) setState(() => _speaking = false);
     });
@@ -38,23 +43,53 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
 
   @override
   void dispose() {
+    _speechRun++;
     _tts.stop();
     super.dispose();
   }
 
-  Future<void> _toggleReadAloud(String text) async {
+  Future<void> _toggleReadAloud(List<String> utterances) async {
     if (_speaking) {
+      _speechRun++;
       await _tts.stop();
       if (mounted) setState(() => _speaking = false);
       return;
     }
-    final lang =
-        Localizations.localeOf(context).languageCode == 'th' ? 'th-TH' : 'en-US';
+
+    final l10n = AppLocalizations.of(context);
+    final isThai = Localizations.localeOf(context).languageCode == 'th';
+    final lang = isThai ? 'th-TH' : 'en-US';
+
+    // Without a voice for the language the engine reads the text with whatever
+    // voice it does have, which makes Thai articles unintelligible. Better to
+    // say so than to play that.
+    if (await _tts.isLanguageAvailable(lang) != true) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(l10n.readAloudVoiceMissing)));
+      return;
+    }
+
     await _tts.setLanguage(lang);
-    await _tts.setSpeechRate(0.44); // a little slower, easier to follow
+    // 0.5 is the engine's normal speed on both Android and iOS. Thai sounds
+    // choppy when slowed down, so only English gets the easier-to-follow pace.
+    await _tts.setSpeechRate(isThai ? 0.5 : 0.45);
     await _tts.setPitch(1.0);
+
+    final run = ++_speechRun;
     if (mounted) setState(() => _speaking = true);
-    await _tts.speak(text);
+    try {
+      for (final utterance in utterances) {
+        if (run != _speechRun) return;
+        await _tts.speak(utterance);
+        if (run != _speechRun) return;
+        // A beat between paragraphs, the way a person reading aloud would.
+        await Future<void>.delayed(const Duration(milliseconds: 350));
+      }
+    } finally {
+      if (mounted && run == _speechRun) setState(() => _speaking = false);
+    }
   }
 
   @override
@@ -66,7 +101,11 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
         .cast<String>();
     final readMinutes = widget.article['read_minutes'] as int;
     final icon = articleIconForKey(widget.article['icon'] as String);
-    final spoken = '$title. ${paragraphs.join(' ')}';
+    final spoken = speechUtterances(
+      title: title,
+      paragraphs: paragraphs,
+      isThai: isThai,
+    );
 
     return Scaffold(
       backgroundColor: AppColors.background,
