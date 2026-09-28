@@ -51,6 +51,37 @@ class _MainShellState extends State<MainShell> {
     Iconsax.user_copy,
   ];
 
+  // Custom drawn icons, where we have them: null falls back to the Iconsax
+  // glyph above. They are black on transparent, so [ImageIcon] tints them
+  // with the tab's colour exactly as a font icon would be.
+  static const List<String?> _iconAssets = [
+    'assets/images/nav/home.png',
+    'assets/images/nav/exercise.png',
+    null,
+    null,
+    null,
+  ];
+  static const List<String?> _activeIconAssets = [
+    'assets/images/nav/home_filled.png',
+    'assets/images/nav/exercise_filled.png',
+    null,
+    null,
+    null,
+  ];
+
+  Widget _navIcon(int i, {required bool active}) {
+    final asset = active ? _activeIconAssets[i] : _iconAssets[i];
+    final size = active ? 32.0 : 28.0;
+    if (asset != null) {
+      return ImageIcon(AssetImage(asset), size: size, color: _tabColors[i]);
+    }
+    return Icon(
+      active ? _activeIcons[i] : _icons[i],
+      size: size,
+      color: _tabColors[i],
+    );
+  }
+
   // Each tab gets its own accent color so the bar reads as colorful now that
   // labels are gone.
   static const List<Color> _tabColors = [
@@ -88,8 +119,8 @@ class _MainShellState extends State<MainShell> {
           destinations: [
             for (int i = 0; i < _icons.length; i++)
               NavigationDestination(
-                icon: Icon(_icons[i], size: 32, color: _tabColors[i]),
-                selectedIcon: Icon(_activeIcons[i], size: 36, color: _tabColors[i]),
+                icon: _navIcon(i, active: false),
+                selectedIcon: _navIcon(i, active: true),
                 label: labels[i],
               ),
           ],
