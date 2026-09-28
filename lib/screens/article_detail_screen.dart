@@ -76,8 +76,9 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
     // installed — the main reason read-aloud sounds robotic.
     final voice = preferredVoice(await _tts.getVoices as List<dynamic>, lang);
     if (voice != null) await _tts.setVoice(voice);
-    // 0.5 is the engine's normal speaking speed on both Android and iOS.
-    await _tts.setSpeechRate(0.5);
+    // 0.5 is the engine's normal speaking speed on both Android and iOS;
+    // a touch above that reads briskly without clipping words.
+    await _tts.setSpeechRate(0.56);
     await _tts.setPitch(1.0);
 
     final run = ++_speechRun;

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
@@ -32,23 +32,23 @@ class _MainShellState extends State<MainShell> {
     ProfileScreen(),
   ];
 
-  // Phosphor icons: the regular weight when idle and the filled weight when
-  // selected, so the icon "fills in" on the active tab behind a soft-green
-  // selection pill. Both weights come from the same drawn set, so the shapes
-  // match exactly — which the Material outlined/filled pairs did not.
-  static final List<IconData> _icons = [
-    PhosphorIcons.house(),
-    PhosphorIcons.barbell(),
-    PhosphorIcons.heartbeat(),
-    PhosphorIcons.bookOpenText(),
-    PhosphorIcons.user(),
+  // Iconsax: the outline set when idle and its matching solid set (the
+  // "_copy" names) when selected, so the icon "fills in" on the active tab
+  // behind a soft-green selection pill. Both weights are the same drawing,
+  // which the Material outlined/filled pairs were not.
+  static const List<IconData> _icons = [
+    Iconsax.home_2,
+    Iconsax.weight,
+    Iconsax.activity,
+    Iconsax.book_1,
+    Iconsax.user,
   ];
-  static final List<IconData> _activeIcons = [
-    PhosphorIcons.house(PhosphorIconsStyle.fill),
-    PhosphorIcons.barbell(PhosphorIconsStyle.fill),
-    PhosphorIcons.heartbeat(PhosphorIconsStyle.fill),
-    PhosphorIcons.bookOpenText(PhosphorIconsStyle.fill),
-    PhosphorIcons.user(PhosphorIconsStyle.fill),
+  static const List<IconData> _activeIcons = [
+    Iconsax.home_2_copy,
+    Iconsax.weight_copy,
+    Iconsax.activity_copy,
+    Iconsax.book_1_copy,
+    Iconsax.user_copy,
   ];
 
   // Each tab gets its own accent color so the bar reads as colorful now that
