@@ -7,6 +7,11 @@ import 'chat_screen.dart';
 
 const _diameter = 58.0;
 
+/// Vertical space the bubble takes at its default resting spot, measured up
+/// from the bottom of a screen's body. A screen that doesn't scroll (Home)
+/// pads its content by this much so nothing sits underneath the bubble.
+const chatBubbleClearance = _diameter + 12;
+
 /// The floating "chat" bubble shown above every screen after login. Drag it
 /// anywhere on screen; its position (as a fraction of the screen size, so it
 /// adapts across devices) is remembered for next time.
@@ -52,11 +57,11 @@ class _ChatBubbleState extends State<ChatBubble> {
   }
 
   Offset _defaultTopLeft(Size screen, double bottomInset) {
-    // Mirrors the bubble's original fixed spot: clear of the bottom nav bar
-    // (68px) + safe area, 20px from the right edge.
+    // Clear of the bottom nav bar (68px) + safe area, 20px from the right
+    // edge — and low enough that [chatBubbleClearance] covers it.
     return Offset(
       screen.width - _diameter - 20,
-      screen.height - _diameter - 68 - bottomInset - 20,
+      screen.height - _diameter - 68 - bottomInset - 12,
     );
   }
 

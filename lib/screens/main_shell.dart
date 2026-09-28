@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
@@ -31,21 +32,23 @@ class _MainShellState extends State<MainShell> {
     ProfileScreen(),
   ];
 
-  // Outlined when idle, filled (rounded) when selected — the icon "fills in"
-  // on the active tab behind a soft-green selection pill.
-  static const List<IconData> _icons = [
-    Icons.home_outlined,
-    Icons.sports_gymnastics,
-    Icons.favorite_border,
-    Icons.menu_book_outlined,
-    Icons.person_outline,
+  // Phosphor icons: the regular weight when idle and the filled weight when
+  // selected, so the icon "fills in" on the active tab behind a soft-green
+  // selection pill. Both weights come from the same drawn set, so the shapes
+  // match exactly — which the Material outlined/filled pairs did not.
+  static final List<IconData> _icons = [
+    PhosphorIcons.house(),
+    PhosphorIcons.barbell(),
+    PhosphorIcons.heartbeat(),
+    PhosphorIcons.bookOpenText(),
+    PhosphorIcons.user(),
   ];
-  static const List<IconData> _activeIcons = [
-    Icons.home_rounded,
-    Icons.sports_gymnastics,
-    Icons.favorite_rounded,
-    Icons.menu_book_rounded,
-    Icons.person_rounded,
+  static final List<IconData> _activeIcons = [
+    PhosphorIcons.house(PhosphorIconsStyle.fill),
+    PhosphorIcons.barbell(PhosphorIconsStyle.fill),
+    PhosphorIcons.heartbeat(PhosphorIconsStyle.fill),
+    PhosphorIcons.bookOpenText(PhosphorIconsStyle.fill),
+    PhosphorIcons.user(PhosphorIconsStyle.fill),
   ];
 
   // Each tab gets its own accent color so the bar reads as colorful now that

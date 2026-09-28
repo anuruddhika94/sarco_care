@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:sarco_care/api/api_client.dart';
 import 'package:sarco_care/auth/auth_controller.dart';
+import 'package:sarco_care/chat/chat_controller.dart';
 import 'package:sarco_care/l10n/app_localizations.dart';
 import 'package:sarco_care/screens/home_screen.dart';
 import 'package:sarco_care/settings/settings_controller.dart';
@@ -79,6 +80,23 @@ void main() {
       }
     });
   }
+
+  testWidgets('leaves room for the chat bubble on the smallest phone',
+      (tester) async {
+    chatController.onLogin(); // the bubble only shows once signed in
+    addTearDown(chatController.onLogout);
+    await _pumpHome(tester, _sizes['iPhone SE']!);
+
+    expect(tester.takeException(), isNull);
+    expect(find.byType(SingleChildScrollView), findsNothing);
+
+    // Nothing may reach into the bubble's corner (58px tall, 12px up from the
+    // bottom of the body).
+    final lastTile = tester.getRect(find.byType(FeatureTile).last);
+    expect(lastTile.bottom,
+        lessThanOrEqualTo(_sizes['iPhone SE']!.height - 58 - 12));
+    expect(lastTile.height, greaterThan(64));
+  });
 
   testWidgets('fits in Thai on the smallest phone', (tester) async {
     await _pumpHome(tester, _sizes['iPhone SE']!, locale: const Locale('th'));

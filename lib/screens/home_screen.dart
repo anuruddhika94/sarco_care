@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../api/api_client.dart';
 import '../auth/auth_controller.dart';
+import '../chat/chat_bubble.dart';
+import '../chat/chat_controller.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../widgets/feature_tile.dart';
@@ -56,12 +58,18 @@ class HomeScreen extends StatelessWidget {
             // that, scrolling is the lesser evil.
             final fits = height >= 270 * textScale + 160;
 
+            // The chat bubble floats over every screen. Home doesn't scroll,
+            // so it leaves room rather than letting the bubble sit on top of
+            // the bottom-right tile's label.
+            final bottomPadding = (compact ? 12.0 : 20.0) +
+                (chatController.bubbleVisible ? chatBubbleClearance : 0);
+
             final content = Padding(
               padding: EdgeInsets.fromLTRB(
                 20,
                 compact ? 8 : 16,
                 20,
-                compact ? 12 : 20,
+                bottomPadding,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
