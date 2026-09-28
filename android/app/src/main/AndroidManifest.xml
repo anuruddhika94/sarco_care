@@ -1,6 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The app talks to the Rails API and loads photos over the network. The
+         Flutter template only declares this for debug builds, so without it a
+         release APK can't reach the server at all. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
-        android:label="sarco_care"
+        android:label="SarcoCare"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
