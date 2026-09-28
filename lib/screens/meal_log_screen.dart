@@ -43,8 +43,8 @@ class _MealLogScreenState extends State<MealLogScreen> {
       final logs = (data as List).cast<Map<String, dynamic>>();
       setState(() {
         _logs = logs;
-        _selectedDate = selectDate ??
-            (logs.isEmpty ? DateTime.now() : DateTime.parse(logs.first['eaten_on'] as String));
+        // Opens on today, not on whenever the patient last logged a meal.
+        _selectedDate = selectDate ?? _selectedDate ?? DateTime.now();
       });
     } on ApiException catch (e) {
       if (!mounted) return;

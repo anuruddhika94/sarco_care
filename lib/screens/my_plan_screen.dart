@@ -48,8 +48,8 @@ class _MyPlanScreenState extends State<MyPlanScreen> {
       setState(() {
         _logs = logs;
         _catalog = results[1] as List<CatalogExercise>;
-        _selectedDate = selectDate ??
-            (logs.isEmpty ? DateTime.now() : DateTime.parse(logs.first['completed_on'] as String));
+        // Opens on today, not on whenever the patient last exercised.
+        _selectedDate = selectDate ?? _selectedDate ?? DateTime.now();
       });
     } on ApiException catch (e) {
       if (!mounted) return;
