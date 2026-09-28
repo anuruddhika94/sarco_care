@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 import '../api/api_client.dart';
@@ -215,12 +217,25 @@ class _Thumb extends StatelessWidget {
         children: [
           if (imageUrl == null)
             _ThumbFallback(icon: fallbackIcon)
-          else
+          else ...[
+            // Uploaded photos are often portrait while the card is nearly
+            // square, so the picture is shown whole rather than cropped. A
+            // blurred copy fills the leftover space, which reads better than
+            // plain letterbox bars.
+            ImageFiltered(
+              imageFilter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+              child: Image.network(
+                imageUrl!,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) => const SizedBox.shrink(),
+              ),
+            ),
             Image.network(
               imageUrl!,
-              fit: BoxFit.cover,
+              fit: BoxFit.contain,
               errorBuilder: (_, _, _) => _ThumbFallback(icon: fallbackIcon),
             ),
+          ],
           // Subtle scrim so the play button reads on any thumbnail.
           Container(color: Colors.black.withValues(alpha: 0.12)),
           Center(
