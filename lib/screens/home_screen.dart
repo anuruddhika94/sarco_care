@@ -40,35 +40,80 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _GreetingHeader(
-                name: name,
-                onBellTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const NotificationsScreen(),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            // Home is sized from the height actually available so it fills the
+            // screen without scrolling — on a short phone, a tall one, and in a
+            // mobile browser whose viewport shrinks around the address bar.
+            // Sizes are compared against the text scale (Large Text is on by
+            // default) because that is what makes the fixed parts grow.
+            final textScale = MediaQuery.textScalerOf(context).scale(1);
+            final height = constraints.maxHeight;
+            final compact = height < 700 * textScale;
+            // The greeting, goals card and section heading come to roughly
+            // 270dp at compact sizes and grow with the text scale; the grid
+            // needs about 160dp left over to stay comfortably tappable. Below
+            // that, scrolling is the lesser evil.
+            final fits = height >= 270 * textScale + 160;
+
+            final content = Padding(
+              padding: EdgeInsets.fromLTRB(
+                20,
+                compact ? 8 : 16,
+                20,
+                compact ? 12 : 20,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _GreetingHeader(
+                    name: name,
+                    compact: compact,
+                    onBellTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const NotificationsScreen(),
+                      ),
+                    ),
                   ),
-                ),
+                  const _CaretakerRequestBanner(),
+                  SizedBox(height: compact ? 12 : 20),
+                  _DailyGoalsCard(compact: compact),
+                  SizedBox(height: compact ? 12 : 20),
+                  // The heading is the first thing to go on a short screen:
+                  // it wraps to two lines and the tiles are self-explanatory.
+                  if (!compact) ...[
+                    Text(
+                      l10n.whatWouldYouLikeToDo,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textDark,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                  ],
+                  // The grid takes whatever height is left over, so the four
+                  // tiles always land on screen.
+                  if (fits)
+                    Expanded(
+                      child: _FeatureGrid(
+                        fill: true,
+                        compact: compact,
+                        onTap: (feature) => _open(context, feature),
+                      ),
+                    )
+                  else
+                    _FeatureGrid(
+                      fill: false,
+                      compact: compact,
+                      onTap: (feature) => _open(context, feature),
+                    ),
+                ],
               ),
-              const _CaretakerRequestBanner(),
-              const SizedBox(height: 24),
-              const _DailyGoalsCard(),
-              const SizedBox(height: 24),
-              Text(
-                l10n.whatWouldYouLikeToDo,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textDark,
-                ),
-              ),
-              const SizedBox(height: 16),
-              _FeatureGrid(onTap: (feature) => _open(context, feature)),
-            ],
-          ),
+            );
+
+            return fits ? content : SingleChildScrollView(child: content);
+          },
         ),
       ),
     );
@@ -76,9 +121,14 @@ class HomeScreen extends StatelessWidget {
 }
 
 class _GreetingHeader extends StatelessWidget {
-  const _GreetingHeader({required this.name, required this.onBellTap});
+  const _GreetingHeader({
+    required this.name,
+    required this.onBellTap,
+    required this.compact,
+  });
   final String name;
   final VoidCallback onBellTap;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -89,18 +139,24 @@ class _GreetingHeader extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                l10n.welcomeBack,
-                style: TextStyle(fontSize: 15, color: AppColors.textMuted),
-              ),
-              const SizedBox(height: 4),
+              // On a short screen the greeting is one line: the second line
+              // wraps and costs more height than it earns.
+              if (!compact) ...[
+                Text(
+                  l10n.welcomeBack,
+                  style: TextStyle(fontSize: 15, color: AppColors.textMuted),
+                ),
+                const SizedBox(height: 4),
+              ],
               Text(
                 l10n.homeGreetingName(name),
                 style: TextStyle(
-                  fontSize: 26,
+                  fontSize: compact ? 20 : 26,
                   fontWeight: FontWeight.w800,
                   color: AppColors.textDark,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
@@ -112,8 +168,8 @@ class _GreetingHeader extends StatelessWidget {
             clipBehavior: Clip.none,
             children: [
               Container(
-                width: 48,
-                height: 48,
+                width: compact ? 42 : 48,
+                height: compact ? 42 : 48,
                 decoration: BoxDecoration(
                   color: AppColors.surface,
                   borderRadius: BorderRadius.circular(14),
@@ -270,7 +326,9 @@ class _CaretakerRequestBannerState extends State<_CaretakerRequestBanner> {
 /// Today's goal completion, loaded from `GET /daily_goals?range=daily`. No
 /// record yet for today just means nothing is checked off.
 class _DailyGoalsCard extends StatefulWidget {
-  const _DailyGoalsCard();
+  const _DailyGoalsCard({required this.compact});
+
+  final bool compact;
 
   @override
   State<_DailyGoalsCard> createState() => _DailyGoalsCardState();
@@ -305,9 +363,10 @@ class _DailyGoalsCardState extends State<_DailyGoalsCard> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final compact = widget.compact;
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(compact ? 12 : 20),
       decoration: BoxDecoration(
         color: const Color(0xFFFDF3D8),
         borderRadius: BorderRadius.circular(20),
@@ -318,15 +377,20 @@ class _DailyGoalsCardState extends State<_DailyGoalsCard> {
           Text(
             l10n.dailyGoals,
             style: TextStyle(
-              fontSize: 18,
+              fontSize: compact ? 15 : 18,
               fontWeight: FontWeight.w800,
               color: AppColors.textDark,
             ),
           ),
-          const SizedBox(height: 16),
-          _GoalItem(text: l10n.goalProtein, done: _protein),
-          _GoalItem(text: l10n.goalExercise, done: _exercise),
-          _GoalItem(text: l10n.goalWater, done: _water),
+          SizedBox(height: compact ? 8 : 16),
+          _GoalItem(text: l10n.goalProtein, done: _protein, compact: compact),
+          _GoalItem(text: l10n.goalExercise, done: _exercise, compact: compact),
+          _GoalItem(
+            text: l10n.goalWater,
+            done: _water,
+            compact: compact,
+            last: true,
+          ),
         ],
       ),
     );
@@ -334,19 +398,28 @@ class _DailyGoalsCardState extends State<_DailyGoalsCard> {
 }
 
 class _GoalItem extends StatelessWidget {
-  const _GoalItem({required this.text, required this.done});
+  const _GoalItem({
+    required this.text,
+    required this.done,
+    required this.compact,
+    this.last = false,
+  });
   final String text;
   final bool done;
+  final bool compact;
+
+  /// The last item needs no trailing gap — the card's own padding closes it.
+  final bool last;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.only(bottom: last ? 0 : (compact ? 6 : 12)),
       child: Row(
         children: [
           Container(
-            width: 24,
-            height: 24,
+            width: compact ? 20 : 24,
+            height: compact ? 20 : 24,
             decoration: BoxDecoration(
               color: done ? AppColors.primary : AppColors.surface,
               shape: BoxShape.circle,
@@ -357,9 +430,16 @@ class _GoalItem extends StatelessWidget {
                 : null,
           ),
           const SizedBox(width: 12),
-          Text(
-            text,
-            style: TextStyle(fontSize: 16, color: AppColors.textDark),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: compact ? 14 : 16,
+                color: AppColors.textDark,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ),
@@ -368,8 +448,19 @@ class _GoalItem extends StatelessWidget {
 }
 
 class _FeatureGrid extends StatelessWidget {
-  const _FeatureGrid({required this.onTap});
+  const _FeatureGrid({
+    required this.onTap,
+    required this.fill,
+    required this.compact,
+  });
   final void Function(HomeFeature feature) onTap;
+
+  /// True when the grid has a bounded height to fill (the usual case): the
+  /// two rows split it evenly, so the tiles end exactly at the bottom of the
+  /// screen. False on a viewport too short to fit Home, where the grid falls
+  /// back to its own intrinsic height inside a scroll view.
+  final bool fill;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -389,22 +480,52 @@ class _FeatureGrid extends StatelessWidget {
           'assets/images/features/health.png'),
     ];
 
-    return GridView.count(
-      crossAxisCount: 2,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 16,
-      crossAxisSpacing: 16,
-      childAspectRatio: 1.05,
+    final gap = compact ? 12.0 : 16.0;
+    final tiles = [
+      for (final f in features)
+        FeatureTile(
+          title: f.title,
+          icon: f.icon,
+          color: f.color,
+          image: f.image,
+          onTap: () => onTap(f.feature),
+        ),
+    ];
+
+    if (!fill) {
+      return GridView.count(
+        crossAxisCount: 2,
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        mainAxisSpacing: gap,
+        crossAxisSpacing: gap,
+        childAspectRatio: 1.05,
+        children: tiles,
+      );
+    }
+
+    return Column(
       children: [
-        for (final f in features)
-          FeatureTile(
-            title: f.title,
-            icon: f.icon,
-            color: f.color,
-            image: f.image,
-            onTap: () => onTap(f.feature),
-          ),
+        Expanded(child: _GridRow(tiles: tiles.sublist(0, 2), gap: gap)),
+        SizedBox(height: gap),
+        Expanded(child: _GridRow(tiles: tiles.sublist(2), gap: gap)),
+      ],
+    );
+  }
+}
+
+class _GridRow extends StatelessWidget {
+  const _GridRow({required this.tiles, required this.gap});
+  final List<Widget> tiles;
+  final double gap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(child: tiles.first),
+        SizedBox(width: gap),
+        Expanded(child: tiles.last),
       ],
     );
   }
