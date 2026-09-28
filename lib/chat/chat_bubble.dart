@@ -127,9 +127,11 @@ class _ChatBubbleState extends State<ChatBubble> {
                 center: Alignment(-0.35, -0.45),
                 radius: 1.1,
                 colors: [
-                  Color(0xFFFF6B5B),
-                  Color(0xFFE0342A),
-                  Color(0xFFA30F0F),
+                  // Lit edge, the app's green, then a deep shade for the
+                  // rounded 3D falloff.
+                  Color(0xFF63B98A),
+                  Color(0xFF3B8B5F),
+                  Color(0xFF1E5537),
                 ],
                 stops: [0.0, 0.55, 1.0],
               ),
@@ -141,7 +143,7 @@ class _ChatBubbleState extends State<ChatBubble> {
                   offset: Offset(0, _dragging ? 9 : 5),
                 ),
                 BoxShadow(
-                  color: const Color(0xFFA30F0F).withValues(alpha: 0.5),
+                  color: const Color(0xFF1E5537).withValues(alpha: 0.5),
                   blurRadius: 2,
                   offset: const Offset(0, 1),
                 ),
