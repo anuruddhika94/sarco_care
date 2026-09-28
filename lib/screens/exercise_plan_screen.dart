@@ -19,6 +19,7 @@ class CatalogExercise {
     required this.icon,
     required this.videoId,
     required this.defaultMinutes,
+    this.thumbnailUrl,
   });
 
   factory CatalogExercise.fromJson(Map<String, dynamic> json) => CatalogExercise(
@@ -28,12 +29,18 @@ class CatalogExercise {
         icon: iconForKey(json['icon'] as String),
         videoId: json['video_id'] as String,
         defaultMinutes: json['default_minutes'] as int,
+        thumbnailUrl: json['thumbnail_url'] as String?,
       );
 
   final int id;
   final String nameEn;
   final String nameTh;
   final IconData icon;
+
+  /// Picture for this exercise, resolved by the API: an admin's uploaded
+  /// thumbnail when there is one, otherwise YouTube's still. Null if the
+  /// exercise has neither, and then the icon stands in.
+  final String? thumbnailUrl;
   final String videoId;
   final int defaultMinutes;
 
@@ -184,16 +191,17 @@ class _ExercisePlanScreenState extends State<ExercisePlanScreen> {
   }
 }
 
-/// YouTube thumbnail with a play overlay; falls back to an icon if it fails.
+/// The exercise's picture with a play overlay; falls back to an icon when
+/// there is no thumbnail or it fails to load.
 class _Thumb extends StatelessWidget {
   const _Thumb({
-    required this.videoId,
+    required this.imageUrl,
     required this.fallbackIcon,
     required this.radius,
     this.playSize = 48,
   });
 
-  final String videoId;
+  final String? imageUrl;
   final IconData fallbackIcon;
   final double radius;
   final double playSize;
@@ -205,21 +213,14 @@ class _Thumb extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          videoId.isEmpty
-              ? Container(
-                  color: AppColors.softGreen,
-                  alignment: Alignment.center,
-                  child: Icon(fallbackIcon, size: 40, color: AppColors.primary),
-                )
-              : Image.network(
-                  'https://img.youtube.com/vi/$videoId/hqdefault.jpg',
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, _, _) => Container(
-                    color: AppColors.softGreen,
-                    alignment: Alignment.center,
-                    child: Icon(fallbackIcon, size: 40, color: AppColors.primary),
-                  ),
-                ),
+          if (imageUrl == null)
+            _ThumbFallback(icon: fallbackIcon)
+          else
+            Image.network(
+              imageUrl!,
+              fit: BoxFit.cover,
+              errorBuilder: (_, _, _) => _ThumbFallback(icon: fallbackIcon),
+            ),
           // Subtle scrim so the play button reads on any thumbnail.
           Container(color: Colors.black.withValues(alpha: 0.12)),
           Center(
@@ -278,7 +279,7 @@ class _ExerciseCard extends StatelessWidget {
                   children: [
                     Positioned.fill(
                       child: _Thumb(
-                        videoId: exercise.videoId,
+                        imageUrl: exercise.thumbnailUrl,
                         fallbackIcon: exercise.icon,
                         radius: 12,
                         playSize: 40,
@@ -328,6 +329,21 @@ class _ExerciseCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+
+class _ThumbFallback extends StatelessWidget {
+  const _ThumbFallback({required this.icon});
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: AppColors.softGreen,
+      alignment: Alignment.center,
+      child: Icon(icon, size: 40, color: AppColors.primary),
     );
   }
 }
