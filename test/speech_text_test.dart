@@ -57,10 +57,51 @@ void main() {
     );
   });
 
+  _voiceTests();
+
   test('skips empty paragraphs', () {
     expect(
       speechUtterances(title: 'Overview', paragraphs: ['', '  '], isThai: false),
       ['Overview'],
     );
+  });
+}
+
+void _voiceTests() {
+  test('prefers the highest-quality voice for the language', () {
+    final voices = [
+      {'name': 'th-th-x-basic', 'locale': 'th-TH', 'quality': 'low'},
+      {'name': 'th-th-x-good', 'locale': 'th-TH', 'quality': 'very high'},
+      {'name': 'en-us-x-good', 'locale': 'en-US', 'quality': 'very high'},
+    ];
+    expect(preferredVoice(voices, 'th-TH'), {'name': 'th-th-x-good', 'locale': 'th-TH'});
+  });
+
+  test('understands the iOS quality names', () {
+    final voices = [
+      {'name': 'Kanya', 'locale': 'th-TH', 'quality': 'default'},
+      {'name': 'Narisa', 'locale': 'th-TH', 'quality': 'premium'},
+      {'name': 'Somsri', 'locale': 'th-TH', 'quality': 'enhanced'},
+    ];
+    expect(preferredVoice(voices, 'th-TH')!['name'], 'Narisa');
+  });
+
+  test('prefers an offline voice when quality ties', () {
+    final voices = [
+      {'name': 'th-network', 'locale': 'th-TH', 'quality': 'high', 'network_required': '1'},
+      {'name': 'th-local', 'locale': 'th-TH', 'quality': 'high', 'network_required': '0'},
+    ];
+    expect(preferredVoice(voices, 'th-TH')!['name'], 'th-local');
+  });
+
+  test('ignores voices for other languages', () {
+    final voices = [
+      {'name': 'en-us-x-good', 'locale': 'en-US', 'quality': 'very high'},
+    ];
+    expect(preferredVoice(voices, 'th-TH'), isNull);
+  });
+
+  test('returns null when the engine reports no voices', () {
+    expect(preferredVoice([], 'th-TH'), isNull);
   });
 }

@@ -44,3 +44,50 @@ String _cleanForSpeech(String text, {required bool isThai}) {
       .replaceAll(_repeatedWhitespace, ' ')
       .trim();
 }
+
+/// Picks the best-sounding installed voice for [locale] from what
+/// `FlutterTts.getVoices` reports, or null to leave the engine's default.
+///
+/// Engines often default to a low-quality voice even when a better one is
+/// installed, which is most of what makes read-aloud sound robotic. Both
+/// platforms report a `quality`: iOS as premium/enhanced/default, Android as
+/// very high/high/normal/low/very low.
+Map<String, String>? preferredVoice(List<dynamic> voices, String locale) {
+  final language = locale.split('-').first.toLowerCase();
+
+  final candidates = voices
+      .whereType<Map>()
+      .map((v) => v.map((k, value) => MapEntry('$k', '$value')))
+      .where((v) => (v['locale'] ?? '').toLowerCase().startsWith(language))
+      .toList();
+  if (candidates.isEmpty) return null;
+
+  candidates.sort((a, b) {
+    final byQuality = _qualityRank(b['quality']).compareTo(_qualityRank(a['quality']));
+    if (byQuality != 0) return byQuality;
+    // Same quality: prefer an exact locale match, then one that works offline.
+    final byLocale = _localeRank(b['locale'], locale).compareTo(_localeRank(a['locale'], locale));
+    if (byLocale != 0) return byLocale;
+    return _offlineRank(b).compareTo(_offlineRank(a));
+  });
+
+  final best = candidates.first;
+  final name = best['name'];
+  final voiceLocale = best['locale'];
+  if (name == null || voiceLocale == null) return null;
+  return {'name': name, 'locale': voiceLocale};
+}
+
+int _qualityRank(String? quality) => switch (quality?.toLowerCase()) {
+  'premium' || 'very high' => 4,
+  'enhanced' || 'high' => 3,
+  'default' || 'normal' => 2,
+  'low' => 1,
+  _ => 0,
+};
+
+int _localeRank(String? voiceLocale, String locale) =>
+    (voiceLocale ?? '').toLowerCase() == locale.toLowerCase() ? 1 : 0;
+
+int _offlineRank(Map<String, String> voice) =>
+    voice['network_required'] == '1' ? 0 : 1;
