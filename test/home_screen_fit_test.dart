@@ -12,6 +12,7 @@ import 'package:sarco_care/auth/auth_controller.dart';
 import 'package:sarco_care/chat/chat_controller.dart';
 import 'package:sarco_care/l10n/app_localizations.dart';
 import 'package:sarco_care/screens/home_screen.dart';
+import 'package:sarco_care/screens/profile_screen.dart';
 import 'package:sarco_care/settings/settings_controller.dart';
 import 'package:sarco_care/widgets/feature_tile.dart';
 
@@ -104,6 +105,32 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.byType(SingleChildScrollView), findsNothing);
     expect(find.byType(FeatureTile), findsNWidgets(4));
+  });
+
+  group('profile', () {
+    for (final entry in _sizes.entries) {
+      testWidgets('fits without scrolling on ${entry.key}', (tester) async {
+        await tester.binding.setSurfaceSize(entry.value);
+        addTearDown(() => tester.binding.setSurfaceSize(null));
+        await tester.pumpWidget(
+          MediaQuery(
+            data: MediaQueryData(
+              size: entry.value,
+              textScaler: const TextScaler.linear(1.2),
+            ),
+            child: const MaterialApp(
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              home: ProfileScreen(),
+            ),
+          ),
+        );
+        await tester.pump();
+
+        expect(tester.takeException(), isNull);
+        expect(find.byType(SingleChildScrollView), findsNothing);
+      });
+    }
   });
 
   testWidgets('falls back to scrolling when the viewport is tiny',

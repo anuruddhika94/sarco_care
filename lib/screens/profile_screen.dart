@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../api/api_client.dart';
 import '../auth/auth_controller.dart';
+import '../chat/chat_bubble.dart';
 import '../chat/chat_controller.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
@@ -127,6 +128,65 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  Widget _avatar(AppLocalizations l10n, {required bool compact}) {
+    final size = compact ? 84.0 : 110.0;
+    return GestureDetector(
+      onTap: _uploadingPhoto ? null : _changePhoto,
+      child: Semantics(
+        button: true,
+        label: l10n.changePhoto,
+        child: Stack(
+          children: [
+            AppAvatar(
+              asset: authController.currentUser?.avatarUrl,
+              fallbackIcon: authController.currentUser?.isPatient == false
+                  ? Icons.person
+                  : Icons.elderly,
+              size: size,
+            ),
+            if (_uploadingPhoto)
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.black.withValues(alpha: 0.35),
+                  ),
+                  child: const Center(
+                    child: SizedBox(
+                      width: 28,
+                      height: 28,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            Positioned(
+              right: 0,
+              bottom: 0,
+              child: Container(
+                width: compact ? 30 : 34,
+                height: compact ? 30 : 34,
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.background, width: 3),
+                ),
+                child: Icon(
+                  Icons.photo_camera,
+                  color: Colors.white,
+                  size: compact ? 14 : 16,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -143,109 +203,88 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         centerTitle: true,
       ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-        children: [
-          const SizedBox(height: 8),
-          Center(
-            child: GestureDetector(
-              onTap: _uploadingPhoto ? null : _changePhoto,
-              child: Semantics(
-                button: true,
-                label: l10n.changePhoto,
-                child: Stack(
-                  children: [
-                    AppAvatar(
-                      asset: authController.currentUser?.avatarUrl,
-                      fallbackIcon:
-                          authController.currentUser?.isPatient == false
-                          ? Icons.person
-                          : Icons.elderly,
-                      size: 110,
-                    ),
-                    if (_uploadingPhoto)
-                      Positioned.fill(
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.black.withValues(alpha: 0.35),
-                          ),
-                          child: const Center(
-                            child: SizedBox(
-                              width: 28,
-                              height: 28,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2.5,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    Positioned(
-                      right: 0,
-                      bottom: 0,
-                      child: Container(
-                        width: 34,
-                        height: 34,
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: AppColors.background,
-                            width: 3,
-                          ),
-                        ),
-                        child: const Icon(
-                          Icons.photo_camera,
-                          color: Colors.white,
-                          size: 16,
-                        ),
-                      ),
-                    ),
-                  ],
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          // Like Home: sized from the height actually available so the page
+          // fits without scrolling, on a small phone and in a mobile browser.
+          final textScale = MediaQuery.textScalerOf(context).scale(1);
+          final height = constraints.maxHeight;
+          final compact = height < 620 * textScale;
+          // Avatar, name and the log-out button come to roughly 300dp and
+          // grow with the text scale; the four rows need about 120dp more to
+          // stay tappable. This is the body's height, with the app bar
+          // already taken off.
+          final fits = height >= 300 * textScale + 120;
+
+          final content = Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(height: compact ? 4 : 12),
+              Center(child: _avatar(l10n, compact: compact)),
+              SizedBox(height: compact ? 10 : 16),
+              Text(
+                authController.currentUser?.fullName ?? l10n.userFullNameTitled,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: compact ? AppText.title : AppText.titleLarge,
+              ),
+              if (authController.currentUser?.age != null) ...[
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  l10n.profileAge(authController.currentUser!.age!),
+                  textAlign: TextAlign.center,
+                  style: AppText.bodyMuted,
                 ),
+              ],
+              SizedBox(height: compact ? 14 : 24),
+              // The settings rows share whatever height is left, so they end
+              // just above the log-out button whatever the screen size.
+              for (final entry in ProfileEntry.values) ...[
+                if (fits)
+                  Expanded(
+                    child: _SettingsRow(
+                      icon: _entryIcons[entry]!,
+                      label: _label(l10n, entry),
+                      onTap: () => _open(context, entry),
+                    ),
+                  )
+                else
+                  _SettingsRow(
+                    icon: _entryIcons[entry]!,
+                    label: _label(l10n, entry),
+                    onTap: () => _open(context, entry),
+                  ),
+                SizedBox(height: compact ? 8 : 12),
+              ],
+              SizedBox(height: compact ? 2 : 6),
+              ElevatedButton.icon(
+                onPressed: () => _logOut(context),
+                icon: const Icon(Icons.logout),
+                label: Text(l10n.logOut),
+                style: compact
+                    ? ElevatedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(48),
+                      )
+                    : null,
               ),
+            ],
+          );
+
+          final padded = Padding(
+            padding: EdgeInsets.fromLTRB(
+              AppSpacing.page,
+              AppSpacing.sm,
+              AppSpacing.page,
+              // Leave the chat bubble's corner clear, as Home does.
+              (compact ? AppSpacing.md : AppSpacing.lg) +
+                  (chatController.bubbleVisible ? chatBubbleClearance : 0),
             ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            authController.currentUser?.fullName ?? l10n.userFullNameTitled,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w800,
-              color: AppColors.textDark,
-            ),
-          ),
-          if (authController.currentUser?.age != null) ...[
-            const SizedBox(height: 4),
-            Text(
-              l10n.profileAge(authController.currentUser!.age!),
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 15, color: AppColors.textMuted),
-            ),
-          ],
-          const SizedBox(height: 28),
-          for (final entry in ProfileEntry.values)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: _SettingsRow(
-                icon: _entryIcons[entry]!,
-                label: _label(l10n, entry),
-                onTap: () => _open(context, entry),
-              ),
-            ),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: () => _logOut(context),
-              icon: const Icon(Icons.logout),
-              label: Text(l10n.logOut),
-            ),
-          ),
-        ],
+            child: content,
+          );
+
+          return fits ? padded : SingleChildScrollView(child: padded);
+        },
       ),
     );
   }
