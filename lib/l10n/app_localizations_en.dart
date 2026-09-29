@@ -334,6 +334,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get turnRemindersOnOff => 'Turn reminders on or off';
 
   @override
+  String remindersForPatient(String name) {
+    return 'Reminders for $name';
+  }
+
+  @override
   String get mealBreakfast => 'Breakfast';
 
   @override

@@ -128,6 +128,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  /// A caretaker has no caretaker of their own, so that entry is patient-only.
+  List<ProfileEntry> get _entriesForRole =>
+      authController.currentUser?.isPatient == false
+          ? [ProfileEntry.personalInfo, ProfileEntry.setupApp]
+          : ProfileEntry.values;
+
   Widget _avatar(AppLocalizations l10n, {required bool compact}) {
     final size = compact ? 84.0 : 110.0;
     return GestureDetector(
@@ -240,7 +246,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               SizedBox(height: compact ? 14 : 24),
               // The settings rows share whatever height is left, so they end
               // just above the log-out button whatever the screen size.
-              for (final entry in ProfileEntry.values) ...[
+              for (final entry in _entriesForRole) ...[
                 if (fits)
                   Expanded(
                     child: _SettingsRow(

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../api/api_client.dart';
 import '../auth/auth_controller.dart';
-import '../chat/chat_controller.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_avatar.dart';
@@ -12,8 +11,9 @@ import 'assessment_screen.dart';
 import 'exercise_plan_screen.dart';
 import 'health_tracking_screen.dart';
 import 'meals_screen.dart';
-import 'splash_screen.dart';
 import '../widgets/screen_states.dart';
+import 'notifications_screen.dart';
+import 'profile_screen.dart';
 
 /// Caretaker home — the caretaker's landing screen after logging in.
 /// A patient switcher (one caretaker → many patients), loaded from
@@ -52,19 +52,6 @@ class _CaretakerHomeScreenState extends State<CaretakerHomeScreen> {
       if (!mounted) return;
       setState(() => _error = e.message);
     }
-  }
-
-  Future<void> _logOut() async {
-    await authController.logout();
-    chatController.onLogout();
-    if (!mounted) return;
-    // Reset the whole stack to Splash — popUntil(isFirst) isn't enough since
-    // a restored session can start directly at CaretakerHomeScreen with
-    // nothing to pop to.
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const SplashScreen()),
-      (route) => false,
-    );
   }
 
   Future<void> _switchPatient() async {
@@ -111,10 +98,15 @@ class _CaretakerHomeScreenState extends State<CaretakerHomeScreen> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: _logOut,
-            tooltip: l10n.logOut,
+            icon: AppAvatar(
+              asset: authController.currentUser?.avatarUrl,
+              fallbackIcon: Icons.person,
+              size: 34,
+            ),
+            onPressed: () => _open((_) => const ProfileScreen()),
+            tooltip: l10n.navProfile,
           ),
+          const SizedBox(width: 4),
         ],
       ),
       body: _buildBody(l10n),
@@ -227,6 +219,18 @@ class _CaretakerHomeScreenState extends State<CaretakerHomeScreen> {
               color: const Color(0xFF3B8B5F),
               image: 'assets/images/features/meals.jpg',
               onTap: () => _open((_) => MealsScreen(patientId: patientId)),
+            ),
+            FeatureTile(
+              title: l10n.setReminders,
+              icon: Icons.notifications_active_outlined,
+              color: const Color(0xFF8B5FBF),
+              image: 'assets/images/features/assessment.jpg',
+              onTap: () => _open(
+                (_) => NotificationsScreen(
+                  patientId: patientId,
+                  patientName: fullName,
+                ),
+              ),
             ),
             FeatureTile(
               title: l10n.careTileSarcf,

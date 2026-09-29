@@ -333,6 +333,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String get turnRemindersOnOff => 'เปิดหรือปิดการแจ้งเตือน';
 
   @override
+  String remindersForPatient(String name) {
+    return 'การแจ้งเตือนของ$name';
+  }
+
+  @override
   String get mealBreakfast => 'มื้อเช้า';
 
   @override

@@ -722,6 +722,12 @@ abstract class AppLocalizations {
   /// **'Turn reminders on or off'**
   String get turnRemindersOnOff;
 
+  /// No description provided for @remindersForPatient.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders for {name}'**
+  String remindersForPatient(String name);
+
   /// No description provided for @mealBreakfast.
   ///
   /// In en, this message translates to:

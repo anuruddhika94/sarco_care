@@ -135,6 +135,10 @@
 
   "setReminders": "Set Reminders",
   "turnRemindersOnOff": "Turn reminders on or off",
+  "remindersForPatient": "Reminders for {name}",
+  "@remindersForPatient": {
+    "placeholders": { "name": { "type": "String" } }
+  },
   "mealBreakfast": "Breakfast",
   "mealLunch": "Lunch",
   "mealDinner": "Dinner",

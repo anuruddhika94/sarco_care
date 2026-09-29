@@ -117,6 +117,7 @@
 
   "setReminders": "ตั้งการแจ้งเตือน",
   "turnRemindersOnOff": "เปิดหรือปิดการแจ้งเตือน",
+  "remindersForPatient": "การแจ้งเตือนของ{name}",
   "mealBreakfast": "มื้อเช้า",
   "mealLunch": "มื้อกลางวัน",
   "mealDinner": "มื้อเย็น",
