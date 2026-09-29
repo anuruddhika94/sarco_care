@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
@@ -18,6 +19,11 @@ class ReminderNotifications {
 
   static final _plugin = FlutterLocalNotificationsPlugin();
   static bool _ready = false;
+
+  /// Browsers can't schedule a notification for later — the web plugin throws
+  /// on zonedSchedule — so reminders are a phone-only feature and every entry
+  /// point here does nothing on the web.
+  static bool get supported => !kIsWeb;
 
   /// Reminder kinds in a fixed order — the index becomes the notification id,
   /// so re-scheduling replaces the previous one rather than piling up.
@@ -44,7 +50,7 @@ class ReminderNotifications {
 
   /// Called once on app start, before anything is scheduled.
   static Future<void> init() async {
-    if (_ready) return;
+    if (!supported || _ready) return;
 
     tz_data.initializeTimeZones();
     // Without the device's own zone, a 7am reminder would fire at 7am UTC.
@@ -73,6 +79,7 @@ class ReminderNotifications {
   /// Asks for permission to post notifications. Android 13+ and iOS both
   /// require this; older Androids grant it at install time.
   static Future<bool> requestPermission() async {
+    if (!supported) return false;
     await init();
 
     final android = _plugin.resolvePlatformSpecificImplementation<
@@ -90,6 +97,7 @@ class ReminderNotifications {
   /// Re-reads the patient's reminders from the API and rebuilds the schedule.
   /// Safe to call often: it clears everything first, so it can't double-book.
   static Future<void> sync(AppLocalizations l10n) async {
+    if (!supported) return;
     await init();
     try {
       final data = await apiClient.get('/reminders');
@@ -105,6 +113,7 @@ class ReminderNotifications {
     List<Map<String, dynamic>> reminders,
     AppLocalizations l10n,
   ) async {
+    if (!supported) return;
     await init();
     await _plugin.cancelAll();
 
@@ -143,6 +152,7 @@ class ReminderNotifications {
   }
 
   static Future<void> cancelAll() async {
+    if (!supported) return;
     await init();
     await _plugin.cancelAll();
   }
