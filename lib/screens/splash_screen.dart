@@ -158,26 +158,37 @@ class _CoupleIllustration extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
-      child: Image.asset(
-        'assets/images/splash_couple.png',
-        width: double.infinity,
-        height: 260,
-        fit: BoxFit.cover,
-        errorBuilder: (_, _, _) => Container(
-          width: double.infinity,
-          height: 220,
-          decoration: BoxDecoration(
-            color: AppColors.softGreen,
+    // The artwork is square. Stretching it to the full width at a fixed
+    // height crops it badly on anything wider than a phone — on a tablet the
+    // top and bottom of the picture disappear entirely.
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 320, maxHeight: 320),
+        child: AspectRatio(
+          aspectRatio: 1,
+          child: ClipRRect(
             borderRadius: BorderRadius.circular(24),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.elderly_woman, size: 96, color: AppColors.primary),
-              Icon(Icons.elderly, size: 96, color: AppColors.primaryDark),
-            ],
+            child: Image.asset(
+              'assets/images/splash_couple.png',
+              fit: BoxFit.cover,
+              errorBuilder: (_, _, _) => Container(
+                decoration: BoxDecoration(
+                  color: AppColors.softGreen,
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.elderly_woman,
+                      size: 84,
+                      color: AppColors.primary,
+                    ),
+                    Icon(Icons.elderly, size: 84, color: AppColors.primaryDark),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
       ),
