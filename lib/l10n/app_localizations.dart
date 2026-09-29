@@ -776,6 +776,36 @@ abstract class AppLocalizations {
   /// **'Sleep'**
   String get reminderSleep;
 
+  /// No description provided for @reminderBodyMeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Time to eat — remember your protein.'**
+  String get reminderBodyMeal;
+
+  /// No description provided for @reminderBodyWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Time for a glass of water.'**
+  String get reminderBodyWater;
+
+  /// No description provided for @reminderBodyExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Time for today\'s exercise.'**
+  String get reminderBodyExercise;
+
+  /// No description provided for @reminderBodyMedication.
+  ///
+  /// In en, this message translates to:
+  /// **'Time to take your medication.'**
+  String get reminderBodyMedication;
+
+  /// No description provided for @reminderBodySleep.
+  ///
+  /// In en, this message translates to:
+  /// **'Time to wind down for bed.'**
+  String get reminderBodySleep;
+
   /// No description provided for @reminderEvery2Hours.
   ///
   /// In en, this message translates to:

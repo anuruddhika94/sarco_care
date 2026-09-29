@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../api/api_client.dart';
 import '../l10n/app_localizations.dart';
+import '../notifications/reminder_notifications.dart';
 import '../theme/app_theme.dart';
 import '../widgets/screen_states.dart';
 import '../widgets/app_message.dart';
@@ -67,6 +68,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         '/reminders/${reminder['id']}',
         body: {'enabled': value, if (_patientQuery != null) ...?_patientQuery},
       );
+      if (!mounted) return;
+      // Only a patient's own phone holds the schedule.
+      if (widget.patientId == null) {
+        await ReminderNotifications.scheduleAll(
+          _reminders ?? const [],
+          AppLocalizations.of(context),
+        );
+      }
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => reminder['enabled'] = previous);

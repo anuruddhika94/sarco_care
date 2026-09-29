@@ -126,6 +126,11 @@
   "reminderWater": "ดื่มน้ำ",
   "reminderMedication": "ยา",
   "reminderSleep": "นอนหลับ",
+  "reminderBodyMeal": "ได้เวลากินอาหารแล้ว อย่าลืมโปรตีน",
+  "reminderBodyWater": "ได้เวลาดื่มน้ำสักแก้ว",
+  "reminderBodyExercise": "ได้เวลาออกกำลังกายของวันนี้",
+  "reminderBodyMedication": "ได้เวลากินยาแล้ว",
+  "reminderBodySleep": "ได้เวลาพักผ่อนเข้านอนแล้ว",
   "reminderEvery2Hours": "ทุก 2 ชั่วโมง",
 
   "catAll": "ทั้งหมด",

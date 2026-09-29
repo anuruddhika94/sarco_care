@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../api/api_client.dart';
+import '../notifications/reminder_notifications.dart';
 import '../l10n/locale_controller.dart';
 import '../settings/settings_controller.dart';
 import 'app_user.dart';
@@ -99,6 +100,8 @@ class AuthController extends ChangeNotifier {
   }
 
   Future<void> logout() async {
+    // Otherwise the phone keeps buzzing for someone who has signed out.
+    await ReminderNotifications.cancelAll();
     apiClient.authToken = null;
     _currentUser = null;
     notifyListeners();

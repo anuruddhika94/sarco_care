@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
+import '../notifications/reminder_notifications.dart';
 import '../theme/app_theme.dart';
 import 'exercise_plan_screen.dart';
 import 'health_tracking_screen.dart';
@@ -20,6 +21,19 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   int _index = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // Ask once the patient is actually in the app, rather than at the splash
+    // screen where the request has no context, then put today's reminders on
+    // the phone's own schedule.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await ReminderNotifications.requestPermission();
+      if (!mounted) return;
+      await ReminderNotifications.sync(AppLocalizations.of(context));
+    });
+  }
 
   // One screen per bottom-nav tab. Tab roots that reuse pushable screens hide
   // the back button since there is no route to pop within a tab.

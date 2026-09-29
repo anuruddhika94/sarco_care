@@ -362,6 +362,21 @@ class AppLocalizationsTh extends AppLocalizations {
   String get reminderSleep => 'นอนหลับ';
 
   @override
+  String get reminderBodyMeal => 'ได้เวลากินอาหารแล้ว อย่าลืมโปรตีน';
+
+  @override
+  String get reminderBodyWater => 'ได้เวลาดื่มน้ำสักแก้ว';
+
+  @override
+  String get reminderBodyExercise => 'ได้เวลาออกกำลังกายของวันนี้';
+
+  @override
+  String get reminderBodyMedication => 'ได้เวลากินยาแล้ว';
+
+  @override
+  String get reminderBodySleep => 'ได้เวลาพักผ่อนเข้านอนแล้ว';
+
+  @override
   String get reminderEvery2Hours => 'ทุก 2 ชั่วโมง';
 
   @override

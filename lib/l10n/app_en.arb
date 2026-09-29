@@ -147,6 +147,11 @@
   "reminderWater": "Water",
   "reminderMedication": "Medication",
   "reminderSleep": "Sleep",
+  "reminderBodyMeal": "Time to eat — remember your protein.",
+  "reminderBodyWater": "Time for a glass of water.",
+  "reminderBodyExercise": "Time for today's exercise.",
+  "reminderBodyMedication": "Time to take your medication.",
+  "reminderBodySleep": "Time to wind down for bed.",
   "reminderEvery2Hours": "Every 2 hours",
 
   "catAll": "All",

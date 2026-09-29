@@ -6,6 +6,7 @@ import 'chat/chat_bubble.dart';
 import 'chat/chat_controller.dart';
 import 'l10n/app_localizations.dart';
 import 'l10n/locale_controller.dart';
+import 'notifications/reminder_notifications.dart';
 import 'screens/caretaker_home_screen.dart';
 import 'screens/main_shell.dart';
 import 'screens/splash_screen.dart';
@@ -22,6 +23,7 @@ Future<void> main() async {
   authController = AuthController();
   await authController.load();
   if (authController.isSignedIn) chatController.onLogin();
+  await ReminderNotifications.init();
   runApp(const SarcoCareApp());
 }
 
