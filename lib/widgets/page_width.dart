@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_theme.dart';
+
 /// Keeps the app readable on tablets.
 ///
 /// Every screen was laid out for a phone: full-width buttons, two-column
@@ -22,18 +24,23 @@ class PageWidth extends StatelessWidget {
     final width = MediaQuery.sizeOf(context).width;
     if (width <= maxWidth) return child;
 
-    return Align(
-      alignment: Alignment.topCenter,
-      child: SizedBox(
-        width: maxWidth,
-        // The child reads MediaQuery for its own sizing (Home and Profile
-        // measure the space they have), so it has to see the narrowed width
-        // rather than the tablet's full one.
-        child: MediaQuery(
-          data: MediaQuery.of(context).copyWith(
-            size: Size(maxWidth, MediaQuery.sizeOf(context).height),
+    // Without this the space beside the column falls through to the app's
+    // default white, which reads as empty bands down each side of a tablet.
+    return ColoredBox(
+      color: AppColors.background,
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: SizedBox(
+          width: maxWidth,
+          // The child reads MediaQuery for its own sizing (Home and Profile
+          // measure the space they have), so it has to see the narrowed width
+          // rather than the tablet's full one.
+          child: MediaQuery(
+            data: MediaQuery.of(context).copyWith(
+              size: Size(maxWidth, MediaQuery.sizeOf(context).height),
+            ),
+            child: child,
           ),
-          child: child,
         ),
       ),
     );
