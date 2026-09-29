@@ -202,7 +202,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         backgroundColor: AppColors.background,
         foregroundColor: AppColors.textDark,
         elevation: 0,
-        automaticallyImplyLeading: false,
+        // A patient opens this as a tab, with nothing to go back to; a
+        // caretaker pushes it from their home screen and needs a way back.
+        automaticallyImplyLeading: Navigator.of(context).canPop(),
         title: Text(
           l10n.navProfile,
           style: const TextStyle(fontWeight: FontWeight.w800),

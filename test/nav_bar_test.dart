@@ -11,6 +11,7 @@ import 'package:sarco_care/api/api_client.dart';
 import 'package:sarco_care/auth/auth_controller.dart';
 import 'package:sarco_care/l10n/app_localizations.dart';
 import 'package:sarco_care/screens/main_shell.dart';
+import 'package:sarco_care/screens/profile_screen.dart';
 import 'package:sarco_care/settings/settings_controller.dart';
 
 Future<void> _pumpShell(WidgetTester tester) async {
@@ -66,6 +67,8 @@ void main() {
     expect(_iconRects(tester), before);
   });
 
+  _profileBackButtonTests();
+
   testWidgets('the selection badge is a circle', (tester) async {
     await _pumpShell(tester);
 
@@ -83,5 +86,58 @@ void main() {
     );
     final box = tester.getRect(badge.first);
     expect(box.width, box.height);
+  });
+}
+
+/// The profile screen is a tab for patients (nothing to pop) but a pushed
+/// route for caretakers, so its back button has to appear only when there is
+/// somewhere to go.
+void _profileBackButtonTests() {
+  Widget wrap(Widget home) => MaterialApp(
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
+    home: home,
+  );
+
+  testWidgets('no back button when profile is the root (patient tab)',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    settingsController = SettingsController();
+    authController = AuthController();
+    apiClient = ApiClient(
+      client: MockClient((_) async => http.Response('[]', 200)),
+    );
+
+    await tester.pumpWidget(wrap(const ProfileScreen()));
+    await tester.pump();
+
+    expect(find.byType(BackButton), findsNothing);
+  });
+
+  testWidgets('back button when profile is pushed (caretaker)',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    settingsController = SettingsController();
+    authController = AuthController();
+    apiClient = ApiClient(
+      client: MockClient((_) async => http.Response('[]', 200)),
+    );
+
+    await tester.pumpWidget(wrap(
+      Builder(
+        builder: (context) => Scaffold(
+          body: ElevatedButton(
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const ProfileScreen()),
+            ),
+            child: const Text('open'),
+          ),
+        ),
+      ),
+    ));
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(BackButton), findsOneWidget);
   });
 }
