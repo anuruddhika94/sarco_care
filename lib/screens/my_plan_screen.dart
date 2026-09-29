@@ -7,6 +7,7 @@ import '../l10n/l10n_format.dart';
 import '../theme/app_theme.dart';
 import 'exercise_plan_screen.dart';
 import '../widgets/screen_states.dart';
+import '../widgets/app_message.dart';
 
 /// My Plan — the patient's exercise history, backed by `exercise_logs`.
 /// A date picker (defaulting to the most recently logged date, like General
@@ -101,9 +102,7 @@ class _MyPlanScreenState extends State<MyPlanScreen> {
       await _load(selectDate: _selectedDate);
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(e.message)));
+      showAppMessage(context, e.message, isError: true);
     }
   }
 

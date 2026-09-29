@@ -10,6 +10,7 @@ import '../widgets/segmented_tabs.dart';
 import 'caretaker_home_screen.dart';
 import 'main_shell.dart';
 import 'signup_screen.dart';
+import '../widgets/app_message.dart';
 
 /// Screen #2 — Login.
 /// A Patient/Caretaker role picker (used only to carry over into Sign Up —
@@ -53,9 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
       Navigator.of(context).push(MaterialPageRoute(builder: builder));
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(e.message)));
+      showAppMessage(context, e.message, isError: true);
     } finally {
       if (mounted) setState(() => _submitting = false);
     }

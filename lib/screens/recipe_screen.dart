@@ -5,6 +5,7 @@ import '../api/api_client.dart';
 import '../data/meal_plan.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_message.dart';
 
 /// Screen #5 — Meal detail.
 /// Shows a meal's protein breakdown (each component with its protein grams) and
@@ -49,23 +50,12 @@ class _RecipeScreenState extends State<RecipeScreen> {
         },
       );
       if (!mounted) return;
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(
-            content: Text(
-              logDate == null ? l10n.mealLoggedToday : l10n.mealLogged,
-            ),
-            backgroundColor: AppColors.primary,
-          ),
-        );
+      showAppMessage(context, logDate == null ? l10n.mealLoggedToday : l10n.mealLogged);
       Navigator.of(context).pop(true);
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _logging = false);
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(e.message)));
+      showAppMessage(context, e.message, isError: true);
     }
   }
 

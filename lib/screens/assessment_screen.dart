@@ -4,6 +4,7 @@ import '../api/api_client.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import 'results_screen.dart';
+import '../widgets/app_message.dart';
 
 /// Screen #8 — SARC-F Assessment.
 /// A stepped 5-question survey with radio answers and a progress bar. The
@@ -62,9 +63,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _submitting = false);
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(e.message)));
+      showAppMessage(context, e.message, isError: true);
     }
   }
 

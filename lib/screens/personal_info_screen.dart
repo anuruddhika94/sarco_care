@@ -4,6 +4,7 @@ import '../api/api_client.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../widgets/screen_states.dart';
+import '../widgets/app_message.dart';
 
 /// Personal Info — editable profile fields opened from Profile, loaded from
 /// and saved to `GET`/`PATCH /me`.
@@ -73,18 +74,12 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
         if (age != null) 'date_of_birth': _dateOfBirthFor(age),
       });
       if (!mounted) return;
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(content: Text(l10n.profileUpdated), backgroundColor: AppColors.primary),
-        );
+      showAppMessage(context, l10n.profileUpdated);
       Navigator.of(context).pop();
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _saving = false);
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(e.message)));
+      showAppMessage(context, e.message, isError: true);
     }
   }
 

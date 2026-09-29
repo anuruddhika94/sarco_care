@@ -9,6 +9,7 @@ import '../widgets/auth_field.dart';
 import '../widgets/segmented_tabs.dart';
 import 'caretaker_home_screen.dart';
 import 'main_shell.dart';
+import '../widgets/app_message.dart';
 
 /// Sign Up — create an account with phone number + password against the
 /// Rails API's `/auth/signup`, then route to the patient shell or caretaker
@@ -63,9 +64,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       Navigator.of(context).pushReplacement(MaterialPageRoute(builder: builder));
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(e.message)));
+      showAppMessage(context, e.message, isError: true);
     } finally {
       if (mounted) setState(() => _submitting = false);
     }

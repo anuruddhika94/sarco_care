@@ -12,6 +12,7 @@ import 'caretaker_screen.dart';
 import 'personal_info_screen.dart';
 import 'setup_app_screen.dart';
 import 'splash_screen.dart';
+import '../widgets/app_message.dart';
 
 /// The Profile settings rows. The enum keeps navigation independent of the
 /// (translated) row label.
@@ -110,19 +111,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
       await authController.refreshUser();
       if (!mounted) return;
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(
-            content: Text(l10n.photoUpdated),
-            backgroundColor: AppColors.primary,
-          ),
-        );
+      showAppMessage(context, l10n.photoUpdated);
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(e.message)));
+      showAppMessage(context, e.message, isError: true);
     } finally {
       if (mounted) setState(() => _uploadingPhoto = false);
     }

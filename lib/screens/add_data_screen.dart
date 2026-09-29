@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../api/api_client.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_message.dart';
 
 /// Add Data form — log health measurements for a chosen date, synced to
 /// `POST /health_readings` (one reading per date; posting again for the same
@@ -65,21 +66,12 @@ class _AddDataScreenState extends State<AddDataScreen> {
         if (widget.patientId != null) 'patient_id': widget.patientId,
       });
       if (!mounted) return;
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(
-            content: Text(l10n.healthDataSaved),
-            backgroundColor: AppColors.primary,
-          ),
-        );
+      showAppMessage(context, l10n.healthDataSaved);
       Navigator.of(context).pop(DateFormat('yyyy-MM-dd').format(_date));
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _saving = false);
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(e.message)));
+      showAppMessage(context, e.message, isError: true);
     }
   }
 

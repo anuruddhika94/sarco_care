@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../api/api_client.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_message.dart';
 
 /// Add Patient (caretaker side) — find a patient by phone (`GET
 /// /care_links/lookup`) and send a link request (`POST /care_links`). The
@@ -59,19 +60,10 @@ class _AddPatientScreenState extends State<AddPatientScreen> {
       });
       if (!mounted) return;
       setState(() => _requestSent = true);
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(
-            content: Text(l10n.requestSentWaiting),
-            backgroundColor: AppColors.primary,
-          ),
-        );
+      showAppMessage(context, l10n.requestSentWaiting);
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(e.message)));
+      showAppMessage(context, e.message, isError: true);
     } finally {
       if (mounted) setState(() => _sending = false);
     }

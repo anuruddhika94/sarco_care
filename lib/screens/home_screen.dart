@@ -15,6 +15,7 @@ import 'exercise_plan_screen.dart';
 import 'health_tracking_screen.dart';
 import 'meals_screen.dart';
 import 'notifications_screen.dart';
+import '../widgets/app_message.dart';
 
 /// The four dashboard shortcuts. The enum keeps navigation independent of the
 /// (translated) tile label.
@@ -279,23 +280,10 @@ class _CaretakerRequestBannerState extends State<_CaretakerRequestBanner> {
       );
       if (!mounted) return;
       setState(() => _linkId = null);
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(
-            content: Text(
-              approved
-                  ? l10n.caretakerNowYours(caretakerName)
-                  : l10n.requestDeclined,
-            ),
-            backgroundColor: AppColors.primary,
-          ),
-        );
+      showAppMessage(context, approved ? l10n.caretakerNowYours(caretakerName) : l10n.requestDeclined);
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(e.message)));
+      showAppMessage(context, e.message, isError: true);
     }
   }
 
@@ -419,9 +407,7 @@ class _DailyGoalsCardState extends State<_DailyGoalsCard> {
             _water = !value;
         }
       });
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(e.message)));
+      showAppMessage(context, e.message, isError: true);
     }
   }
 

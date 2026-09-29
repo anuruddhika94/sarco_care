@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../l10n/speech_text.dart';
 import '../theme/app_theme.dart';
 import 'knowledge_screen.dart';
+import '../widgets/app_message.dart';
 
 /// Article detail — a readable educational article opened from Knowledge,
 /// rendered from the article data loaded there (`GET /articles`). A
@@ -65,9 +66,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
     // say so than to play that.
     if (await _tts.isLanguageAvailable(lang) != true) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(l10n.readAloudVoiceMissing)));
+      showAppMessage(context, l10n.readAloudVoiceMissing, isError: true);
       return;
     }
 
