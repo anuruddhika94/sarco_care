@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import 'api/api_client.dart';
 import 'auth/auth_controller.dart';
@@ -16,14 +15,6 @@ import 'theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Every screen is designed as a tall column, and the audience is older
-  // adults who rarely rotate a device on purpose. Landscape only ever
-  // happened by accident, so it's switched off. (No effect on the web, where
-  // browsers don't allow an app to lock orientation.)
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
   localeController = LocaleController(const Locale('en'));
   await localeController.load();
   settingsController = SettingsController();
