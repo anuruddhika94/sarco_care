@@ -13,7 +13,6 @@ import 'screens/main_shell.dart';
 import 'screens/splash_screen.dart';
 import 'settings/settings_controller.dart';
 import 'theme/app_theme.dart';
-import 'widgets/page_width.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -64,20 +63,16 @@ class SarcoCareApp extends StatelessWidget {
                 return MediaQuery(
                   data: MediaQuery.of(context)
                       .copyWith(textScaler: settingsController.textScaler),
-                  // On a tablet the whole app sits in a centred phone-width
-                  // column; on a phone this changes nothing.
-                  child: PageWidth(
-                    child: Stack(
-                      children: [
-                        ?child,
-                        ListenableBuilder(
-                          listenable: chatController,
-                          builder: (context, _) => chatController.bubbleVisible
-                              ? const ChatBubble()
-                              : const SizedBox.shrink(),
-                        ),
-                      ],
-                    ),
+                  child: Stack(
+                    children: [
+                      ?child,
+                      ListenableBuilder(
+                        listenable: chatController,
+                        builder: (context, _) => chatController.bubbleVisible
+                            ? const ChatBubble()
+                            : const SizedBox.shrink(),
+                      ),
+                    ],
                   ),
                 );
               },
