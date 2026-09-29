@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
@@ -47,10 +49,21 @@ class FeatureTile extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              // The illustration fills the whole tile.
+              // The illustrations are square but the tiles are wider than they
+              // are tall, so filling the tile cut the top and bottom off the
+              // artwork. Show the whole picture instead, with a blurred copy
+              // filling the space either side.
+              ImageFiltered(
+                imageFilter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+                child: Image.asset(
+                  image,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, _, _) => const SizedBox.shrink(),
+                ),
+              ),
               Image.asset(
                 image,
-                fit: BoxFit.cover,
+                fit: BoxFit.contain,
                 errorBuilder: (_, _, _) => fallback,
               ),
               // Soft scrim at the bottom so the label stays readable.
