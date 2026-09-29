@@ -63,7 +63,8 @@ class HomeScreen extends StatelessWidget {
             // The chat bubble floats over every screen. Home doesn't scroll,
             // so it leaves room rather than letting the bubble sit on top of
             // the bottom-right tile's label.
-            final bottomPadding = (compact ? 12.0 : 20.0) +
+            final bottomPadding =
+                (compact ? 12.0 : 20.0) +
                 (chatController.bubbleVisible ? chatBubbleClearance : 0);
 
             final content = Padding(
@@ -241,12 +242,16 @@ class _CaretakerRequestBannerState extends State<_CaretakerRequestBanner> {
 
   Future<void> _loadPendingRequest() async {
     try {
-      final links = await apiClient.get('/care_links', query: {'status': 'pending'});
+      final links = await apiClient.get(
+        '/care_links',
+        query: {'status': 'pending'},
+      );
       if (!mounted || links is! List || links.isEmpty) return;
       final link = links.first as Map<String, dynamic>;
       setState(() {
         _linkId = link['id'] as int;
-        _caretakerName = (link['caretaker'] as Map<String, dynamic>)['full_name'] as String;
+        _caretakerName =
+            (link['caretaker'] as Map<String, dynamic>)['full_name'] as String;
       });
     } on ApiException {
       // No pending-request banner if the API call fails; the rest of Home
@@ -268,9 +273,10 @@ class _CaretakerRequestBannerState extends State<_CaretakerRequestBanner> {
     if (approved == null || !mounted) return;
 
     try {
-      await apiClient.patch('/care_links/$linkId', body: {
-        'status': approved ? 'approved' : 'declined',
-      });
+      await apiClient.patch(
+        '/care_links/$linkId',
+        body: {'status': approved ? 'approved' : 'declined'},
+      );
       if (!mounted) return;
       setState(() => _linkId = null);
       ScaffoldMessenger.of(context)
@@ -326,7 +332,10 @@ class _CaretakerRequestBannerState extends State<_CaretakerRequestBanner> {
                       const SizedBox(height: 2),
                       Text(
                         l10n.tapToReview,
-                        style: TextStyle(fontSize: 13, color: AppColors.textMuted),
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textMuted,
+                        ),
                       ),
                     ],
                   ),
@@ -365,7 +374,10 @@ class _DailyGoalsCardState extends State<_DailyGoalsCard> {
 
   Future<void> _loadTodayGoals() async {
     try {
-      final goals = await apiClient.get('/daily_goals', query: {'range': 'daily'});
+      final goals = await apiClient.get(
+        '/daily_goals',
+        query: {'range': 'daily'},
+      );
       if (!mounted || goals is! List || goals.isEmpty) return;
       final today = goals.first as Map<String, dynamic>;
       setState(() {
@@ -375,6 +387,41 @@ class _DailyGoalsCardState extends State<_DailyGoalsCard> {
       });
     } on ApiException {
       // Keep everything unchecked if the API call fails.
+    }
+  }
+
+  /// Ticking a goal saves it straight away. Logging a meal or an exercise
+  /// ticks the matching goal on the server too, so this is mostly for water
+  /// and for correcting a day by hand.
+  Future<void> _toggleGoal(String field, bool value) async {
+    setState(() {
+      switch (field) {
+        case 'protein_done':
+          _protein = value;
+        case 'exercise_done':
+          _exercise = value;
+        case 'water_done':
+          _water = value;
+      }
+    });
+    try {
+      await apiClient.patch('/daily_goal', body: {field: value});
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      // Put it back and say why.
+      setState(() {
+        switch (field) {
+          case 'protein_done':
+            _protein = !value;
+          case 'exercise_done':
+            _exercise = !value;
+          case 'water_done':
+            _water = !value;
+        }
+      });
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(e.message)));
     }
   }
 
@@ -398,13 +445,24 @@ class _DailyGoalsCardState extends State<_DailyGoalsCard> {
             ),
           ),
           SizedBox(height: compact ? 8 : 16),
-          _GoalItem(text: l10n.goalProtein, done: _protein, compact: compact),
-          _GoalItem(text: l10n.goalExercise, done: _exercise, compact: compact),
+          _GoalItem(
+            text: l10n.goalProtein,
+            done: _protein,
+            compact: compact,
+            onTap: () => _toggleGoal('protein_done', !_protein),
+          ),
+          _GoalItem(
+            text: l10n.goalExercise,
+            done: _exercise,
+            compact: compact,
+            onTap: () => _toggleGoal('exercise_done', !_exercise),
+          ),
           _GoalItem(
             text: l10n.goalWater,
             done: _water,
             compact: compact,
             last: true,
+            onTap: () => _toggleGoal('water_done', !_water),
           ),
         ],
       ),
@@ -417,11 +475,13 @@ class _GoalItem extends StatelessWidget {
     required this.text,
     required this.done,
     required this.compact,
+    required this.onTap,
     this.last = false,
   });
   final String text;
   final bool done;
   final bool compact;
+  final VoidCallback onTap;
 
   /// The last item needs no trailing gap — the card's own padding closes it.
   final bool last;
@@ -430,33 +490,39 @@ class _GoalItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(bottom: last ? 0 : (compact ? 6 : 12)),
-      child: Row(
-        children: [
-          Container(
-            width: compact ? 20 : 24,
-            height: compact ? 20 : 24,
-            decoration: BoxDecoration(
-              color: done ? AppColors.primary : AppColors.surface,
-              shape: BoxShape.circle,
-              border: done ? null : Border.all(color: const Color(0xFFDDD0AE)),
-            ),
-            child: done
-                ? const Icon(Icons.check, size: 16, color: Colors.white)
-                : null,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              text,
-              style: TextStyle(
-                fontSize: compact ? 14 : 16,
-                color: AppColors.textDark,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: AppRadius.small,
+        child: Row(
+          children: [
+            Container(
+              width: compact ? 20 : 24,
+              height: compact ? 20 : 24,
+              decoration: BoxDecoration(
+                color: done ? AppColors.primary : AppColors.surface,
+                shape: BoxShape.circle,
+                border: done
+                    ? null
+                    : Border.all(color: const Color(0xFFDDD0AE)),
               ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
+              child: done
+                  ? const Icon(Icons.check, size: 16, color: Colors.white)
+                  : null,
             ),
-          ),
-        ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                text,
+                style: TextStyle(
+                  fontSize: compact ? 14 : 16,
+                  color: AppColors.textDark,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -481,18 +547,34 @@ class _FeatureGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final features = [
-      _Feature(HomeFeature.mealMenus, l10n.featureMealMenus,
-          Icons.ramen_dining, const Color(0xFF3B8B5F),
-          'assets/images/features/meals.jpg'),
-      _Feature(HomeFeature.exercisePlan, l10n.featureExercisePlan,
-          Icons.sports_gymnastics, const Color(0xFF3E7CB1),
-          'assets/images/features/exercise.jpg'),
-      _Feature(HomeFeature.sarcfAssessment, l10n.featureSarcfAssessment,
-          Icons.fact_check, const Color(0xFFCB8A2E),
-          'assets/images/features/assessment.jpg'),
-      _Feature(HomeFeature.healthTracking, l10n.featureHealthTracking,
-          Icons.monitor_heart, const Color(0xFFB0524B),
-          'assets/images/features/health.jpg'),
+      _Feature(
+        HomeFeature.mealMenus,
+        l10n.featureMealMenus,
+        Icons.ramen_dining,
+        const Color(0xFF3B8B5F),
+        'assets/images/features/meals.jpg',
+      ),
+      _Feature(
+        HomeFeature.exercisePlan,
+        l10n.featureExercisePlan,
+        Icons.sports_gymnastics,
+        const Color(0xFF3E7CB1),
+        'assets/images/features/exercise.jpg',
+      ),
+      _Feature(
+        HomeFeature.sarcfAssessment,
+        l10n.featureSarcfAssessment,
+        Icons.fact_check,
+        const Color(0xFFCB8A2E),
+        'assets/images/features/assessment.jpg',
+      ),
+      _Feature(
+        HomeFeature.healthTracking,
+        l10n.featureHealthTracking,
+        Icons.monitor_heart,
+        const Color(0xFFB0524B),
+        'assets/images/features/health.jpg',
+      ),
     ];
 
     final gap = compact ? 12.0 : 16.0;
@@ -521,9 +603,13 @@ class _FeatureGrid extends StatelessWidget {
 
     return Column(
       children: [
-        Expanded(child: _GridRow(tiles: tiles.sublist(0, 2), gap: gap)),
+        Expanded(
+          child: _GridRow(tiles: tiles.sublist(0, 2), gap: gap),
+        ),
         SizedBox(height: gap),
-        Expanded(child: _GridRow(tiles: tiles.sublist(2), gap: gap)),
+        Expanded(
+          child: _GridRow(tiles: tiles.sublist(2), gap: gap),
+        ),
       ],
     );
   }
